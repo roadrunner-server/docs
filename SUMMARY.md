@@ -29,23 +29,23 @@
 ## 🔵 App Server
 
 * [Production Usage](app-server/production.md)
-* [RR as AWS Lambda](app-server/aws-lambda.md)
-* [CLI Commands](app-server/cli.md)
-* [Docker Images](app-server/images.md)
 * [RoadRunner with NGINX](app-server/nginx-with-rr.md)
+* [RR as AWS Lambda](app-server/aws-lambda.md)
+* [Docker Images](app-server/images.md)
+* [CLI Commands](app-server/cli.md)
 * [Systemd](app-server/systemd.md)
 
 ## 🔌 Plugins
 
 * [Intro into Plugins](plugins/intro.md)
 * [Centrifuge (WebSockets)](plugins/centrifuge.md)
-* [Configuration](plugins/config.md)
-* [gRPC](plugins/grpc.md)
-* [Server](plugins/server.md)
 * [Service (Systemd)](plugins/service.md)
-* [Locks](plugins/locks.md)
-* [TCP](plugins/tcp.md)
 * [Queues and Jobs](queues/overview.md)
+* [Configuration](plugins/config.md)
+* [Server](plugins/server.md)
+* [Locks](plugins/locks.md)
+* [gRPC](plugins/grpc.md)
+* [TCP](plugins/tcp.md)
 * [KV](kv/overview.md)
 
 ## 🔐 Key-Value
