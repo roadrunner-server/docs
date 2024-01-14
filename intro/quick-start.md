@@ -29,6 +29,10 @@ logs:
   mode: development
 ```
 
+{% hint style="info" %}
+RoadRunner is not only HTTP plugin. There are a lot of other plugins. You can find more information about plugins in the [Plugins](../plugins/intro.md) section.
+{% endhint %}
+
 {% endcode %}
 
 ## Step 4: Create a simple worker
