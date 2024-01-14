@@ -27,22 +27,34 @@ The RoadRunner looks for a configuration file named `.rr.yaml` in the same direc
 If your configuration file and other application files are located in a different directory than the binary, you can use
 the `-w` option to specify the working directory.
 
-```terminal
+{% code %}
+
+```bash
 ./rr serve -w /path/to/project
 ```
+
+{% endcode %}
 
 You can also use the `-c` option to specify the path to the configuration file if you don't want to specify the working
 directory.
 
-```terminal
+{% code %}
+
+```bash
 ./rr serve -c /path/to/project/.rr-dev.yaml
 ```
 
+{% endcode %}
+
 Or you can combine the `-c` and `-w` options to specify both the configuration file and the working directory:
 
-```terminal
+{% code %}
+
+```bash
 ./rr serve -c .rr-dev.yaml -w /path/to/project
 ```
+
+{% endcode %}
 
 {% hint style="info" %}
 Read more about starting the server in the [**Server Commands**](../app-server/cli.md) section.
@@ -61,10 +73,14 @@ You can specify a default value for an environment variable using the `${VARIABL
 if you want to use a default value of `8080` for the `HTTP_PORT` environment variable if it is not defined or is empty,
 you can use the following configuration:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 http:
   address: 127.0.0.1:${HTTP_PORT:-8080}
 ```
+
+{% endcode %}
 
 {% hint style="info" %}
 You can find more information on Bash Environment Variable Defaults in
@@ -76,7 +92,9 @@ configuration file itself.
 
 Here's an example of a `docker-compose.yaml` file that redefines the `HTTP_PORT` for an RR service:
 
-```yaml docker-compose.yaml
+{% code title="docker-compose.yaml" %}
+
+```yaml
 version: '3.8'
 
 services:
@@ -84,8 +102,9 @@ services:
     image: xxx
     environment:
       - HTTP_PORT=8081
-...
 ```
+
+{% endcode %}
 
 ### Dotenv
 
@@ -94,15 +113,21 @@ environment-specific variables outside your codebase.
 
 To read environment variables from an `.env` file, you can use the `--dotenv` CLI option when starting RoadRunner.
 
-```terminal
+{% code %}
+
+```bash
 ./rr serve --dotenv /var/www/config/.env
 ```
+
+{% endcode %}
 
 ### CLI Commands
 
 You can also use environment variables in CLI commands to customize the behavior of your RR server. This is especially
 useful when you need to pass configuration values that are environment-specific or sensitive, such as secrets or API
 keys.
+
+{% code %}
 
 ```bash
 set -a
@@ -117,6 +142,8 @@ exec /var/www/rr \
   -o http.pool.supervisor.max_worker_memory=${RR_MAX_WORKER_MEMORY:-512}
   serve
 ```
+
+{% endcode %}
 
 The `set -a` enables automatic exporting of variables. Any variables that are defined in `/var/www/config/.env` will be
 automatically exported to the environment, making them available to any child processes that are executed from the

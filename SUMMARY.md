@@ -4,7 +4,7 @@
 
 * [Intro into RoadRunner](intro/about.md)
 * [Quick Start](intro/quick-start.md)
-* [Getting started](README.md)
+* [Features](README.md)
 * [Installation](intro/install.md)
 * [Configuration](intro/config.md)
 * [Contributing](intro/contributing.md)
