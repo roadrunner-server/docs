@@ -293,7 +293,7 @@ vx build -c velox_rr_2023.toml -o ~/Downloads
 
 ### `v2023.x.x` update
 
-{% embed url="<https://www.youtube.com/watch?v=w_uxFhdinvU>" %}
+<https://www.youtube.com/watch?v=w_uxFhdinvU>
 
 ### Velox configuration
 
