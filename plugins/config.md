@@ -51,7 +51,9 @@ versions.
 
 #### Reload plugin Update
 
-⚠️ The `reload` plugin has been removed from the default plugins list. Please use `*.pool.debug=true` instead.
+{% hint style="warning" %}
+The `reload` plugin has been removed from the default plugins list. Please use `*.pool.debug=true` instead.
+{% endhint %}
 
 #### OpenTelemetry Middleware Update
 
