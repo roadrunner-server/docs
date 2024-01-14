@@ -488,7 +488,7 @@ http:
 {% endcode %}
 
 {% hint style="warning" %}
-Please pay attention, that the previous section name was **limit**, current - **supervisor**
+Please pay attention, that the RRv1 section had the name **limit**, `>=v2.0` - **supervisor**
 {% endhint %}
 
 ## Troubleshooting
