@@ -92,13 +92,17 @@ This worker expects communication with the RoadRunner server over standard pipes
 
 Create a `.rr.yaml` configuration file to enable it:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" overflow="wrap" lineNumbers="true" %}
+
+```yaml
 server:
   command: "php psr-worker.php"
 
 http:
   address: 0.0.0.0:8080
 ```
+
+{% endcode %}
 
 > **Note**
 > Read more about the configuration HTTP in the [HTTP Plugin](../http/http.md) section.

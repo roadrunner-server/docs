@@ -2,8 +2,9 @@
 
 ## 🟠 General
 
+* [Intro into RoadRunner](intro/about.md)
+* [Quick Start](intro/quick-start.md)
 * [Getting started](README.md)
-* [What is it?](intro/about.md)
 * [Features](intro/features.md)
 * [Installation](intro/install.md)
 * [Configuration](intro/config.md)
