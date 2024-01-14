@@ -1,4 +1,4 @@
-# App server — CLI Commands
+# CLI Commands
 
 RoadRunner offers a convenient CLI to start and manage the server.
 
@@ -64,6 +64,7 @@ debug mode, which starts the pprof server and listens for incoming requests on t
 ```
 
 ### Experimental features
+
 RoadRunner also supports experimental features.
 To enable experimental features, use the `--enable-experimental` or `-e` option:
 
@@ -118,7 +119,7 @@ If you want to force stop the server, you can use the `-f` option:
 ```
 
 > **Note**
-> The `rr stop` command can only be used to stop a RoadRunner server that was started with the` -p` option and has
+> The `rr stop` command can only be used to stop a RoadRunner server that was started with the`-p` option and has
 > a `.pid` file.
 
 ### Available options
