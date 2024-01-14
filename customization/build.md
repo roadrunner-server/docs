@@ -289,15 +289,15 @@ vx build -c velox_rr_2023.toml -o ~/Downloads
 
 ### How to write a plugin
 
-{% embed url="<https://www.youtube.com/watch?v=h5PPvc_YOtg>" %}
+{% embed url="https://www.youtube.com/watch?v=h5PPvc_YOtg" %}
 
 ### `v2023.x.x` update
 
-<https://www.youtube.com/watch?v=w_uxFhdinvU>
+{% embed url="https://www.youtube.com/watch?v=w_uxFhdinvU" %}
 
 ### Velox configuration
 
-{% embed url="<https://www.youtube.com/watch?v=sddi_lh7ePo>" %}
+{% embed url="https://www.youtube.com/watch?v=sddi_lh7ePo" %}
 
 ## Third party and deprecated plugins
 
