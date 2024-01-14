@@ -1,4 +1,4 @@
-# Plugins — What is it?
+# What is it?
 
 RoadRunner boasts a powerful plugin system that not only comes with an extensive suite of pre-built plugins, but also
 allows developers to create their own custom plugins and share them with the community. This versatility makes

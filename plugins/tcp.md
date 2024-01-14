@@ -1,4 +1,4 @@
-# Plugins — TCP
+# TCP
 
 The RoadRunner TCP plugin helps you handle TCP requests. You can use this plugin to make your own servers like an SMTP
 server, and send TCP requests directly to PHP workers for handling.
@@ -8,11 +8,12 @@ server, and send TCP requests directly to PHP workers for handling.
 The RoadRunner TCP plugin operates by receiving client requests and proxying them to free PHP workers that are not
 currently processing any request.
 
-> **Warning**
-> It's essential to note that PHP workers are stateless, meaning you cannot save the context of a request between
-> multiple requests from a single client. Instead, you must use external storage, for
-> example [Key Value](../kv/overview.md), to maintain context and rely on the connection UUID to identify requests from
-> individual clients.
+{% hint style="warning" %}
+It's essential to note that PHP workers are stateless, meaning you cannot save the context of a request between
+multiple requests from a single client. Instead, you must use external storage, for
+example [Key Value](../kv/overview.md), to maintain context and rely on the connection UUID to identify requests from
+individual clients.
+{% endhint %}
 
 The request sent to the PHP worker contains the following context:
 
@@ -35,11 +36,13 @@ The TCP plugin is configured via the `tcp` section of the RoadRunner configurati
 
 **Here is an example configuration:**
 
-:::: tabs
+{% tabs %}
 
-::: tab Server command
+{% tab title="Server command" %}
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 server:
   command: "php tcp-worker.php"
 
@@ -59,16 +62,22 @@ tcp:
     destroy_timeout: 60s
 ```
 
-> **Note**
-> You can define command to start server in the `server.command` section:. It will be used to start PHP workers for all
-> registered plugins, such as `grpc`, `http`, `jobs`, etc.
+{% endcode %}
 
-:::
+{% hint style="info" %}
+You can define command to start server in the `server.command` section:. It will be used to start PHP workers for all
+registered plugins, such as `grpc`, `http`, `jobs`, etc.
+{% endhint %}
 
-::: tab Worker commands
+{% endtab %}
+
+{% tab title="Worker command" %}
+
 You can also define command to start server in the `grpc.pool.command` section to separate server and grpc workers.
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 server:
   command: "php worker.php"
 
@@ -89,10 +98,13 @@ tcp:
     destroy_timeout: 60s
 ```
 
-:::
-::::
+{% endcode %}
 
-#### Configuration Parameters
+{% endtab %}
+
+{% endtabs %}
+
+### Configuration Parameters
 
 - `servers`: A list of TCP servers to start. Each server should contain the following keys:
     - `addr`: The server address and port, specified in the format `tcp://<IP_ADDRESS>:<PORT>`.
@@ -117,15 +129,21 @@ your PHP application.
 
 To get started, you can install the package via Composer using the following command:
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-tcp
 ```
+
+{% endcode %}
 
 ### Usage
 
 The following example demonstrates how to create a simple PHP worker:
 
-```php tcp-worker.php
+{% code title="tcp-worker.php" %}
+
+```php
 require __DIR__ . '/vendor/autoload.php';
 
 use Spiral\RoadRunner\Worker;
@@ -192,6 +210,8 @@ while ($request = $tcpWorker->waitRequest()) {
     }
 }
 ```
+
+{% endcode %}
 
 ## What's Next?
 

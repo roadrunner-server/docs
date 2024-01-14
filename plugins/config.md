@@ -1,4 +1,4 @@
-# Plugins — Config
+# Config
 
 The config plugin is an essential component in RoadRunner, responsible for parsing configuration files and environment
 variables. It serves as a central hub for managing configurations for the plugins and RoadRunner server itself.
@@ -8,11 +8,14 @@ variables. It serves as a central hub for managing configurations for the plugin
 The RoadRunner configuration file should be formatted using **YAML** or **JSON**. Each configuration file must include
 a `version` at the top, indicating the format's version. The currently supported configuration version is **version 3**.
 
-> **Warning**
-> The configuration version is not synonymous with the RoadRunner (RR) version. The configuration version and RR version
-> have separate versioning systems.
+{% hint style="warning" %}
+The configuration version is not synonymous with the RoadRunner (RR) version. The configuration version and RR version
+have separate versioning systems.
+{% endhint %}
 
 **Example of a YAML configuration file:**
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: '3'
@@ -20,8 +23,11 @@ version: '3'
 # ... other config values
 ```
 
-> **Warning**
-> Version numbers are strings, not numbers. For example, `version: "3"` is correct, but `version: 3` is not.
+{% endcode %}
+
+{% hint style="warning" %}
+Version numbers are strings, not numbers. For example, `version: "3"` is correct, but `version: 3` is not.
+{% endhint %}
 
 ### Compatibility matrix
 
@@ -35,8 +41,9 @@ versions.
 | **2.7.x**      | **2.7** `OR` Unversioned (treated as `v2.6.0`, will be auto-updated to `v2.7`) |
 | **<=2.6.x**    | Doesn't support versions                                                       |
 
-> **Note**
-> *non-versioned: configuration used in the 2.0.x-2.6.x releases.
+{% hint style="info" %}
+*non-versioned: configuration used in the 2.0.x-2.6.x releases.
+{% endhint %}
 
 ## Changelog
 
@@ -52,7 +59,9 @@ Starting from version **v2023.1.0**, the OpenTelemetry (OTEL) middleware configu
 plugin to support its usage across multiple plugins, including HTTP, gRPC, jobs and temporal. The OTEL middleware is now
 configured using a top-level YAML key.
 
-**RoadRunner 2.x**
+**RoadRunner 2.x:**
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 # HTTP plugin settings.
@@ -70,7 +79,11 @@ http:
     endpoint: "127.0.0.1:4318"
 ```
 
-**RoadRunner v2023.x.x**
+{% endcode %}
+
+**RoadRunner v2023.x.x:**
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 http:
@@ -88,6 +101,8 @@ otel:
   endpoint: "127.0.0.1:4318"
 ```
 
+{% endcode %}
+
 ## Updating from `version: 2.7` to `version: 3`
 
 To update your configuration from version 2.7 to version 3, follow these steps:
@@ -101,4 +116,3 @@ To update your configuration from version 2.7 to version 3, follow these steps:
 ## Tips
 
 1. By default, `.rr.yaml` used as the configuration, located in the same directory with RR binary.
-

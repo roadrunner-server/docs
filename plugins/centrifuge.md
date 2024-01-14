@@ -1,4 +1,4 @@
-# Plugins — Centrifuge
+# Centrifuge
 
 The RoadRunner Centrifuge plugin provides seamless integration with [Centrifugo](https://centrifugal.dev/), a powerful
 websocket server. This plugin allows you to proxy events from Websocket serer to PHP workers running on RoadRunner and
@@ -17,8 +17,9 @@ The plugin provides the following features:
 2. **RPC API**: The plugin provides an RPC API that allows you to send data to the websocket server. For example, you
    can publish or broadcast data into a channel from PHP application using the API.
 
-> **Note**
-> The Centrifuge plugin `[since 2.12.0]` replaces our deprecated `Websockets` and `Broadcast` plugins.
+{% hint style="info" %}
+The Centrifuge plugin `[since 2.12.0]` replaces our deprecated `Websockets` and `Broadcast` plugins.
+{% endhint %}
 
 In addition, Centrifugo provides a convenient [JavaScript library](https://centrifugal.dev/docs/transports/client_api)
 that simplifies the development of real-time applications.
@@ -33,16 +34,22 @@ Centrifugo and allow you to send data back to the websocket server via RPC.
 
 To install the package, run the following command:
 
-```terminal
+{% code %}
+
+```bash
 composer require roadrunner-php/centrifugo
 ```
+
+{% endcode %}
 
 ### Configuration
 
 First you need to add centrifuge section to your RoadRunner configuration. For example, such a configuration would be
 quite feasible to run:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 rpc:
   listen: tcp://127.0.0.1:6001
 
@@ -83,9 +90,13 @@ centrifuge:
     cert: /path/to/cert.pem
 ```
 
+{% endcode %}
+
 And also you need to configure Centrifugo server to use RoadRunner as a proxy.
 
 For example:
+
+{% code title="config.json" %}
 
 ```json
 {
@@ -115,15 +126,20 @@ For example:
 }
 ```
 
-> **Note**
-> `proxy_connect_endpoint`, `proxy_publish_endpoint`, `proxy_subscribe_endpoint`, `proxy_refresh_endpoint`, `proxy_sub_refresh_endpoint`, `proxy_rpc_endpoint` -
-> endpoint address of roadrunner server with activated centrifuge plugin.
+{% endcode %}
+
+{% hint style="info" %}
+`proxy_connect_endpoint`, `proxy_publish_endpoint`, `proxy_subscribe_endpoint`, `proxy_refresh_endpoint`, `proxy_sub_refresh_endpoint`, `proxy_rpc_endpoint` -
+endpoint address of roadrunner server with activated centrifuge plugin.
+{% endhint %}
 
 ### PHP worker example
 
 Here is an example of a PHP worker:
 
-```php centrifuge-worker.php
+{% code title="centrifuge-worker.php" %}
+
+```php
 <?php
 
 require __DIR__ . '/vendor/autoload.php';
@@ -217,6 +233,8 @@ while ($request = $centrifugoWorker->waitRequest()) {
     }
 }
 ```
+
+{% endcode %}
 
 ## Protobuf API
 

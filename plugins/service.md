@@ -1,4 +1,4 @@
-# Plugins — Service
+# Service
 
 RoadRunner Service Plugin provides a simple API to monitor and control processes. It is often used to manage background
 processes, daemons, or services that need to run continuously. The Service Plugin allows you to start, stop, and manage
@@ -10,7 +10,9 @@ The Service Plugin is configured using a `.rr.yaml`.
 
 Here is an example configuration:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 service:
@@ -38,6 +40,8 @@ service:
       - foo: "BAR"
     restart_sec: 1
 ```
+
+{% endcode %}
 
 The `service` section is where you define your services, with each service having its own configuration settings.
 
@@ -67,13 +71,19 @@ Plugin. You can use the library to create, start, stop, restart, and manage any 
 
 You can install the package via composer:
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-services
 ```
+
+{% endcode %}
 
 ### Usage
 
 To use the library, you need to create an instance of `Spiral\RoadRunner\Services\Manager`:
+
+{% code title="app.php" %}
 
 ```php
 use Spiral\RoadRunner\Services\Manager;
@@ -84,9 +94,13 @@ require __DIR__ . '/vendor/autoload.php';
 $manager = new Manager(RPC::create('tcp://127.0.0.1:6001'));
 ```
 
-#### Create a service
+{% endcode %}
+
+### Create a service
 
 To create a new service, use the `create` method:
+
+{% code title="app.php" %}
 
 ```php
 use Spiral\RoadRunner\Services\Exception\ServiceException;
@@ -110,9 +124,13 @@ try {
 }
 ```
 
+{% endcode %}
+
 #### Checking Service Status
 
 To check the status of a service, use the `statuses` method:
+
+{% code title="app.php" %}
 
 ```php
 use Spiral\RoadRunner\Services\Exception\ServiceException;
@@ -126,9 +144,13 @@ try {
 }
 ```
 
+{% endcode %}
+
 #### Restarting a Service
 
 To restart a service, use the `restart` method:
+
+{% code title="app.php" %}
 
 ```php
 use Spiral\RoadRunner\Services\Exception\ServiceException;
@@ -144,9 +166,13 @@ try {
 }
 ```
 
+{% endcode %}
+
 #### Terminating a Service
 
 To terminate a service, use the `terminate` method:
+
+{% code title="app.php" %}
 
 ```php
 use Spiral\RoadRunner\Services\Exception\ServiceException;
@@ -162,12 +188,17 @@ try {
 }
 ```
 
-> **Note**
-> When you terminating the service, RR sends the `SIGINT` signal to the underlying process(ses).
+{% endcode %}
+
+{% hint style="info" %}
+When you terminating the service, RR sends the `SIGINT` signal to the underlying process(ses).
+{% endhint %}
 
 #### Listing All Services
 
 To get a list of all services, use the `list` method:
+
+{% code title="app.php" %}
 
 ```php
 use Spiral\RoadRunner\Services\Exception\ServiceException;
@@ -181,6 +212,8 @@ try {
     // handle exception
 }
 ```
+
+{% endcode %}
 
 ## API
 

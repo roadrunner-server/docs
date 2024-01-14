@@ -1,4 +1,4 @@
-# Plugins — gRPC
+# gRPC
 
 RoadRunner gRPC plugin enables PHP applications to communicate with gRPC clients.
 
@@ -20,7 +20,9 @@ handle.
 In our documentation, we will use the following example of a `.proto` file that is stored in the `<app>/proto`
 directory:
 
-```proto proto/pinger.proto
+{% code title="proto/pinger.proto" %}
+
+```proto
 syntax = "proto3";
 
 option php_namespace = "GRPC\\Pinger";
@@ -41,6 +43,8 @@ message PingResponse {
 }
 ```
 
+{% endcode %}
+
 It defines a simple gRPC service called `Pinger` that takes a URL as input and returns the HTTP status code for that
 URL.
 
@@ -53,46 +57,57 @@ After defining the proto file, you need to generate the PHP files using the `pro
 the `protoc-gen-php-grpc` plugin. You can install the plugin binary using Composer or download a pre-built binary from
 the GitHub releases page.
 
-:::: tabs
+{% tabs %}
 
-::: tab Pre-built Binary
+{% tab title="Prebuilt Binary" %}
 
 The simplest way to get the latest version of `protoc-gen-php-grpc` plugin is to download one of the pre-built release
 binaries on the GitHub [releases page](https://github.com/roadrunner-server/roadrunner/releases).
 
 Just download the appropriate archive from the release page and extract it into your desired application directory.
 
-:::
+{% endtab %}
 
-::: tab Composer
+{% tab title="Composer" %}
 
 If you use Composer to manage your PHP dependencies, you can install the `spiral/roadrunner-cli` package to download the
 latest version of `protoc-gen-php-grpc` plugin to your project's root directory.
 
 **Install the package**
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-cli
 ```
 
+{% endcode %}
+
 And run the following command to download the latest version of the plugin
 
-```terminal
+{% code %}
+
+```bash
 ./vendor/bin/rr download-protoc-binary
 ```
 
+{% endcode %}
+
 Server binary will be available at the root of your project.
 
-> **Warning**
-> PHP's extensions `php-curl` and `php-zip` are required. Check with `php --modules` your installed extensions.
+{% hint style="warning" %}
+PHP's extensions `php-curl` and `php-zip` are required. Check with `php --modules` your installed extensions.
+{% endhint %}
 
-:::
+{% endtab %}
 
-::::
+{% endtabs %}
 
 Once the plugin is installed, you can use the `protoc` command to compile the proto file into PHP files.
 
 **Here's an example command:**
+
+{% code %}
 
 ```bash
 protoc --plugin=protoc-gen-php-grpc \
@@ -101,13 +116,18 @@ protoc --plugin=protoc-gen-php-grpc \
        proto/pinger.proto
 ```
 
-> **Note**
-> Make sure that the `generated` directory exists and is writable.
+{% endcode %}
+
+{% hint style="info" %}
+Make sure that the `generated` directory exists and is writable.
+{% endhint %}
 
 After running the command, you can find the generated DTO and `PingerInterface` files in
 the `<app>/generated/GRPC/Pinger` directory.
 
 We recommend also registering the GRPC namespace in the `composer.json` file:
+
+{% code title="composer.json" %}
 
 ```json
 {
@@ -119,6 +139,8 @@ We recommend also registering the GRPC namespace in the `composer.json` file:
   }
 }
 ```
+
+{% endcode %}
 
 By doing this, you can easily use the generated PHP classes in your application.
 
@@ -136,9 +158,13 @@ with your PHP application.
 
 You can install the package via Composer using the following command:
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-grpc
 ```
+
+{% endcode %}
 
 ### Implement Service
 
@@ -146,6 +172,8 @@ Next, you will need to create a PHP class that implements the `Pinger` service d
 should implement the `GRPC/Pinger/PingerInterface`.
 
 Here's an example:
+
+{% code title="pinger.php" %}
 
 ```php
 use Spiral\RoadRunner\GRPC;
@@ -171,13 +199,17 @@ final class Pinger implements PingerInterface
 }
 ```
 
+{% endcode %}
+
 ### Usage
 
 To use the `Pinger` service, you can create a PHP worker that registers the service with the gRPC server.
 
 Here's an example of how to do this:
 
-```php grpc-worker.php
+{% code title="grpc-worker.php" %}
+
+```php
 use GRPC\Pinger\PingerInterface;
 use Spiral\RoadRunner\GRPC\Server;
 use Spiral\RoadRunner\Worker;
@@ -193,13 +225,17 @@ $server->registerService(PingerInterface::class, new Pinger(new HttpClient()));
 $server->serve(Worker::create());
 ```
 
+{% endcode %}
+
 After creating the worker, you need to configure RoadRunner to register the `proto/pinger.proto` service.
 
 Here's an example configuration:
 
-:::: tabs
+{% tabs %}
 
-::: tab Server command
+{% tab title="Server command" %}
+
+{% code title=".rr.yaml" %}
 
 ```yaml .rr.yaml
 version: "3"
@@ -214,16 +250,22 @@ grpc:
     - "proto/pinger.proto"
 ```
 
-> **Note**
-> You can define command to start server in the `server.command` section:. It will be used to start PHP workers for all
-> registered plugins, such as `grpc`, `http`, `jobs`, etc.
+{% endcode %}
 
-:::
+{% hint style="info" %}
+You can define command to start server in the `server.command` section:. It will be used to start PHP workers for all
+registered plugins, such as `grpc`, `http`, `jobs`, etc.
+{% endhint %}
 
-::: tab Worker commands
+{% endtab %}
+
+{% tab title="Worker command" %}
+
 You can also define command to start server in the `grpc.pool.command` section to separate server and grpc workers.
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 server:
@@ -239,18 +281,25 @@ grpc:
     - "proto/pinger.proto"
 ```
 
-:::
-::::
+{% endcode %}
 
-> **Note**
-> You can define multiple proto files in the `proto` section.
+{% endtab %}
 
+{% endtabs %}
+
+{% hint style="info" %}
+You can define multiple proto files in the `proto` section.
+{% endhint %}
 
 After configuring the server, you can start it using the following command:
 
-```terminal
+{% code %}
+
+```bash
 ./rr serve
 ```
+
+{% endcode %}
 
 This will start the gRPC server and make the `Pinger` service available for remote clients to call. You can use any gRPC
 client library in any language that supports gRPC to call the `ping` method.
@@ -266,6 +315,8 @@ Prometheus and a preconfigured [Grafana dashboard](../lab/dashboards/grpc.md)
 
 To enable [mTLS](https://www.cloudflare.com/en-gb/learning/access-management/what-is-mutual-tls/) use the following
 configuration:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -284,6 +335,8 @@ grpc:
     client_auth_type: request_client_cert
 ```
 
+{% endcode %}
+
 Options for the `client_auth_type` are:
 
 - `request_client_cert`
@@ -293,6 +346,8 @@ Options for the `client_auth_type` are:
 - `no_client_certs`
 
 ## Full example of Configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -422,6 +477,8 @@ grpc:
     # Default: 60s
     destroy_timeout: 60s
 ```
+
+{% endcode %}
 
 ## Minimal dependencies
 
