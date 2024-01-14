@@ -17,10 +17,8 @@ If you prefer to use RoadRunner inside a Docker container, you can use the offic
 image `ghcr.io/roadrunner-server/roadrunner:latest`.
 
 {% hint style="info" %}
-
 More information about available tags can be
 found [here](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner).
-
 {% endhint %}
 
 **Here is an example of usage**
@@ -38,9 +36,7 @@ CMD rr serve -c .rr.yaml
 ```
 
 {% hint style="warning" %}
-
 Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
-
 {% endhint %}
 
 ## Composer
@@ -63,11 +59,9 @@ Run the following command to download the latest version of RoadRunner
 Server binary will be available at the root of your project.
 
 {% hint style="warning" %}
-
 PHP's extensions `php-curl` and `php-zip` are required to download RoadRunner automatically.
 PHP's extensions `php-sockets` need to be installed to run roadrunner.
 Check with `php --modules` your installed extensions.
-
 {% endhint %}
 
 ## Debian Package
@@ -83,9 +77,7 @@ sudo dpkg -i roadrunner-2023.X.X-linux-amd64.deb
 ```
 
 {% hint style="warning" %}
-
 Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
-
 {% endhint %}
 
 ## MacOS package using [Homebrew](https://brew.sh/):
