@@ -18,22 +18,34 @@
     <img alt="All releases" src="https://img.shields.io/github/downloads/roadrunner-server/roadrunner/total">
 </p>
 
-RoadRunner is an open-source (MIT licensed) high-performance PHP application server, process manager written in Go and powered with plugins ❤️.
-It supports running as a service with the ability to extend its functionality on a per-project basis with plugins.
+# Join our discord server: [Link](https://discord.gg/TFeEmCs)
 
-RoadRunner includes PSR-7/PSR-17 compatible HTTP and `HTTP(S)/2/3` servers and can be used to replace classic Nginx+FPM setup
-with much greater performance and flexibility. `HTTP(S)/2/3` servers as just one of its many available plugins, but its capabilities extend far beyond:
+RoadRunner is an open-source (MIT licensed) high-performance PHP application server and process manager written in Go and powered with plugins ❤️.
+It supports running as a service with the ability to extend its functionality on a per-project basis with plugins and is designed to replace traditional Nginx+FPM setups with enhanced performance and versatility. With its wide range of features, RoadRunner is a production-ready solution that is PCI DSS compliant, ensuring the security and safety
+of your web applications.
+
+RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https://www.php-fig.org/psr/psr-17) compatible HTTP and `HTTP(S)/2/3/fCGI` servers and can be used to replace classic Nginx+FPM setups with much greater performance and flexibility. `HTTP(S)/2/3/fCGI` servers as just one of its many available plugins, but its capabilities extend far beyond:
 
 - Queue drivers: RabbitMQ, Kafka, SQS, Beanstalk, NATS, In-Memory.
 - KV drivers: Redis, Memcached, BoltDB, In-Memory.
 - OpenTelemetry protocol support (`gRPC`, `http`, `jaeger`).
-- Workflows manager via [Temporal](https://temporal.io)
+- Workflows engine via [Temporal](https://temporal.io)
 - `gRPC` server. For increased speed, the `protobuf` extension can be used.
-- `HTTP(S)/2/3` server features **automatic TLS management**, **103 Early Hints** support and middleware like: Static, Headers, gzip, prometheus (metrics), send (x-sendfile), OTEL, proxy_ip_parser, etc.
+- `HTTP(S)/2/3` and `fCGI` server features **automatic TLS management**, **103 Early Hints** support and middleware like: Static, Headers, gzip, prometheus (metrics), send (x-sendfile), OTEL, proxy_ip_parser, etc.
 - Embedded distribute lock plugin which manages access to shared resources.
 - Metrics server (you might easily expose your own).
 - WebSockets and Broadcast via [Centrifugo](https://centrifugal.dev) server.
 - Systemd-like services manager with auto-restarts, execution time limiter, etc.
+- Embedded supervisor for your PHP workers with execution, max working time, and memory TTLs.
+- Compatible with Windows, WSL2, FreeBSD, GNU/Linux, etc.
 - And more 😉
 
-# Join our discord server: [Link](https://discord.gg/TFeEmCs)
+If you have a feature request in mind, you can check
+out [Github issues](https://github.com/roadrunner-server/roadrunner/issues) page. Here you'll find a list of open
+feature requests. The RoadRunner community is active and responsive, so feel free to join the discussion on
+our [Discord channel](https://discord.gg/spiralphp) or [contribute](./contributing.md) to the project.
+
+<a href="https://discord.gg/spiralphp"><img src="https://img.shields.io/badge/discord-chat-magenta.svg"></a>
+
+With the support of the community, RoadRunner will continue to grow and evolve to meet the needs of modern web
+development.

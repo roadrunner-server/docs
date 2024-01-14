@@ -91,4 +91,9 @@ Then, open a terminal window in the current folder and run the following command
 ```
 
 Since you have the logs in the development mode, you should see the following output:
-![RR logs](image.png)
+<figure>
+  <picture>
+    <source srcset="image.png" media="(prefers-color-scheme: dark)">
+    <img src="image.png" alt="RoadRunner startup logs">
+  </picture>
+</figure>
