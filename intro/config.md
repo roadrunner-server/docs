@@ -4,8 +4,10 @@ RoadRunner supports both **YAML** and **JSON** configuration formats. The exampl
 you can use JSON as well.
 
 {% hint style="info" %}
+
 To convert a YAML configuration file to JSON, you can use an online tool such
 as <https://onlineyamltools.com/convert-yaml-to-json>.
+
 {% endhint %}
 
 ## Configuration reference
@@ -16,8 +18,10 @@ GitHub repository:
 - [**.rr.yaml**](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml)
 
 {% hint style="warning" %}
+
 We use dots as level separators, e.g.: `http.pool`, you can't use dots in section names, queue names,
 etc. You can find out more about it [here](https://github.com/roadrunner-server/roadrunner/issues/1529).
+
 {% endhint %}
 
 ## Configuration file
@@ -57,7 +61,9 @@ Or you can combine the `-c` and `-w` options to specify both the configuration f
 {% endcode %}
 
 {% hint style="info" %}
+
 Read more about starting the server in the [**Server Commands**](../app-server/cli.md) section.
+
 {% endhint %}
 
 ## Environment variables
@@ -83,8 +89,10 @@ http:
 {% endcode %}
 
 {% hint style="info" %}
+
 You can find more information on Bash Environment Variable Defaults in
 the [Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion).
+
 {% endhint %}
 
 This allows you to easily customize the configuration based on your specific environment without changing the
