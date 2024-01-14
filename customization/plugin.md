@@ -1,4 +1,4 @@
-# Customization — Writing Plugins
+# Writing Plugins
 
 RoadRunner provides the ability to create custom plugins, event listeners, middlewares, etc., that extend its
 functionality. It uses Endure container to manage dependencies, this approach is similar to the PHP Container
@@ -21,6 +21,8 @@ like `Named`, `Provider`, `Weighted`, and `Collector`. These interfaces enable p
 plugins, define their weight in the plugin's topology, and collect plugins that implement specific interfaces.
 
 **Here is an example:**
+
+{% code title="plugin.go" %}
 
 ```go
 package sample
@@ -65,11 +67,15 @@ type (
 )
 ```
 
+{% endcode %}
+
 ## Plugin definition
 
 To define a custom plugin, create a struct with a public `Init` method that returns an error value (you can
 use `roadrunner-server/errors` as the `error` package). In this method, you can access other plugins by requesting
 dependencies.
+
+{% code title="plugin.go" %}
 
 ```go
 package custom
@@ -83,6 +89,8 @@ func (s *Plugin) Init() error {
 }
 ```
 
+{% endcode %}
+
 ## Disabling plugin
 
 Sometimes, you may want to disable a plugin at runtime based on certain conditions. For example, if there are no
@@ -90,6 +98,8 @@ configurations for the plugin, or if there is an initialization error, but you s
 the server. In such cases, you can return the special type of error called `Disabled`, which can be found in
 the `github.com/roadrunner-server/errors` package. This type of error can only be used in the `Init` function of the
 plugin.
+
+{% code title="plugin.go" %}
 
 ```go
 package custom
@@ -121,10 +131,14 @@ func (s *Plugin) Init(cfg Configurer) error {
 }
 ```
 
+{% endcode %}
+
 ## Dependencies
 
 You can access other plugins by requesting dependencies in your `Init` method. All dependencies should be represented as
 interfaces, and a plugin implementing this interface should be registered in the RR's container - Endure.
+
+{% code title="plugin.go" %}
 
 ```go
 package custom
@@ -151,24 +165,30 @@ func (s *Service) Init(r Configurer, log Logger) error {
 }
 ```
 
+{% endcode %}
+
 ## Configuration
 
-In most cases, your services would require a set of configuration values. RoadRunner can automatically populate and 
+In most cases, your services would require a set of configuration values. RoadRunner can automatically populate and
 validate your configuration structure using the `config` plugin via an interface.
 
 ### YAML configuration sample
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 custom:
   address: tcp://127.0.0.1:8888
 ```
 
+{% endcode %}
+
 ### Plugin
+
+{% code title="plugin.go" %}
 
 ```go
 package custom
-
-// file: plugin.go
 
 import (
     "go.uber.org/zap"
@@ -214,12 +234,14 @@ func (s *Plugin) Init(cfg Configurer, log Logger) error {
 }
 ```
 
+{% endcode %}
+
 ### Configuration
+
+{% code title="config.go" %}
 
 ```go
 package custom
-
-// file: config.go
 
 type Config struct {
     Address string `mapstructure:"address"`
@@ -233,10 +255,14 @@ func (cfg *Config) InitDefaults() {
 }
 ```
 
+{% endcode %}
+
 ## Serving
 
 Create `Serve` and `Stop` methods in your structure to let RoadRunner start and stop your service. You may also use a
 context from the `Stop` method to let RR force your plugin to stop after a specified timeout in the configuration.
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 ## RoadRunner internal container configuration (docs: https://github.com/spiral/endure).
@@ -247,7 +273,11 @@ endure:
   grace_period: 30s
 ```
 
+{% endcode %}
+
 ### Plugin
+
+{% code title="plugin.go" %}
 
 ```go
 package custom
@@ -280,6 +310,8 @@ func (s *Plugin) DoSomeWork() error {
 }
 ```
 
+{% endcode %}
+
 The `Serve` method is thread-safe. It runs in a separate goroutine managed by the `Endure` container.
 One note is that you should unblock it when calling `Stop` on the container.
 Otherwise, the service will be killed after the timeout (which can be set in Endure).
@@ -292,6 +324,8 @@ This is very useful for middlewares or extending plugins with additional functio
 Let's create an HTTP middleware:
 
 1. Declare a required interface
+
+{% code title="middleware.go" %}
 
 ```go
 package custom
@@ -306,7 +340,11 @@ type Middleware interface {
 }
 ```
 
+{% endcode %}
+
 2. Implement `Collects` endure interface in the plugin where you want to have these dependencies in the runtime.
+
+{% code title="middleware.go" %}
 
 ```go
 package custom
@@ -322,6 +360,8 @@ func (p *Plugin) Collects() []*dep.In {
 }
 ```
 
+{% endcode %}
+
 Important notes:
 
 1. `dep.Fits`: method used to check all registered plugins that fit the specified interface.
@@ -333,7 +373,7 @@ Important notes:
 ## RPC Methods
 
 Extending your plugin with RPC methods does not change the plugin at all. The only thing you have to do is to create a
-file with RPC methods (let's call it `rpc.go`) and add all RPC methods for the plugin without modifying the plugin 
+file with RPC methods (let's call it `rpc.go`) and add all RPC methods for the plugin without modifying the plugin
 itself.
 
 **Example based on the `informer` plugin:**
@@ -341,6 +381,8 @@ itself.
 Suppose we have created a file `rpc.go`. The next step is to create a structure:
 
 1. Create a structure: (logger is optional)
+
+{% code title="rpc.go" %}
 
 ```go
 package custom
@@ -355,6 +397,8 @@ type rpc struct {
 }
 ```
 
+{% endcode %}
+
 2. Create a method, which you want to expose:
 
 ```go
@@ -368,7 +412,11 @@ func (s *rpc) Hello(input string, output *string) error {
 }
 ```
 
+{% endcode %}
+
 3. Create a method called `RPC` that accepts nothing and returns `any`:
+
+{% code title="rpc.go" %}
 
 ```go
 package custom
@@ -378,14 +426,20 @@ func (p *Plugin) RPC() any {
 }
 ```
 
+{% endcode %}
+
 RPC plugin will automatically find and register
 your [RPC](https://github.com/roadrunner-server/rpc/blob/master/plugin.go#L184) methods under your plugin name. So, for
 example, to call the `Hello` method you might use the following sample:
+
+{% code title="file.php" %}
 
 ```php
 var_dump($rpc->call('custom.Hello', 'world'));
 ```
 
-## Tips:
+{% endcode %}
+
+## Tips
 
 1. More about plugins can be found here: [link](https://github.com/roadrunner-server/endure/tree/master/examples)

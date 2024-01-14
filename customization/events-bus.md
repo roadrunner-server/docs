@@ -1,4 +1,4 @@
-# Customization — Events bus
+# Events bus
 
 In a typical application, plugins often need to communicate with one another to coordinate tasks or respond to events.
 RoadRunner provides a built-in event bus that makes it easy for plugins to raise events and listen for events from other
@@ -18,6 +18,8 @@ events. You can then subscribe to events using the `SubscribeP` method, which ta
 After subscribing to an event, you can send events using the `Send` method and receive them on the channel.
 
 Here's an example of a simple event subscription:
+
+{% code title="foo.go" %}
 
 ```go
 package foo
@@ -52,9 +54,12 @@ func foo() {
 }
 ```
 
-> **Note**
-> If you use only `eh.Send` events bus function, you don't need to unsubscribe, so, you may simplify the declaration to
-> the `eh, _ := events.Bus()`.
+{% endcode %}
+
+{% hint style="info" %}
+If you use only `eh.Send` events bus function, you don't need to unsubscribe, so, you may simplify the declaration to
+the `eh, _ := events.Bus()`.
+{% endhint %}
 
 ### Event Payload
 
@@ -84,6 +89,8 @@ multiple events using a single pattern. Wildcards can be used to match any event
 
 Here's an example of a wildcard subscription:
 
+{% code title="foo.go" %}
+
 ```go
 package foo
 
@@ -111,6 +118,8 @@ func foo() {
 }
 ```
 
+{% endcode %}
+
 In this example, we've changed the subscription pattern from `http.EventJobOK` to `http.*`, allowing the subscription to
 match any event from the http plugin.
 
@@ -127,16 +136,22 @@ Let's walk through the process step by step:
 Create a custom event type that represents the domain of your event. This can be any name that suits your application.
 In this example, we define a custom type named `MySuperEvent`:
 
+{% code title="foo.go" %}
+
 ```go
 package foo
 
 type MySuperEvent uint32
 ```
 
+{% endcode %}
+
 ### Step 2: Implement the `fmt.Stringer` Interface
 
 To implement the `fmt.Stringer` interface on your custom event type, you need to define a `String()` method that returns
 a string representation of the event type:
+
+{% code title="foo.go" %}
 
 ```go
 package foo
@@ -153,9 +168,13 @@ func (mse MySuperEvent) String() string {
 }
 ```
 
+{% endcode %}
+
 ### Step 3: Create an enumeration with actual events
 
 Next, you need to create an enumeration of actual events using your custom event type:
+
+{% code title="foo.go" %}
 
 ```go
 package foo
@@ -176,10 +195,14 @@ func (mse MySuperEvent) String() string {
 }
 ```
 
+{% endcode %}
+
 ### Using
 
 Once you've defined your custom event type and implemented the `fmt.Stringer` interface, you can use it in your
 application like this:
+
+{% code title="foo.go" %}
 
 ```go
 package foo
@@ -207,7 +230,9 @@ func foo() {
 }
 ```
 
-> **Note**
-> You don't need to import your custom event types into the subscriber. You only need to know the name
-> of that event and pass a string to the subscriber.
+{% endcode %}
 
+{% hint style="info" %}
+You don't need to import your custom event types into the subscriber. You only need to know the name
+of that event and pass a string to the subscriber.
+{% endhint %}

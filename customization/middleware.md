@@ -1,4 +1,4 @@
-# Customization — HTTP Middleware
+# HTTP Middleware
 
 RoadRunner provides a flexible and extensible architecture that allows developers to build custom middleware for
 `http` and custom interceptors for `grpc` and `temporal` plugins. Moving highly loaded parts of an application, such as
@@ -26,6 +26,8 @@ authentication, rate limiting, and logging.
    middleware in the pipeline using the `next.ServeHTTP()` method.
 
 **Here is an example:**
+
+{% code title="middleware.go" %}
 
 ```go
 package middleware
@@ -58,10 +60,13 @@ func (p *Plugin) Name() string {
 }
 ```
 
-> **Note**
-> Middleware must correspond to the
-> following [interface](https://github.com/roadrunner-server/http/blob/master/common/interfaces.go#L33) and
-> be [named](https://github.com/roadrunner-server/endure/blob/master/container.go#L47).
+{% endcode %}
+
+{% hint style="info" %}
+Middleware must correspond to the
+following [interface](https://github.com/roadrunner-server/http/blob/master/common/interfaces.go#L33) and
+be [named](https://github.com/roadrunner-server/endure/blob/master/container.go#L47).
+{% endhint %}
 
 ## gRPC
 
@@ -77,10 +82,13 @@ authentication, rate limiting, and logging.
 2. In the `Interceptor()` method, perform any necessary processing on the incoming gRPC request, and then call the next
    interceptor in the pipeline using the `handler(ctx, req)` method.
 
-> **Warning**
-> RoadRunner supports `gRPC` interceptors since `v2023.2.0` version.
+{% hint style="warning" %}
+RoadRunner supports `gRPC` interceptors since `v2023.2.0` version.
+{% endhint %}
 
 **Here is an example:**
+
+{% code title="middleware.go" %}
 
 ```go
 package middleware
@@ -108,10 +116,13 @@ func (p *Plugin) Name() string {
 }
 ```
 
-> **Note**
-> Interceptor must correspond to the
-> following [interface](https://github.com/roadrunner-server/grpc/blob/master/common/interfaces.go#L14) and
-> be [named](https://github.com/roadrunner-server/endure/blob/master/container.go#L47).
+{% endcode %}
+
+{% hint style="info" %}
+Interceptor must correspond to the
+following [interface](https://github.com/roadrunner-server/grpc/blob/master/common/interfaces.go#L14) and
+be [named](https://github.com/roadrunner-server/endure/blob/master/container.go#L47).
+{% endhint %}
 
 You can find a lot of examples here: [link](https://github.com/grpc-ecosystem/go-grpc-middleware). Keep in mind that, at
 the moment, RR supports only `UnaryServerInterceptor` gRPC interceptors.
@@ -134,6 +145,8 @@ You can safely pass values to a PHP application and retrieve attributes on PHP s
 the `Psr\Http\Message\ServerRequestInterface->getAttributes(`)
 through [attributes](https://github.com/roadrunner-server/http/blob/master/attributes/attributes.go) package:
 
+{% code title="middleware.go" %}
+
 ```go
 func (s *Service) Middleware(next http.HandlerFunc) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
@@ -144,15 +157,20 @@ func (s *Service) Middleware(next http.HandlerFunc) http.HandlerFunc {
 }
 ```
 
-> **Note**
-> To retrieve the attributes in a PHP application, you would need to use a PSR-7 implementation that supports
-> the `getAttributes()` method. For example, the `nyholm/psr7` package provides a PSR-7 implementation that supports it.
+{% endcode %}
+
+{% hint style="info" %}
+To retrieve the attributes in a PHP application, you would need to use a PSR-7 implementation that supports
+the `getAttributes()` method. For example, the `nyholm/psr7` package provides a PSR-7 implementation that supports it.
+{% endhint %}
 
 ## Registering middleware
 
 You have to register this service after in
 the [container/plugin.go](https://github.com/roadrunner-server/roadrunner/blob/master/container/plugins.go) file in
 order to properly resolve dependency:
+
+{% code title="plugin.go" %}
 
 ```go
 package roadrunner
@@ -172,20 +190,26 @@ func Plugins() []any {
 }
 ```
 
+{% endcode %}
+
 Or you might use Velox tool to [build the RR binary](./build.md).
 
 You should also make sure you configure the middleware to be used via
 the [config or the command line](../intro/config.md). Otherwise, the plugin will be loaded, but the middleware will not
 be used with incoming requests.
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 http:
   # provide the name of the plugin as provided by the plugin in the example's case, "middleware"
   middleware: [ "middleware" ]
 ```
 
+{% endcode %}
+
 ## Video tutorial
 
 ### Writing a middleware for HTTP
 
-[![Writing a middleware](https://img.youtube.com/vi/f5fUSYaDKxo/0.jpg)](https://www.youtube.com/watch?v=f5fUSYaDKxo)
+{% embed url="<https://www.youtube.com/watch?v=f5fUSYaDKxo>" %}

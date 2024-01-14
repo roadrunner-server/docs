@@ -1,4 +1,4 @@
-# Customization — Embedding a Server
+# Embedding a Server
 
 In some cases, it can be useful to embed a RoadRunner server inside another GO program. This is often the case in
 microservice architectures where you may have a mandated GO framework for all the apps. In such cases it might not be
@@ -7,13 +7,19 @@ program.
 
 Here's an example of how to embed RoadRunner into a Go program with an HTTP handler:
 
+{% code title="main.go" %}
+
 ```go
 func handleRequest(w http.ResponseWriter, request *http.Request) {
     // Find a way to pass that to RoadRunner so PHP handles the request
 }
 ```
 
+{% endcode %}
+
 ## Create an RR instance
+
+{% code title="main.go" %}
 
 ```go
 overrides := []string{} // List of configuration overrides
@@ -21,10 +27,14 @@ plugins := roadrunner.DefaultPluginsList() // List of RR plugins to enable
 rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
 ```
 
+{% endcode %}
+
 Here we use the default list of plugins. The same list of plugin you would get if you were to run `rr serve` with a
 stock roadrunner binary.
 
 You can however choose only the plugins you want and add your own private plugins as well:
+
+{% code title="main.go" %}
 
 ```go
 overrides := []string{
@@ -42,6 +52,8 @@ plugins := []interface{}{
 rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
 ```
 
+{% endcode %}
+
 ## Passing requests to RoadRunner
 
 Roadrunner can respond to HTTP requests, but also gRPC ones or many more. Because this is all done via plugins that each
@@ -49,6 +61,8 @@ listen to different types of requests, ports, etc...
 
 So when we talk about passing a request to roadrunner, we're actually talking about passing the request to roadrunner's
 HTTP plugin. To do this, we need to keep a handle on the http plugin.
+
+{% code title="main.go" %}
 
 ```go
 overrides := []string{} // List of configuration overrides
@@ -64,8 +78,12 @@ plugins := []interface{}{
 rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
 ```
 
+{% endcode %}
+
 The HTTP plugin is itself an `http.Handler` so it's now very easy to use it to let roadrunner and PHP handle the
 request:
+
+{% code title="main.go" %}
 
 ```go
 overrides := []string{
@@ -91,9 +109,13 @@ func handleRequest(w http.ResponseWriter, request *http.Request) {
 }
 ```
 
+{% endcode %}
+
 ## Starting & Stopping Embedded Roadrunner
 
 Once everything is ready, we can start the roadrunner instance:
+
+{% code title="main.go" %}
 
 ```go
 errCh := make(chan error, 1)
@@ -101,6 +123,8 @@ go func() {
     errCh <- rr.Serve()
 }()
 ```
+
+{% endcode %}
 
 `rr.Serve()` will block until it returns an error or `nil` if it was stopped gracefully.
 
@@ -113,6 +137,8 @@ Sometimes it is useful to know about those, be it for debugging, to know if you'
 can gracefully shutdown the main program.
 
 You can call `rr.CurrentState()` on your roadrunner instance to retrieve one of the following states:
+
+{% code title="main.go" %}
 
 ```go
 package fsm
@@ -131,5 +157,7 @@ const (
     Error
 )
 ```
+
+{% endcode %}
 
 Additionally, the actual status name can be obtained via `rr.CurrentState().String()`.
