@@ -17,7 +17,7 @@ RestartSec = 30
 
 [Install]
 WantedBy = default.target 
-``` 
+```
 
 {% endcode %}
 
@@ -50,7 +50,7 @@ and
 
 ```bash
 systemctl start rr.service
-``` 
+```
 
 {% endcode %}
 
@@ -63,7 +63,7 @@ following [link](https://wiki.archlinux.org/index.php/systemd#Writing_unit_files
 
 RR supports SDNotify protocol. You can use it to notify systemd about the readiness of your application. You don't need
 to configure anything, RR will automatically detect systemd and send the notification. The only one option which might be
-configured is watchdog timeout. By default, it's turned off. You can enable it by setting the following option in your 
+configured is watchdog timeout. By default, it's turned off. You can enable it by setting the following option in your
 `.rr.yaml` config:
 
 {% code title=".rr.yaml" %}

@@ -1,4 +1,4 @@
-# PHP Workers — Environment configuration
+# Environment configuration
 
 RoadRunner offers the capability to set and manage environment variables for workers. This capability allows you to set
 specific environment variables when workers are initialized, providing a flexible and organized method for managing
@@ -11,17 +11,22 @@ configuration file. These variables will be applied to all workers when they are
 
 **Here's an example:**
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 server:
   command: "php worker.php"
   env:
     DEBUG: true
 ```
 
+{% endcode %}
+
 In this example, when RoadRunner starts a PHP worker, it will set the `DEBUG` environment variable to `true`.
 
-> **Warning**
-> All environment variable keys will be automatically converted to uppercase.
+{% hint style="warning" %}
+All environment variable keys will be automatically converted to uppercase.
+{% endhint %}
 
 ## Default Env Values in PHP Workers
 

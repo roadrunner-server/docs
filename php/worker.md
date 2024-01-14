@@ -15,22 +15,28 @@ RoadRunner provides several plugins that use workers to receive requests,
 including [HTTP](https://github.com/roadrunner-php/http), [Jobs](https://github.com/roadrunner-php/jobs),
 [Centrifuge](https://github.com/roadrunner-php/centrifugo), [gRPC](https://github.com/roadrunner-php/grpc),
 [TCP](https://github.com/roadrunner-php/tcp), and [Temporal](https://legacy-documentation-sdks.temporal.io/php/workers).
-You should choose the appropriate plugin based on the requirements of your application. In the examples below, 
+You should choose the appropriate plugin based on the requirements of your application. In the examples below,
 we will explore the creation of an HTTP worker and a simple implementation of an entry point that can handle several
-types of requests. 
+types of requests.
 
 ### Simple HTTP Worker
 
 To create HTTP worker, you need to install the required composer packages:
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-http nyholm/psr7
 ```
+
+{% endcode %}
 
 After installing the required packages, you can create a worker. Here is an example of the simplest entry point with the
 PSR-7 server API:
 
-```php psr-worker.php
+{% code title="psr-worker.php" %}
+
+```php
 <?php
 
 require __DIR__ . '/vendor/autoload.php';
@@ -88,11 +94,13 @@ while (true) {
 }
 ```
 
+{% endcode %}
+
 This worker expects communication with the RoadRunner server over standard pipes.
 
 Create a `.rr.yaml` configuration file to enable it:
 
-{% code title=".rr.yaml" overflow="wrap" lineNumbers="true" %}
+{% code title=".rr.yaml" overflow="wrap" %}
 
 ```yaml
 server:
@@ -104,28 +112,35 @@ http:
 
 {% endcode %}
 
-> **Note**
-> Read more about the configuration HTTP in the [HTTP Plugin](../http/http.md) section.
+{% hint style="info" %}
+Read more about the configuration HTTP in the [HTTP Plugin](../http/http.md) section.
+{% endhint %}
 
 ### Single entry point
 
 In the example below, we will create a single entry point capable of processing incoming HTTP requests and requests
 from the queue system. RoadRunner provides the `RR_MODE` environment variable, which allows us to determine the type
-of request received. We can then instantiate the appropriate worker, process the incoming request, return the response, 
+of request received. We can then instantiate the appropriate worker, process the incoming request, return the response,
 and handle any potential exceptions. In this example, we strive to minimize dependencies and reduce the amount of code
-to the maximum extent possible. The sole objective of this example is to demonstrate how to handle various types of 
+to the maximum extent possible. The sole objective of this example is to demonstrate how to handle various types of
 requests.
 
 First of all, we need to install the required composer packages:
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-http spiral/roadrunner-jobs nyholm/psr7
 ```
 
-Let's start by creating an enum to enumerate the possible operating modes of RoadRunner. In this example, we will only 
+{% endcode %}
+
+Let's start by creating an enum to enumerate the possible operating modes of RoadRunner. In this example, we will only
 require the values **http** and **jobs**, but we will list all available modes:
 
-```php RoadRunnerMode.php
+{% code title="RoadRunnerMode.php" %}
+
+```php
 namespace App;
 
 enum RoadRunnerMode: string
@@ -140,12 +155,16 @@ enum RoadRunnerMode: string
 }
 ```
 
-To split the logic for handling different types of requests, let's introduce the concept of a **dispatcher**. 
+{% endcode %}
+
+To split the logic for handling different types of requests, let's introduce the concept of a **dispatcher**.
 It will determine whether it can handle an incoming request and process it. We'll define an interface for dispatchers,
 which will include two methods: **canServe** - responsible for determining if the dispatcher can handle the request or not,
 and **serve** - intended to process the request if the **canServe** method returns **true**:
 
-```php DispatcherInterface.php
+{% code title="DispatcherInterface.php" %}
+
+```php
 namespace App\Dispatcher;
 
 use Spiral\RoadRunner\EnvironmentInterface;
@@ -158,10 +177,14 @@ interface DispatcherInterface
 }
 ```
 
+{% endcode %}
+
 Let's implement the two dispatchers we need. One for handling HTTP requests and the other for processing requests
 from the queuing system:
 
-```php HttpDispatcher.php
+{% code title="HttpDispatcher.php" %}
+
+```php
 namespace App\Dispatcher;
 
 use App\RoadRunnerMode;
@@ -206,7 +229,11 @@ final class HttpDispatcher implements DispatcherInterface
 }
 ```
 
-```php QueueDispatcher.php
+{% endcode %}
+
+{% code title="QueueDispatcher.php" %}
+
+```php
 namespace App\Dispatcher;
 
 use App\RoadRunnerMode;
@@ -239,6 +266,8 @@ final class QueueDispatcher implements DispatcherInterface
 }
 ```
 
+{% endcode %}
+
 In the `canServe` method of both dispatchers, we use the `Spiral\RoadRunner\EnvironmentInterface` interface provided by
 the [spiral/roadrunner-worker](https://github.com/roadrunner-php/worker) package. This interface provides the `getMode`
 method, which returns the current mode of RoadRunner as a string. The implementation of this interface, provided by the package,
@@ -252,7 +281,9 @@ They send a string response to the browser and output the task object to the con
 
 Now, let's create an entry point that will be specified in the RoadRunner configuration file and will use our dispatchers:
 
-```php app.php
+{% code title="app.php" %}
+
+```php
 require __DIR__ . '/vendor/autoload.php';
 
 use App\Dispatcher\DispatcherInterface;
@@ -281,13 +312,18 @@ foreach ($dispatchers as $dispatcher) {
 }
 ```
 
-> **Note**
-> The [Roadrunner Bridge](https://github.com/spiral/roadrunner-bridge) package, which provides the integration of **RoadRunner**
-> into the **Spiral Framework** embodies this concept, and you may explore it if you wish to delve deeper into this topic.
+{% endcode %}
+
+{% hint style="info" %}
+The [Roadrunner Bridge](https://github.com/spiral/roadrunner-bridge) package, which provides the integration of **RoadRunner**
+into the **Spiral Framework** embodies this concept, and you may explore it if you wish to delve deeper into this topic.
+{% endhint %}
 
 Create a `.rr.yaml` configuration file:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: '3'
 
 rpc:
@@ -312,18 +348,26 @@ jobs:
         priority: 10
 ```
 
-> **Note**
-> Read more about the [RoadRunner configuration](../intro/config.md).
+{% endcode %}
+
+{% hint style="info" %}
+Read more about the [RoadRunner configuration](../intro/config.md).
+{% endhint %}
 
 Now you can start the RoadRunner server by running the following command:
 
-```terminal
+{% code %}
+
+```bash
 ./rr serve
 ```
 
-> **Note**
-> Read more about how to download and install RoadRunner in the [RoadRunner — Installation](../intro/install.md)
-> section.
+{% endcode %}
+
+{% hint style="info" %}
+Read more about how to download and install RoadRunner in the [RoadRunner — Installation](../intro/install.md)
+section.
+{% endhint %}
 
 ### Error Handling
 
@@ -332,7 +376,9 @@ respond to the parent service with the error message using `$psr7->getWorker()->
 
 **Here's an example:**
 
-```php psr-worker.php
+{% code title="psr-worker.php" %}
+
+```php
 try {
     $resp = new Psr7\Response();
     $resp->getBody()->write("hello world");
@@ -343,27 +389,36 @@ try {
 }
 ```
 
+{% endcode %}
+
 Another way to handle errors is to flush warnings and errors to `STDERR` to output them directly into the console.
 
 **Here's an example:**
+
+{% code title="file.php" %}
 
 ```php
 file_put_contents('php://stderr', 'Error message');
 ```
 
-> **Note**
-> Since RoadRunner 2.0 all warnings send to `STDOUT` will be forwarded to `STDERR` as well.
+{% endcode %}
+
+{% hint style="info" %}
+Since RoadRunner 2.0 all warnings send to `STDOUT` will be forwarded to `STDERR` as well.
+{% endhint %}
 
 ## Communication Methods
 
 By default, workers use standard pipes `STDOUT` and `STDERR` to exchange data frames with the RoadRunner server.
 However, in some cases, you may want to use alternative communication methods such as `TCP` or `unix` sockets.
 
-:::: tabs
+{% tabs %}
 
-::: tab TCP Sockets
+{% tab title="TCP Sockets" %}
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 server:
   command: "php psr-worker.php"
   relay: "tcp://127.0.0.1:7000"
@@ -372,11 +427,15 @@ http:
   address: 0.0.0.0:8080
 ```
 
-:::
+{% endcode %}
 
-::: tab Unix Sockets
+{% endtab %}
 
-```yaml .rr.yaml
+{% tab title="Unix Sockets" %}
+
+{% code title=".rr.yaml" %}
+
+```yaml
 server:
   command: "php psr-worker.php"
   relay: "unix://rr.sock"
@@ -385,9 +444,11 @@ http:
   address: 0.0.0.0:8080
 ```
 
-:::
+{% endcode %}
 
-::::
+{% endtab %}
+
+{% endtabs %}
 
 ## Process supervision
 
@@ -395,9 +456,11 @@ RoadRunner provides process supervision capabilities to monitor your application
 requests if necessary. You can configure process supervision for your application by editing your `.rr.yaml`
 configuration file and specifying the necessary limits.
 
-**Here's an example configuration**
+**Here's an example configuration:**
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 http:
   address: "0.0.0.0:8080"
   pool:
@@ -422,23 +485,34 @@ http:
     num_workers: 6
 ```
 
-> **Warning**
-> Please pay attention, that the previous section name was **limit**, current - **supervisor**
+{% endcode %}
+
+{% hint style="warning" %}
+Please pay attention, that the previous section name was **limit**, current - **supervisor**
+{% endhint %}
 
 ## Troubleshooting
 
 In some cases, RoadRunner may not be able to handle errors produced by the PHP worker, such as if PHP is missing or the
 script has died.
 
-```terminal
+{% code %}  
+
+```bash
 ./rr serve
 ```
 
+{% endcode %}
+
 If this happens, you can troubleshoot the issue by invoking the `command` specified in your `.rr.yaml` file manually.
 
-```terminal
+{% code %}  
+
+```bash
 php psr-worker.php
 ```
+
+{% endcode %}
 
 If there are any errors or issues with the script, they should be visible in the output of this command.
 

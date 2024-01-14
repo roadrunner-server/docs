@@ -1,4 +1,4 @@
-# PHP Workers — Developer Mode
+# Developer Mode
 
 When RoadRunner starts workers, they operate in daemon mode. In this mode, you need to reload the server every time you
 make changes to your codebase.
@@ -7,9 +7,13 @@ make changes to your codebase.
 
 One of the way reloading server is using console command:
 
-```terminal
+{% code %}
+
+```bash
 ./rr reset
 ```
+
+{% endcode %}
 
 This command is also helpful when you need to restart a remote RoadRunner server using a local RoadRunner
 client.
@@ -20,19 +24,25 @@ For example, you can use this command to restart workers inside a Docker contain
 configure the RoadRunner server to handle external RPC requests by adding the following lines to your configuration
 file:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 rpc:
   listen: tcp://:6001
 ```
 
-> **Note**
-> You must also forward/expose port `6001` in your Docker container to be able to use this feature.
+{% endcode %}
+
+{% hint style="info" %}
+You must also forward/expose port `6001` in your Docker container to be able to use this feature.
+{% endhint %}
 
 Now when you run the command, RoadRunner client sends RPC request to the running server.
 
-> **Warning**
-> Pay attention to the RPC host and port which uses RoadRunner client specified in the `.rr.yaml` should be the same as
-> the RPC host and port which uses RoadRunner server. By default, client uses `127.0.0.1:6001`.
+{% hint style="warning" %}
+Pay attention to the RPC host and port which uses RoadRunner client specified in the `.rr.yaml` should be the same as
+the RPC host and port which uses RoadRunner server. By default, client uses `127.0.0.1:6001`.
+{% endhint %}
 
 ## Debug Mode
 
@@ -43,6 +53,8 @@ time.
 
 To enable debug mode, you can set the `pool.debug` option to `true` in desired plugin section that has workers pool:
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 http:
   pool:
@@ -50,28 +62,35 @@ http:
     num_workers: 4
 ```
 
+{% endcode %}
+
 Or if you have only `debug` option in the `pool` section you can use short syntax:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 http:
   pool.debug: true
 ```
 
-> **Note**
-> Every plugin in RoadRunner that creates workers has a `pool` section in which you can activate debug mode.
+{% endcode %}
 
+{% hint style="info" %}
+Every plugin in RoadRunner that creates workers has a `pool` section in which you can activate debug mode.
+{% endhint %}
 
-> **Warning**
-> When using the `pool.debug` option in RoadRunner, it is important to note that settings in `pool` section would work
-> differently. All options will be ignored (`supervisor`, `max_jobs`, `num_workers`, etc). This is because, in debug 
-> mode, RoadRunner does not create a worker at startup. Instead, it waits for requests to come in and creates workers 
-> accordingly. After the response, RoadRunner stops and removes the worker.
-> When you send 2-3-n parallel requests to RoadRunner, it creates 2-3-n workers to handle those requests simultaneously.
-> The number of workers depends on the number of requests you send. Similarly, when you use the Jobs plugin and the Jobs
-> consumers, every message consumed creates a worker to handle that message. The number of workers is based on the
-> number of messages consumed.
->
-> This enables you to make changes to your codebase and reload it automatically.
+{% hint style="warning" %}
+When using the `pool.debug` option in RoadRunner, it is important to note that settings in `pool` section would work
+differently. All options will be ignored (`supervisor`, `max_jobs`, `num_workers`, etc). This is because, in debug
+mode, RoadRunner does not create a worker at startup. Instead, it waits for requests to come in and creates workers
+accordingly. After the response, RoadRunner stops and removes the worker.
+When you send 2-3-n parallel requests to RoadRunner, it creates 2-3-n workers to handle those requests simultaneously.
+The number of workers depends on the number of requests you send. Similarly, when you use the Jobs plugin and the Jobs
+consumers, every message consumed creates a worker to handle that message. The number of workers is based on the
+number of messages consumed.
+
+This enables you to make changes to your codebase and reload it automatically.
+{% endhint %}
 
 ## Stop Command
 
@@ -80,6 +99,8 @@ this happens, the job/request will be automatically forwarded to the next worker
 
 You can use this feature to implement `max_jobs` control on the PHP side. This can be useful for controlling memory
 usage inside the PHP script or for managing long-running tasks that need to be periodically restarted.
+
+{% code title="worker.php" %}
 
 ```php
 <?php
@@ -112,6 +133,8 @@ while ($req = $worker->waitRequest()) {
     }
 }
 ```
+
+{% endcode %}
 
 As you can see in the example above, we send a `stop` command after handling 10 requests, to force process destruction.
 This ensures that the script does not consume too much memory and avoids any potential memory leaks.

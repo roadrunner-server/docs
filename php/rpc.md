@@ -1,4 +1,4 @@
-# PHP Workers — RPC to RoadRunner
+# RPC to RoadRunner
 
 RoadRunner provides a powerful RPC (Remote Procedure Call) interface for communication between PHP applications and the
 server using [Goridge library](https://github.com/roadrunner-php/goridge).
@@ -14,13 +14,19 @@ writing their applications in PHP.
 
 To use Goridge, you first need to install it via Composer.
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/goridge
 ```
+
+{% endcode %}
 
 ## Configuration
 
 You can change the RPC port from the default (`127.0.0.1:6001`) using the following configuration:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -29,12 +35,16 @@ rpc:
   listen: tcp://127.0.0.1:6001
 ```
 
+{% endcode %}
+
 ## Connecting to RoadRunner
 
 Once you have installed Goridge, you can connect to the RoadRunner server. To do so, create an instance of
 the `Spiral\Goridge\RPC\RPC`.
 
 **Here's an example:**
+
+{% code title="worker.php" %}
 
 ```php
 <?php
@@ -47,7 +57,11 @@ $rpc = new Goridge\RPC\RPC(
 );
 ```
 
+{% endcode %}
+
 Or you can use the `Spiral\RoadRunner\Environment` class to get the RPC address from environment variables:
+
+{% code title="worker.php" %}
 
 ```php
 <?php
@@ -62,13 +76,18 @@ $rpc = new Goridge\RPC\RPC(
 );
 ```
 
-> **Warning**
-> The `Environment::getRPCAddress()` method returns the RPC address from the `RR_RPC` environment variable and can be
-> used only inside PHP worker.
+{% endcode %}
+
+{% hint style="warning" %}
+The `Environment::getRPCAddress()` method returns the RPC address from the `RR_RPC` environment variable and can be
+used only inside PHP worker.
+{% endhint %}
 
 ## Calling RPC Methods
 
 Once you have created `$rpc` instance, you can use it to call embedded RPC services.
+
+{% code title="worker.php" %}
 
 ```php
 $result = $rpc->call('informer.Workers', 'http');
@@ -76,12 +95,15 @@ $result = $rpc->call('informer.Workers', 'http');
 var_dump($result);
 ```
 
-> **Note**
-> In the case of running workers in debug mode `http: { pool.debug: true }` the number of http workers will be zero
-> (i.e. an empty array `[]` will be returned).
->
-> This behavior may be changed in the future, you should not rely on this result to check that the
-> RoadRunner was launched in development mode.
+{% endcode %}
+
+{% hint style="warning" %}  
+In the case of running workers in debug mode `http: { pool.debug: true }` the number of http workers will be zero
+(i.e. an empty array `[]` will be returned).
+
+This behavior may be changed in the future, you should not rely on this result to check that the
+RoadRunner was launched in development mode.
+{% endhint %}
 
 ## Available RPC Methods
 
