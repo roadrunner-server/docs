@@ -1,4 +1,4 @@
-# RoadRunner — What is it?
+# What is RoadRunner?
 
 RoadRunner is a high-performance PHP application server and process manager, designed with extensibility in mind through
 its utilization of plugins. Developed in Go, RoadRunner operates by running your application in the form of workers,
@@ -9,7 +9,7 @@ responsive and robust applications with ease.
 
 ![image](https://user-images.githubusercontent.com/773481/235296092-2f82643b-7822-4649-952a-0529efa3af88.png)
 
-## Server
+## How it works?
 
 RoadRunner efficiently manages a collection of PHP processes, referred to as workers, and routes incoming requests from
 various plugins to these workers. This communication is done through
@@ -34,9 +34,9 @@ The following plugins are designed to run workers and handle specific types of r
 By utilizing these plugins, RoadRunner ensures that your PHP application can effectively handle a wide range of requests
 and communication protocols, delivering optimal performance and flexibility.
 
-## RPC
+## (g)RPC Interface
 
-RoadRunner also provides an RPC interface for communication between the application and the server, which plays a
+RoadRunner also provides an customized gRPC interface for communication between the application and the server, which plays a
 significant role in enhancing the interaction between the two components. This interface is particularly useful when
 working with the various plugins that support RPC communication, such as:
 
@@ -52,7 +52,7 @@ working with the various plugins that support RPC communication, such as:
 - [**Metrics**](../lab/metrics.md) - Allows for the submission of application metrics to Prometheus, promoting
   comprehensive monitoring and analysis of application performance.
 
-## PHP
+## PHP worker
 
 RoadRunner keeps PHP workers alive between incoming requests. This means that you can completely eliminate bootload time
 (such as framework initialization) and significantly speed up a heavy application.
