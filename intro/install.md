@@ -16,9 +16,10 @@ application directory.
 If you prefer to use RoadRunner inside a Docker container, you can use the official RoadRunner Docker
 image `ghcr.io/roadrunner-server/roadrunner:latest`.
 
-> **Note**
-> More information about available tags can be
-> found [here](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner).
+{% hint style="info" %}
+More information about available tags can be
+found [here](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner).
+{% endhint %}
 
 **Here is an example of usage**
 
@@ -34,8 +35,9 @@ COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
 CMD rr serve -c .rr.yaml
 ```
 
-> **Warning**
-> Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
+{% hint style="warning" %}
+Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
+{% endhint %}
 
 ## Composer
 
@@ -56,10 +58,11 @@ Run the following command to download the latest version of RoadRunner
 
 Server binary will be available at the root of your project.
 
-> **Warning**
-> PHP's extensions `php-curl` and `php-zip` are required to download RoadRunner automatically.
-> PHP's extensions `php-sockets` need to be installed to run roadrunner.
-> Check with `php --modules` your installed extensions.
+{% hint style="warning" %}
+PHP's extensions `php-curl` and `php-zip` are required to download RoadRunner automatically.
+PHP's extensions `php-sockets` need to be installed to run roadrunner.
+Check with `php --modules` your installed extensions.
+{% endhint %}
 
 ## Debian Package
 
@@ -73,8 +76,9 @@ wget https://github.com/roadrunner-server/roadrunner/releases/download/v2023.X.X
 sudo dpkg -i roadrunner-2023.X.X-linux-amd64.deb
 ```
 
-> **Warning**
-> Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
+{% hint style="warning" %}
+Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
+{% endhint %}
 
 ## MacOS package using [Homebrew](https://brew.sh/):
 ```terminal
