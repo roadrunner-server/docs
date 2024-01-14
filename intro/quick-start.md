@@ -14,7 +14,7 @@ RR requires PHP to run. If you don't have PHP installed, you can download it fro
 
 Next, you need to create a simple configuration file for RR. Open a text editor and create a new file called `.rr.yaml`. Add the following content to the file:
 
-{% code title=".rr.yaml" overflow="wrap" lineNumbers="false" %}
+{% code title=".rr.yaml" %}
 
 ```yaml
 server:
@@ -35,7 +35,7 @@ logs:
 
 Now you need to create a simple worker. Create a new file called `psr-worker.php` and add the following content to the file:
 
-{% code title="psr-worker.php" overflow="wrap" lineNumbers="false" %}
+{% code title="psr-worker.php" %}
 
 ```php
 <?php
