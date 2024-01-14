@@ -1,4 +1,4 @@
-# App server — Production Usage
+# Production Usage
 
 When utilizing RoadRunner in a production environment, it is important to consider various tips and suggestions to
 ensure optimal performance and stability.
@@ -19,9 +19,10 @@ descriptors and avoiding state pollution to prevent memory leaks and ensure appl
 - Database connections and any `pipe`/`socket` are the potential point of failure. An easy way to deal with this is to
   close all connections after every iteration. Note that this is not the most performant solution.
 
-> **Warning**
-> Consider calling `gc_collect_cycles` after every execution if you want to keep memory usage low (this will slow down
-> your application a bit).
+{% hint style="warning" %}
+Consider calling `gc_collect_cycles` after every execution if you want to keep memory usage low (this will slow down
+your application a bit).
+{% endhint %}
 
 ## Useful Tips
 

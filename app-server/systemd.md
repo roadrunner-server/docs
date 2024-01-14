@@ -1,7 +1,9 @@
-# App server — Running server as daemon on Linux
+# Running server as daemon on Linux
 
 Here you can find an example of systemd unit file that can be used to run RoadRunner as a daemon on
 a server:
+
+{% code title="rr.service" %}
 
 ```ini
 [Unit]
@@ -17,29 +19,40 @@ RestartSec = 30
 WantedBy = default.target 
 ``` 
 
-Where is
+{% endcode %}
+
+Where:
 
 - `/usr/local/bin/rr` - path to the RoadRunner binary file
 - `/var/www/.rr.yaml` - path to the RoadRunner configuration file
 
-> **Warning**
-> These paths are just examples, and the actual paths may differ depending on the specific
-> server configuration and file locations. You should update these paths to match the actual paths used in your server
-> setup.
+{% hint style="warning" %}
+These paths are just examples, and the actual paths may differ depending on the specific
+server configuration and file locations. You should update these paths to match the actual paths used in your server
+setup.
+{% endhint %}
 
 You should also update the `ExecStart` option with your own configuration and save the file with a suitable name,
 such as `rr.service`. Usually, such user unit files are located in the `.config/systemd/user/` directory. To enable the
 service, you should run the following commands:
 
+{% code %}
+
 ```bash
 systemctl enable --user rr.service
 ```
 
+{% endcode %}
+
 and
+
+{% code %}
 
 ```bash
 systemctl start rr.service
 ``` 
+
+{% endcode %}
 
 This will start RoadRunner as a daemon on the server.
 
@@ -53,8 +66,12 @@ to configure anything, RR will automatically detect systemd and send the notific
 configured is watchdog timeout. By default, it's turned off. You can enable it by setting the following option in your 
 `.rr.yaml` config:
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 endure:
   log_level: error
   watchdog_sec: 60 # watchdog timeout in seconds
 ```
+
+{% endcode %}

@@ -116,7 +116,7 @@ To enable experimental features, use the `--enable-experimental` or `-e` option:
 
 {% endcode %}
 
-## Available options
+## Options
 
 - `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a `.rr.yaml` file in the current
   working directory. However, you can specify a different file using this option.
@@ -299,7 +299,7 @@ the pool. This is because workers are only created when incoming requests arrive
 workers at the time when the command is executed.
 {% endhint %}
 
-### Available options
+### Options
 
 - `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a .rr.yaml file in the current
   working directory. However, you can specify a different file using this option.
@@ -357,7 +357,7 @@ To list all running pipelines, you can use the following command:
 
 {% endcode %}
 
-### Available options
+### Options
 
 - `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a `.rr.yaml` file in the current
   working directory. However, you can specify a different file using this option.

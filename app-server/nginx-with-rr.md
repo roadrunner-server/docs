@@ -1,4 +1,4 @@
-# App server — Nginx with RoadRunner
+# Nginx with RoadRunner
 
 RoadRunner seamlessly integrates with various web servers like Nginx, providing a powerful backend solution for
 processing PHP requests.
@@ -9,6 +9,8 @@ processing PHP requests.
 
 RoadRunner can be configured to listen for FastCGI requests on a specific port. (Disabled by default.)
 
+{% code title=".rr.yaml" %}
+
 ```yaml .rr.yaml
 version: "3"
 
@@ -17,15 +19,20 @@ http:
     address: tcp://0.0.0.0:9000
 ```
 
+{% endcode %}
+
 The FastCGI method allows Nginx to communicate directly with the RoadRunner server using the FastCGI protocol. This
 method is suitable when both Nginx and RoadRunner are running on the same machine.
 
-> **Warning**
-> Remember to adjust the configuration examples according to your specific environment and requirements. If RoadRunner
-> and Nginx are running in separate Docker containers, utilize the container DNS names (e.g., `roadrunner:9000`) instead
-> of IP addresses in the Nginx configuration.
+{% hint style="warning" %}
+Remember to adjust the configuration examples according to your specific environment and requirements. If RoadRunner
+and Nginx are running in separate Docker containers, utilize the container DNS names (e.g., `roadrunner:9000`) instead
+of IP addresses in the Nginx configuration.
+{% endhint %}
 
-```nginx docker/nginx/rr.conf
+{% code title="docker/nginx/rr.conf" %}
+
+```nginx
 server {
    listen 80;
    listen [::]:80;
@@ -41,32 +48,43 @@ server {
 }
 ```
 
-> **Note**
-> Consider using `fastcgi_pass` instead of `proxy_pass`: Using the `fastcgi_pass` directive might offer better
-> performance in certain configurations.
+{% endcode %}
+
+{% hint style="info" %}
+Consider using `fastcgi_pass` instead of `proxy_pass`: Using the `fastcgi_pass` directive might offer better
+performance in certain configurations.
+{% endhint %}
 
 ### Proxy
 
 RoadRunner can be configured to listen for HTTP requests on a specific port.
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 http:
   address: 0.0.0.0:8080
 ```
 
-> **Note**
-> Read more about configuring HTTP server in the [HTTP Plugin](../http/http.md) section.
+{% endcode %}
+
+{% hint style="info" %}
+Read more about configuring HTTP server in the [HTTP Plugin](../http/http.md) section.
+{% endhint %}
 
 The Proxy method involves configuring Nginx to act as a reverse proxy for RoadRunner. Nginx receives client requests and
 forwards them to RoadRunner for processing. This method is useful when both are running on separate machines or when
 additional load balancing or caching features are required.
 
-> **Warning**
-> Remember to adjust the configuration examples according to your specific environment and requirements. If RoadRunner
-> and Nginx are running in separate Docker containers, utilize the container DNS names (e.g., `roadrunner:8080`) instead
-> of IP addresses in the Nginx configuration.
+{% hint style="warning" %}
+Remember to adjust the configuration examples according to your specific environment and requirements. If RoadRunner
+and Nginx are running in separate Docker containers, utilize the container DNS names (e.g., `roadrunner:8080`) instead
+of IP addresses in the Nginx configuration.
+{% endhint %}
 
-```nginx docker/nginx/rr.conf
+{% code title="docker/nginx/rr.conf" %}
+
+```nginx
 server {
    listen 80;
    listen [::]:80;
@@ -83,13 +101,17 @@ server {
 }
 ```
 
+{% endcode %}
+
 ### WebSocket proxy
 
 To enable WebSocket connections using Nginx proxy, you need to configure the proxy accordingly.
 
 This can be done by including the following configuration in the Nginx configuration file:
 
-```nginx docker/nginx/rr.conf
+{% code title="docker/nginx/rr.conf" %}
+
+```nginx
 map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
@@ -115,9 +137,12 @@ server {
 }
 ```
 
-> **Warning**
-> `http://127.0.0.1:8000` is the default address for the Centrifugo WebSocket server and `/connection/websocket` is the
-> default path for Bidirectional WebSocket connections. 
+{% endcode %}
+
+{% hint style="warning" %}
+`http://127.0.0.1:8000` is the default address for the Centrifugo WebSocket server and `/connection/websocket` is the
+default path for Bidirectional WebSocket connections.
+{% endhint %}
 
 The location `/connection` block defines the path where WebSocket connections will be handled.
 
@@ -127,7 +152,9 @@ In this example, we will demonstrate how to use RoadRunner with Nginx in a Docke
 
 ### Dockerfile
 
-```docker docker/app/Dockerfile
+{% code title="docker/app/Dockerfile" %}
+
+```docker
 FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/roadrunner-server/roadrunner:latest as roadrunner
 FROM --platform=${TARGETPLATFORM:-linux/amd64} php:8.1-alpine
 
@@ -150,11 +177,15 @@ RUN composer install
 ENTRYPOINT ["rr"]
 ```
 
+{% endcode %}
+
 ### RoadRunner configuration
 
 Create a `.rr.yaml` configuration file to specify how RoadRunner should interact with your PHP application
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: '3'
 
 rpc:
@@ -177,13 +208,17 @@ logs:
   mode: production
 ```
 
+{% endcode %}
+
 ### PHP Worker
 
 Create a PHP worker to handle the HTTP requests.
 
 **Here is a simple example:**
 
-```php worker.php
+{% code title="worker.php" %}
+
+```php
 <?php
 use Spiral\Goridge;
 use Spiral\RoadRunner;
@@ -211,9 +246,13 @@ while ($req = $psr7->waitRequest()) {
 }
 ```
 
+{% endcode %}
+
 And do not forget about the `composer.json` file:
 
-```json composer.json
+{% code title="composer.json" %}
+
+```json
 {
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -224,15 +263,20 @@ And do not forget about the `composer.json` file:
 }
 ```
 
-> **Note**
-> Read more about the RoadRunner PHP Worker in the [PHP Workers](../php/worker.md) section.
+{% endcode %}
+
+{% hint style="info" %}
+Read more about the RoadRunner PHP Worker in the [PHP Workers](../php/worker.md) section.
+{% endhint %}
 
 ### Docker Compose
 
 To assemble and manage all components, create a `docker-compose.yaml` file that defines the RoadRunner and Nginx
 services, as well as their configurations
 
-```yaml docker-compose.yaml
+{% code title="docker-compose.yaml" %}
+
+```yaml
 version: "3.8"
 
 services:
@@ -265,6 +309,9 @@ networks:
     name: nginx-docs
 ```
 
-> **Note**
-> Store one of the configuration files provided in the [Nginx configuration](#nginx-configuration) section in
-> the `docker/nginx` directory.
+{% endcode %}
+
+{% hint style="info" %}
+Store one of the configuration files provided in the [Nginx configuration](#nginx-configuration) section in
+the `docker/nginx` directory.
+{% endhint %}
