@@ -50,7 +50,9 @@ php -dvariables_order=EGPCS artisan octane:start --max-requests=250 --server=roa
 
 {% endcode %}
 
+{% hint style="info" %}
 Feel free to check our community notes: [link](https://forum.spiral.dev/t/xdebug-integration/86/1)
+{% endhint %}
 
 ## Jobs debugging
 
