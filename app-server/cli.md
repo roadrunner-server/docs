@@ -321,6 +321,8 @@ This command allows you to specify one or more pipelines to `pause`. For example
 ./rr jobs --pause pipeline1,pipeline2
 ```
 
+{% endtab %}
+
 {% tab title="Resume" %}
 
 This command allows you to specify one or more pipelines to `resume`. For example, to resume pipelines `pipeline1` and
@@ -330,6 +332,8 @@ This command allows you to specify one or more pipelines to `resume`. For exampl
 ./rr jobs --resume pipeline1,pipeline2
 ```
 
+{% endtab %}
+
 {% tab title="Destroy" %}
 
 This command allows you to specify one or more pipelines to `destroy`. For example, to destroy pipelines `pipeline1` and
@@ -338,6 +342,8 @@ This command allows you to specify one or more pipelines to `destroy`. For examp
 ```bash
 ./rr jobs --destroy pipeline1,pipeline2
 ```
+
+{% endtab %}
 
 {% endtabs %}
 
