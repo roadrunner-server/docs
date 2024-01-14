@@ -22,7 +22,7 @@ directory:
 
 {% code title="proto/pinger.proto" %}
 
-```proto
+```protobuf
 syntax = "proto3";
 
 option php_namespace = "GRPC\\Pinger";
