@@ -6,77 +6,117 @@ RoadRunner offers a convenient CLI to start and manage the server.
 
 To display the version of RoadRunner, you can use the `-v` or `--version` option:
 
-```terminal
+{% code %}
+
+```bash
 ./rr -v
 ```
 
+{% endcode %}
+
 This command will display the version of RoadRunner, as well as information about the build time, operating system, and
 architecture.
+
+{% code %}
 
 ```output
 rr version 2023.1.2 (build time: 2023-05-04T13:19:13+0000, go1.20.4), OS: linux, arch: amd64
 ```
 
+{% endcode %}
+
 ## Starting the Server
 
 To start the server, you can use the following command:
+
+{% code %}
 
 ```terminal
 ./rr serve 
 ```
 
+{% endcode %}
+
 By default, RoadRunner looks for a `.rr.yaml` file in the current working directory where the binary is placed. However,
 you can also specify the configuration file from a different location using the `-c` option:
+
+{% code %}
 
 ```terminal
 ./rr serve -c /var/www/.rr.yaml
 ```
 
+{% endcode %}
+
 You can also specify the working directory using the -w option:
+
+{% code %}
 
 ```terminal
 ./rr serve -w /var/www
 ```
 
+{% endcode %}
+
 RoadRunner also supports `.env` files. To read environment variables from the `.env` file, use the `--dotenv` CLI
 command:
+
+{% code %}
 
 ```terminal
 ./rr serve --dotenv .env -c .rr.yaml
 ```
 
-### Background mode
+{% endcode %}
+
+## Background mode
 
 Additionally, you can start the server in the background mode using the `-p` option. In this mode, RoadRunner creates
 a `.pid` file:
+
+{% code %}
 
 ```terminal
 ./rr serve -p
 ```
 
-### Debug mode
+{% endcode %}
+
+## Debug mode
 
 RoadRunner also supports running the Golang pprof server in debug mode using the `-d` option. This option enables the
 debug mode, which starts the pprof server and listens for incoming requests on the configured port.
+
+{% code %}
 
 ```terminal
 ./rr serve -d -c .rr.yaml
 ```
 
-### Experimental features
+{% endcode %}
+
+## Experimental features
 
 RoadRunner also supports experimental features.
 To enable experimental features, use the `--enable-experimental` or `-e` option:
+
+{% code %}
 
 ```terminal
 ./rr serve --enable-experimental -c .rr.yaml
 ```
 
+{% endcode %}
+
+{% code %}
+
 ```terminal
 ./rr serve -e -c .rr.yaml
 ```
 
-### Available options
+{% endcode %}
+
+## Available options
 
 - `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a `.rr.yaml` file in the current
   working directory. However, you can specify a different file using this option.
@@ -102,27 +142,36 @@ To stop RoadRunner, you have a few options:
 - If you want to stop RoadRunner manually, you can hit `ctrl+c` for a graceful stop or hit `ctrl+c` one more time to
   force stop.
 
-> **Note**
-> By default, graceful period is 30 seconds. You can change it in the configuration file using `endure.grace_period`
-> setting. You can find an example [here](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml#L2115).
+{% hint style="info" %}
+By default, graceful period is 30 seconds. You can change it in the configuration file using `endure.grace_period`
+setting. You can find an example [here](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml#L2115).
+{% endhint %}
 
 You can also use the following command to stop the server:
+
+{% code %}
 
 ```terminal
 ./rr stop
 ```
 
+{% endcode %}
+
 If you want to force stop the server, you can use the `-f` option:
+
+{% code %}
 
 ```terminal
 ./rr stop -f
 ```
 
-> **Note**
-> The `rr stop` command can only be used to stop a RoadRunner server that was started with the`-p` option and has
-> a `.pid` file.
+{% endcode %}
 
-### Available options
+{% hint style="info" %}
+The `rr stop` command can only be used to stop a RoadRunner server that was started with the`-p` option and has a `.pid` file.
+{% endhint %}
+
+### Options
 
 - `-f` - force stop.
 - `-s` - silent mode.
@@ -131,9 +180,13 @@ If you want to force stop the server, you can use the `-f` option:
 
 RoadRunner allows you to reload all workers.
 
+{% code %}
+
 ```terminal
 ./rr reset
 ```
+
+{% endcode %}
 
 This command reloads all RoadRunner workers, including HTTP, GRPC, and other, and starts them with a new worker pool.
 This can be useful when you make changes to your application code and want to see the changes reflected in the running
@@ -142,27 +195,37 @@ server.
 By default, this command displays output in the console. However, if you want to reload the workers silently, you can
 use the `--silent` option:
 
+{% code %}
+
 ```terminal
 ./rr reset --silent
 ```
 
-> **Note**
-> You can attach this command as a file watcher in your IDE.
+{% endcode %}
+
+{% hint style="info" %}
+You can attach this command as a file watcher in your IDE.
+{% endhint %}
 
 Additionally, you can reload only particular plugins by specifying their names:
+
+{% code %}
 
 ```terminal
 ./rr reset http
 ```
 
-> **Note**
-> RoadRunner will wait for any active requests to finish processing before reloading the worker pool. This ensures that
-> all active requests are completed before the new worker pool is started.
-> Any new incoming requests that arrive during the reloading process will be queued and processed once the new worker
-> pool is started. This means that there may be a temporary delay in processing new requests while the worker pool is
-> being reloaded, but no requests should be lost.
+{% endcode %}
 
-### Available options
+{% hint style="info" %}
+RoadRunner will wait for any active requests to finish processing before reloading the worker pool. This ensures that
+all active requests are completed before the new worker pool is started.
+Any new incoming requests that arrive during the reloading process will be queued and processed once the new worker
+pool is started. This means that there may be a temporary delay in processing new requests while the worker pool is
+being reloaded, but no requests should be lost.
+{% endhint %}
+
+### Options
 
 - `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a .rr.yaml file in the current
   working directory. However, you can specify a different file using this option.
@@ -172,12 +235,18 @@ Additionally, you can reload only particular plugins by specifying their names:
 RoadRunner provides a command to view the status of active workers. You can use this command to monitor the health and
 performance of your workers and diagnose any issues.
 
+{% code %}
+
 ```terminal
 ./rr workers
 ```
 
+{% endcode %}
+
 This command displays a table with the status of all workers, including their PID, status, number of executions, memory
 usage, and creation time.
+
+{% code %}
 
 ```output
 Workers of [jobs]:
@@ -198,26 +267,37 @@ Workers of [http]:
 +---------+-----------+---------+---------+---------+--------------------+
 ```
 
+{% endcode %}
+
 You can also specify plugin names to view the status of workers for a particular plugin:
+
+{% code %}
 
 ```terminal
 ./rr workers http
 ```
 
+{% endcode %}
+
 Use the `-i` option to enable interactive mode. In this mode, the command will update the statistics every second:
+
+{% code %}
 
 ```terminal
 ./rr workers -i
 ```
 
+{% endcode %}
+
 This command is useful for debugging performance issues and identifying workers that are not performing as expected.
 Additionally, you can use this command to monitor the health of your workers and identify any potential problems before
 they become critical.
 
-> **Note**
-> When the `pool.debug` configuration option is set to `true`, the `rr workers` command will not display any workers in
-> the pool. This is because workers are only created when incoming requests arrive, so there may not be any active
-> workers at the time when the command is executed.
+{% hint style="info" %}
+When the `pool.debug` configuration option is set to `true`, the `rr workers` command will not display any workers in
+the pool. This is because workers are only created when incoming requests arrive, so there may not be any active
+workers at the time when the command is executed.
+{% endhint %}
 
 ### Available options
 
@@ -230,48 +310,46 @@ they become critical.
 
 RoadRunner provides several CLI commands to manage jobs and pipelines.
 
-:::: tabs
+{% tabs %}
 
-::: tab Pause
+{% tab title="Pause" %}
 
 This command allows you to specify one or more pipelines to `pause`. For example, to pause pipelines `pipeline1` and
 `pipeline2`, you can use the following command:
 
-```terminal
+```bash
 ./rr jobs --pause pipeline1,pipeline2
 ```
 
-:::
-
-::: tab Resume
+{% tab title="Resume" %}
 
 This command allows you to specify one or more pipelines to `resume`. For example, to resume pipelines `pipeline1` and
 `pipeline2`, you can use the following command:
 
-```terminal
+```bash
 ./rr jobs --resume pipeline1,pipeline2
 ```
 
-:::
-
-::: tab Destroy
+{% tab title="Destroy" %}
 
 This command allows you to specify one or more pipelines to `destroy`. For example, to destroy pipelines `pipeline1` and
 `pipeline2`, you can use the following command:
 
-```terminal
+```bash
 ./rr jobs --destroy pipeline1,pipeline2
 ```
 
-:::
-
-::::
+{% endtabs %}
 
 To list all running pipelines, you can use the following command:
+
+{% code %}
 
 ```terminal
 ./rr jobs --list
 ```
+
+{% endcode %}
 
 ### Available options
 
@@ -291,7 +369,11 @@ To specify the server `host` and `port` information, you can use the `rpc` secti
 
 For example:
 
+{% code %}
+
 ```yaml .rr.yaml
 rpc:
   listen: "127.0.0.1:6001"
 ```
+
+{% endcode %}

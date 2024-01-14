@@ -1,11 +1,13 @@
-# App server — AWS Lambda
+# AWS Lambda
 
 RoadRunner can run PHP as AWS Lambda function.
 
-### PHP Worker
+## PHP Worker
 
 PHP worker does not require any specific configuration to run inside a Lambda function. We can use the default snippet with
 internal counter to demonstrate how workers are being reused:
+
+{% code title="handler.php" %}
 
 ```php
 <?php
@@ -38,17 +40,25 @@ while ($req = $psr7->waitRequest()) {
 }
 ```
 
+{% endcode %}
+
 Name this file `handler.php` and put it into the root of your project. Make sure to run:
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-http nyholm/psr7
 ```
+
+{% endcode %}
 
 ### Application
 
 We can create a simple application to demonstrate how it works:
 
-1. You need three files, main.go with the `Endure` container:
+1. You need three files, `main.go` with `Endure` container:
+
+{% code title="main.go" %}
 
 ```go
 package main
@@ -135,7 +145,11 @@ func main() {
 }
 ```
 
-2. And `Plugin` for the RR:
+{% endcode %}
+
+2. `plugin.go` with the plugin implementation:
+
+{% code title="plugin.go" %}
 
 ```go
 package main
@@ -308,11 +322,15 @@ func (p *Plugin) getPld() *payload.Payload {
   pld := p.pldPool.Get().(*payload.Payload)
   return pld
 }
-```  
+```
+
+{% endcode %}
 
 3. Config file, which can be embedded into the binary with [`embed`](https://pkg.go.dev/embed) import:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 server:
@@ -330,14 +348,20 @@ endure:
   grace_period: 1s
 ```
 
+{% endcode %}
+
 Here you can use full advantage of the RoadRunner, you can include any plugin here and configure it with the embedded config (within reasonable limits).
 
 To build and package your lambda function run:
+
+{% code title="build.sh" %}
 
 ```bash
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s" -o bootstrap-amd64 main.go plugin.go
 zip main.zip * -r
 ```
+
+{% endcode %}
 
 You can now upload and invoke your handler using simple string event.
 
