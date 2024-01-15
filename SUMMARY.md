@@ -70,22 +70,22 @@
 ## 🕸️ HTTP
 
 * [Intro into HTTP](http/http.md)
-* [Streaming](http/resp-streaming.md)
-* [RFC 7234 cache](http/cache.md)
-* [gzip](http/gzip.md)
 * [Headers and CORS](http/headers.md)
-* [X-Sendfile](http/sendfile.md)
+* [RFC 7234 cache](http/cache.md)
 * [Static files](http/static.md)
+* [X-Sendfile](http/sendfile.md)
+* [Streaming](http/resp-streaming.md)
+* [gzip](http/gzip.md)
 
 ## 📈 Logging and Observability
 
 * [HTTP Access Logs](lab/access-logs.md)
-* [AppLogger](lab/applogger.md)
-* [Logger](lab/logger.md)
+* [OpenTelemetry](lab/otel.md)
 * [HealthChecks](lab/health.md)
+* [AppLogger](lab/applogger.md)
 * [Metrics](lab/metrics.md)
 * [Grafana](lab/dashboards/dashboards.md)
-* [OpenTelemetry](lab/otel.md)
+* [Logger](lab/logger.md)
 
 ## 🔀 Workflow Engine
 
@@ -109,14 +109,14 @@
 * [Ubiquity](integration/ubiquity.md)
 * [Zend Expressive](integration/zend.md)
 
-## ⚠️ Error codes
-
-* [CRC valication failed](known-issues/stdout-crc.md)
-* [Allocate Timeout](known-issues/allocate-timeout.md)
-
 ## 🧪 Experimental Features
 
 * [List of the Experimental Features](experimental/experimental.md)
+
+## 🚨 Error codes
+
+* [CRC valication failed](known-issues/stdout-crc.md)
+* [Allocate Timeout](known-issues/allocate-timeout.md)
 
 ## 📚 Releases
 
