@@ -1,6 +1,6 @@
 # Table of contents
 
-## 🟢 General
+## 😃 General
 
 * [Intro into RoadRunner](intro/about.md)
 * [Quick Start](intro/quick-start.md)
@@ -9,7 +9,7 @@
 * [Configuration](intro/config.md)
 * [Contributing](intro/contributing.md)
 
-## 🟤 PHP Worker
+## 👷 PHP Worker
 
 * [Dynamic Workers Scaling](php/scaling.md)
 * [Developer mode](php/developer.md)
@@ -18,7 +18,7 @@
 * [Worker](php/worker.md)
 * [RPC](php/rpc.md)
 
-## 🔵 Customization
+## 🛠️ Customization
 
 * [Building RR with a custom plugin](customization/build.md)
 * [Integrating with Golang Apps](customization/embedding.md)
@@ -26,7 +26,7 @@
 * [Writing a Plugin](customization/plugin.md)
 * [Events Bus](customization/events-bus.md)
 
-## 🟡 App Server
+## 📡 App Server
 
 * [Production Usage](app-server/production.md)
 * [RoadRunner with NGINX](app-server/nginx-with-rr.md)
@@ -35,7 +35,7 @@
 * [CLI Commands](app-server/cli.md)
 * [Systemd](app-server/systemd.md)
 
-## 🔴 Plugins
+## 🔌 Plugins
 
 * [Intro into Plugins](plugins/intro.md)
 * [Centrifuge (WebSockets)](plugins/centrifuge.md)
@@ -48,7 +48,7 @@
 * [TCP](plugins/tcp.md)
 * [KV](kv/overview.md)
 
-## ⚪ Key-Value
+## 🔐 Key-Value
 
 * [Intro into KV](kv/overview.md)
 * [Memcached](kv/memcached.md)
@@ -56,7 +56,7 @@
 * [BoltDG](kv/boltdb.md)
 * [Redis](kv/redis.md)
 
-## ⚫ Queues and Jobs
+## 📦 Queues and Jobs
 
 * [Intro into Jobs](queues/overview.md)
 * [Beanstalk](queues/beanstalk.md)
@@ -77,7 +77,7 @@
 * [Streaming](http/resp-streaming.md)
 * [gzip](http/gzip.md)
 
-## 🟠 Logging and Observability
+## 📈 Logging and Observability
 
 * [HTTP Access Logs](lab/access-logs.md)
 * [OpenTelemetry](lab/otel.md)
@@ -92,7 +92,7 @@
 * [Temporal.io](workflow/temporal.md)
 * [Worker](workflow/worker.md)
 
-## 🟣 Integrations
+## 🧩 Integrations
 
 * [Migration from RRv1 to RRv2](integration/migration.md)
 * [Spiral Framework](integration/spiral.md)
@@ -109,16 +109,16 @@
 * [Ubiquity](integration/ubiquity.md)
 * [Zend Expressive](integration/zend.md)
 
-## Experimental Features
+## 🧪 Experimental Features
 
 * [List of the Experimental Features](experimental/experimental.md)
 
-## Error codes
+## 🚨 Error codes
 
 * [CRC valication failed](known-issues/stdout-crc.md)
 * [Allocate Timeout](known-issues/allocate-timeout.md)
 
-## Releases
+## 📚 Releases
 
 * [v2023.3.9](releases/v2023-3-9.md)
 * [v2023.3.8](releases/v2023-3-8.md)
