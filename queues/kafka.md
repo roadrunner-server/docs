@@ -1,4 +1,4 @@
-# Jobs — Kafka driver
+# Kafka driver
 
 Kafka driver supported since RoadRunner version `2.11.0`. The Kafka driver has been reworked in `v2023.1.0`.
 Apache Kafka is a distributed streaming system used for event stream processing, real-time data pipelines, and
@@ -13,6 +13,8 @@ Version `2023.2.0` update:
 - Added new `SCRAM-SHA-256` and `SCRAM-SHA-512` authentication mechanisms.
 
 ## Configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 # Kafka jobs driver
@@ -272,3 +274,5 @@ jobs:
           # Optional, default: false.
           block_rebalance_on_poll: true
 ```
+
+{% endcode %}

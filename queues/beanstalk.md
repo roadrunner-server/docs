@@ -1,4 +1,4 @@
-# Jobs — Beanstalk Driver
+# Beanstalk Driver
 
 Beanstalk is a simple and fast general purpose work queue. To install Beanstalk, you can use
 the [local queue server](https://github.com/beanstalkd/beanstalkd) or run the server
@@ -7,12 +7,18 @@ inside [AWS Elastic](https://aws.amazon.com/elasticbeanstalk/). You can choose a
 Setting up the server is similar to setting up AMQP and requires specifying the connection in the `beanstalk` section of
 your RoadRunner configuration file.
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 beanstalk:
   addr: tcp://127.0.0.1:11300
 ```
 
+{% endcode %}
+
 ## Configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml .rr.yaml
 version: "3"
@@ -56,6 +62,8 @@ jobs:
         # Default: 5s
         reserve_timeout: 5s
 ```
+
+{% endcode %}
 
 ## Configuration options
 

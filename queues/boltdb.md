@@ -1,4 +1,4 @@
-# Jobs — Local (based on the boltdb) Driver
+# Local (based on the boltdb) Driver
 
 This type of driver is already supported by RoadRunner and requires no additional installation. It uses boltdb as the
 main job store. This driver should be used locally for testing or development. It can be used in production, but this
@@ -9,6 +9,8 @@ pipelines or for the for KV plugin and Jobs plugin. This is a boltdb limitation 
 the same file.
 
 ## Configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml .rr.yaml
 version: "3"
@@ -46,6 +48,8 @@ jobs:
         permissions: 0755
 ```
 
+{% endcode %}
+
 ## Configuration options
 
 **Here is a detailed description of each of the boltdb-specific options:**
@@ -64,7 +68,7 @@ Jobs from `pipe10` will be taken by workers only if all jobs from `pipe1` are pr
 
 ### File
 
-`file` - boltdb database file to use. Might be a full path with file: `/foo/bar/rr1.db`. 
+`file` - boltdb database file to use. Might be a full path with file: `/foo/bar/rr1.db`.
 
 Default: `rr.db`.
 

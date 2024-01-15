@@ -1,4 +1,4 @@
-# Jobs — SQS Driver
+# SQS Driver
 
 [Amazon SQS Simple Queue Service](https://aws.amazon.com/sqs/) is an alternative
 queue server also developed by Amazon and is also part of the AWS
@@ -18,7 +18,9 @@ we're used to.
 
 ## Configuration
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 sqs:
   # Required AccessKey ID.
   # Default: empty
@@ -41,19 +43,26 @@ sqs:
   endpoint: http://127.0.0.1:9324
 ```
 
-> **Note**
-> Please note that although each of the sections contains default values, it is marked as "required". This means that in
-> almost all cases they are required to be specified in order to correctly configure the driver.
+{% endcode %}
+
+{% hint style="info" %}
+Please note that although each of the sections contains default values, it is marked as "required". This means that in
+almost all cases they are required to be specified in order to correctly configure the driver.
+{% endhint %}
 
 After you have configured the connection - you should configure the queue that will use this connection:
 
-> **Note**
-> You may also skip the whole `sqs` configuration section (global, not the pipeline) to use the AWS IAM credentials if
-> the RR is inside the EC2 machine. RR will try to detect env automatically by making a http request to
-> the `http://169.254.169.254/latest/dynamic/instance-identity/` as
-> pointer [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html)
+{% hint style="info" %}
+You may also skip the whole `sqs` configuration section (global, not the pipeline) to use the AWS IAM credentials if
+the RR is inside the EC2 machine. RR will try to detect env automatically by making a http request to
+the `http://169.254.169.254/latest/dynamic/instance-identity/` as
+pointer [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html).
+However, if you want to use credentials from the `sqs` section, you might specify them and IAM credentials will be overridden.
+{% endhint %}
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 sqs:
@@ -107,6 +116,8 @@ jobs:
           test: "tag"
 ```
 
+{% endcode %}
+
 ## Configuration options
 
 **Here is a detailed description of each of the SQS-specific options:**
@@ -155,6 +166,8 @@ also consume the raw payloads.
 `attributes` - List of
 the [AWS SQS attributes](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SetQueueAttributes.html).
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 attributes:
   DelaySeconds: 0
@@ -164,10 +177,13 @@ attributes:
   VisibilityTimeout: 30
 ```
 
+{% endcode %}
+
 ### Tags
 
 `tags` - Tags don't have any semantic meaning. Amazon SQS interprets tags as character.
 
-> **Note**
-> This functionality is rarely used and slows down the work of
-> queues: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-queue-tags.html
+{% hint style="info" %}
+This functionality is rarely used and slows down the work of
+queues: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-queue-tags.html
+{% endhint %}

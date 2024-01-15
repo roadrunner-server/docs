@@ -18,6 +18,8 @@ your configuration.
 
 **Here is an example of configuration:**
 
+{% code title=".rr.yaml" %}
+
 ```yaml .rr.yaml
 version: "3"
 
@@ -40,6 +42,8 @@ jobs:
         prefetch: 10
 ```
 
+{% endcode %}
+
 - The `rpc` section is responsible for client settings. It is at this address that we will connect, *dispatching tasks*
   to the queue.
 
@@ -53,6 +57,8 @@ jobs:
 ### Common Configuration
 
 Let's now focus on the common settings of the queue server. In full, it may look like this:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -75,6 +81,8 @@ jobs:
       # And driver-specific configuration below...
 ```
 
+{% endcode %}
+
 Above is a complete list of all possible common Jobs settings. Let's now figure out what they are responsible for.
 
 - `num_pollers`: The number of threads that are simultaneously reading from the priority
@@ -94,11 +102,12 @@ Above is a complete list of all possible common Jobs settings. Let's now figure 
   will accumulate jobs until `pipeline_size` is reached. After that, PQ
   is then blocked until the workers have processed all the jobs in it. **Lower number means higher priority.**
 
-> **Note**
-> Blocked PQ means that you can push the job into the driver, but RoadRunner
-> will not read that job until PQ is empty. If RoadRunner is running
-> with jobs in the PQ, they won't be lost because jobs are not removed from the driver's
-> driver queue until after Ack.
+{% hint style="info" %}
+Blocked PQ means that you can push the job into the driver, but RoadRunner
+will not read that job until PQ is empty. If RoadRunner is running
+with jobs in the PQ, they won't be lost because jobs are not removed from the driver's
+driver queue until after Ack.
+{% endhint %}
 
 - `pool`: All settings in this section are similar to the worker pool settings
   described on the [configuration page](https://roadrunner.dev/docs/intro-config).
@@ -118,12 +127,18 @@ Above is a complete list of all possible common Jobs settings. Let's now figure 
 To get access from the PHP code, you should put the corresponding dependency
 using [the Composer](https://getcomposer.org/).
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-jobs
 ```
 
+{% endcode %}
+
 Now that we have the server configured, we can start writing our first code to send the task to the queue. But before we
 do that, we need to connect to our server. And to do that, it is enough to create a `Jobs` instance.
+
+{% code title="connect.php" %}
 
 ```php
 use Spiral\RoadRunner\Jobs\Jobs;
@@ -132,10 +147,15 @@ use Spiral\RoadRunner\Jobs\Jobs;
 $jobs = new Spiral\RoadRunner\Jobs\Jobs();
 ```
 
-> **Note**
-> In this case we did not specify any connection settings. And this is really not necessary if this code is
-> executed in a RoadRunner environment. However, in case you need to connect from a third party application (e.g. a CLI
-> command), you need to specify the settings explicitly.
+{% endcode %}
+
+{% hint style="info" %}
+In this case we did not specify any connection settings. And this is really not necessary if this code is
+executed in a RoadRunner environment. However, in case you need to connect from a third party application (e.g. a CLI
+command), you need to specify the settings explicitly.
+{% endhint %}
+
+{% code title="connect.php" %}
 
 ```php
 use Spiral\RoadRunner\Jobs\Jobs;
@@ -147,22 +167,31 @@ $jobs = new Jobs(
 );
 ```
 
-> **Warning**
-> To interact with the RoadRunner jobs plugin, you will need to have the RPC defined in the rpc configuration
-> section. You can refer to the documentation page [here](../php/rpc.md) to learn more about the configuration and
-> installation.
+{% endcode %}
+
+{% hint style="warning" %}
+To interact with the RoadRunner jobs plugin, you will need to have the RPC defined in the rpc configuration
+section. You can refer to the documentation page [here](../php/rpc.md) to learn more about the configuration and
+installation.
+{% endhint %}
 
 When the connection is created, and the availability of the functionality is checked, we can connect to the queue we
 need using `connect()` method.
+
+{% code title="connect.php" %}
 
 ```php
 $queue = $jobs->connect('queue-name');
 ```
 
+{% endcode %}
+
 ### Task Creation
 
 Before submitting a task to the queue, you should create this task. To create a task, it is enough to call the
 corresponding `create()` method.
+
+{% code title="create.php" %}
 
 ```php
 $task = $queue->create(SendEmailTask::class);
@@ -170,10 +199,15 @@ $task = $queue->create(SendEmailTask::class);
 // object(Spiral\RoadRunner\Jobs\Task\PreparedTaskInterface)
 ```
 
-> **Note**
-> The name of the task does not have to be a class. Here we are using `SendEmailTask` just for convenience.
+{% endcode %}
+
+{% hint style="info" %}
+The name of the task does not have to be a class. Here we are using `SendEmailTask` just for convenience.
+{% endhint %}
 
 Also, this method takes an additional second argument with additional data to complete this task.
+
+{% code title="create.php" %}
 
 ```php
 $task = $queue->create(
@@ -182,12 +216,17 @@ $task = $queue->create(
 );
 ```
 
-> **Warning**
-> The payload must be any string. You need to serialize the data yourself. The RoadRunner does not provide any
-> serialization tools.
+{% endcode %}
+
+{% hint style="warning" %}
+The payload must be any string. You need to serialize the data yourself. The RoadRunner does not provide any
+serialization tools.
+{% endhint %}
 
 In addition, the method takes an additional third argument with `Spiral\RoadRunner\Jobs\OptionsInterface` where you can
 pass object with predefined options.
+
+{% code title="create.php" %}
 
 ```php
 $options = new \Spiral\RoadRunner\Jobs\Options(autoAck: true);
@@ -198,7 +237,11 @@ $task = $queue->create(
 );
 ```
 
+{% endcode %}
+
 You can also redefine options for created task.
+
+{% code title="create.php" %}
 
 ```php
 $options = new \Spiral\RoadRunner\Jobs\Options(autoAck: true);
@@ -208,6 +251,8 @@ $task = $queue->create(SendEmailTask::class);
 $task = $task->withOptions($options);
 ```
 
+{% endcode %}
+
 ### Task creation for Kafka driver
 
 Please note, a queue with Kafka driver requires a task with specified `topic`. In this case you have to use
@@ -215,6 +260,8 @@ Please note, a queue with Kafka driver requires a task with specified `topic`. I
 Connect to queue using `Spiral\RoadRunner\Jobs\KafkaOptionsInterface`. To redefine this options for a particular
 message, simply pass another `Spiral\RoadRunner\Jobs\KafkaOptionsInterface` implementation as a third parameter of
 the `create` method.
+
+{% code title="kafka.php" %}
 
 ```php
 $options = new \Spiral\RoadRunner\Jobs\KafkaOptions(topic: 'topic_name');
@@ -227,6 +274,8 @@ $task = $queue->create(
 );
 ```
 
+{% endcode %}
+
 As you noticed we use everywhere interfaces for setting options for the task, and a developer has the ability create his
 own implementation of the interfaces.
 
@@ -236,6 +285,8 @@ And to send tasks to the queue, we can use different methods: `dispatch()` and `
 these two implementations is that the first one sends a task to the queue, returning a dispatched task object, while the
 second one dispatches multiple tasks, returning an array. Moreover, the second method provides one-time delivery of all
 tasks in the array, as opposed to sending each task separately.
+
+{% code title="dispatch.php" %}
 
 ```php
 $a = $queue->create(SendEmailTask::class, \json_encode(['email' => 'john.doe@example.com']));
@@ -256,6 +307,8 @@ $result = $queue->dispatchMany($a, $b);
 // }
 ```
 
+{% endcode %}
+
 ### Task Immediately Dispatching
 
 In the case that you do not want to create a new task and then immediately dispatch it, you can simplify the work by
@@ -268,11 +321,13 @@ using the `push` method. However, this functionality has a number of limitations
 - You can create several different tasks and collect them into one collection
   and send them to the queue at once (using the so-called batching).
 
-In the case of immediate dispatch, you will have access to only the basic features: The `push()` method accepts 
+In the case of immediate dispatch, you will have access to only the basic features: The `push()` method accepts
 two required arguments. The first argument is the name of the task to be executed. The second argument is the payload data
 for the task. In addition, the method takes an additional third argument with `Spiral\RoadRunner\Jobs\OptionsInterface` where you can
 pass object with predefined options. Moreover, this method is designed to send only one
 task.
+
+{% code title="dispatch.php" %}
 
 ```php
 use Spiral\RoadRunner\Jobs\Options;
@@ -283,6 +338,8 @@ $task = $queue->push(SendEmailTask::class, $payload, new Options(
     delay: 60 // in seconds
 ));
 ```
+
+{% endcode %}
 
 ### Task Headers
 
@@ -303,6 +360,8 @@ In the case to add a new header to the task, you can use methods [similar to PSR
   the given value.
 - `withoutHeader(string): self` - Return an instance without the specified header.
 
+{% code title="headers.php" %}
+
 ```php
 $task = $queue->create(RestartServer::class, payload: \json_encode(['server' => 'web-1']))
     ->withAddedHeader('access-token', 'IDDQD');
@@ -310,16 +369,22 @@ $task = $queue->create(RestartServer::class, payload: \json_encode(['server' => 
 $queue->dispatch($task);
 ```
 
+{% endcode %}
+
 ### Task Delayed Dispatching
 
 If you want to specify that a job should not be immediately available for processing by a jobs worker, you can use the
 delayed job option. For example, let's specify that a job shouldn't be available for processing until 42 minutes after
 it has been dispatched:
 
+{% code title="delay.php" %}
+
 ```php
 $task = $queue->create(SendEmailTask::class)
     ->withDelay(42 * 60); // 42 min * 60 sec
 ```
+
+{% endcode %}
 
 ## Consumer Usage
 
@@ -344,7 +409,9 @@ There are several ways to check the operating mode from the code:
 
 The second choice may be more preferable in cases where you need to change the RoadRunner's mode, for example, in tests.
 
-```php consumer.php
+{% code title="consumer.php" %}
+
+```php
 use Spiral\RoadRunner\Environment;
 use Spiral\RoadRunner\Environment\Mode;
 
@@ -357,11 +424,15 @@ $env = Environment::fromGlobals();
 $isJobsMode = $env->getMode() === Mode::MODE_JOBS;
 ```
 
+{% endcode %}
+
 After we are convinced of the specialization of the worker, we can write the corresponding code for processing tasks.
 To get information about the available task in the worker, use the `$consumer->waitTask(): ReceivedTaskInterface`
 method.
 
-```php consumer.php
+{% code title="consumer.php" %}
+
+```php
 use Spiral\RoadRunner\Jobs\Consumer;
 use Spiral\RoadRunner\Jobs\Task\ReceivedTaskInterface;
 
@@ -373,6 +444,8 @@ while ($task = $consumer->waitTask()) {
 }
 ```
 
+{% endcode %}
+
 After you receive the task from the queue, you can start processing it in accordance with the requirements. Don't worry
 about how much memory or time this execution takes - the RoadRunner takes over the tasks of managing and distributing
 tasks among the workers.
@@ -380,7 +453,9 @@ tasks among the workers.
 After you have processed the incoming task, you can execute the `complete(): void` method. After that, you tell the
 RoadRunner that you are ready to handle the next task.
 
-```php consumer.php
+{% code title="consumer.php" %}
+
+```php
 $consumer = new Spiral\RoadRunner\Jobs\Consumer();
 
 while ($task = $consumer->waitTask()) {
@@ -392,6 +467,8 @@ while ($task = $consumer->waitTask()) {
 }
 ```
 
+{% endcode %}
+
 We got acquainted with the possibilities of receiving and processing tasks, but we do not yet know what the received
 task is. Let's see what data it contains.
 
@@ -402,7 +479,9 @@ the RoadRunner about it. The method takes two arguments. The first argument is r
 string-like (instance of `Stringable`, for example any exception) value with an error message. The second is optional
 and tells the server to restart this task.
 
-```php consumer.php
+{% code title="consumer.php" %}
+
+```php
 $consumer = new Spiral\RoadRunner\Jobs\Consumer();
 $shouldBeRestarted = false;
 
@@ -418,8 +497,12 @@ while ($task = $consumer->waitTask()) {
 }
 ```
 
+{% endcode %}
+
 In the case that the next time you restart the task, you should update the headers, you can use the appropriate method
 by adding or changing the headers of the received task.
+
+{% code title="consumer.php" %}
 
 ```php
 $task
@@ -429,9 +512,13 @@ $task
 ;
 ```
 
+{% endcode %}
+
 In addition, you can re-specify the task execution delay. For example, in the code above, you may have noticed the use
 of a custom header `"retry-delay"`, the value of which doubled after each restart, so this value can be used to specify
 the delay in the next task execution.
+
+{% code title="consumer.php" %}
 
 ```php
 $task
@@ -439,6 +526,8 @@ $task
     ->fail('Something went wrong', true)
 ;
 ```
+
+{% endcode %}
 
 ### Received Task ID
 
@@ -449,14 +538,20 @@ In addition, it is worth paying attention to the fact that the identifier is not
 indefinitely. It means that there is still a chance of an identifier collision, but it is about 1/2.71 quintillion.
 Even if you send 1 billion tasks per second, it will take you about 85 years for an ID collision to occur.
 
+{% code title="script.php" %}
+
 ```php
 echo $task->getId(); 
 // Expected Result
 // string(36) "88ca6810-eab9-473d-a8fd-4b4ae457b7dc"
 ```
 
+{% endcode %}
+
 In the case that you want to store this identifier in the database, it is recommended to use a binary representation
 (16 bytes long if your DB requires blob sizes).
+
+{% code title="script.php" %}
 
 ```php
 $binary = hex2bin(str_replace('-', '', $task->getId()));
@@ -464,10 +559,14 @@ $binary = hex2bin(str_replace('-', '', $task->getId()));
 // string(16) b"ˆÊh\x10ê¹G=¨ýKJäW·Ü"
 ```
 
+{% endcode %}
+
 ### Received Task Queue
 
 Since a worker can process several different queues at once, you may need to somehow determine from which queue the
 task came. To get the name of the queue, use the `getQueue(): string` method.
+
+{% code title="script.php" %}
 
 ```php
 echo $task->getQueue();
@@ -475,7 +574,11 @@ echo $task->getQueue();
 // string(13) "example-queue"
 ```
 
+{% endcode %}
+
 For example, you can select different task handlers based on different types of queues.
+
+{% code title="script.php" %}
 
 ```php
 // This is just an example of a handler
@@ -488,6 +591,8 @@ $handler = $container->get(match($task->getQueue()) {
 $handler->process($task);
 ```
 
+{% endcode %}
+
 ### Task auto acknowledge
 
 RoadRunner version `v2.10.0+` supports an auto acknowledge task option. You might use this option to acknowledge a task
@@ -495,6 +600,8 @@ right after RR receive it from the queue. You can use this option for the non-im
 the worker.
 
 To use this option you may update the Options:
+
+{% code title="options.php" %}
 
 ```php
 // Create with default values
@@ -505,7 +612,11 @@ $options = new Options(
 );
 ```
 
+{% endcode %}
+
 Or manage that manually per every `Task`:
+
+{% code title="task.php" %}
 
 ```php
 use Spiral\RoadRunner\Jobs\Queue\MemoryCreateInfo;
@@ -536,11 +647,15 @@ $task = $queue->create('task_name', \json_encode(['foo' => 'bar']))->withAutoAck
 $queue->dispatch($task);
 ```
 
+{% endcode %}
+
 ### Received Task Name
 
 The task name is some identifier associated with a specific type of task. For example, it may contain the name of the
 task class so that in the future we can create an object of this task by passing the required data there. To get the
 name of the task, use the `getName(): string` method.
+
+{% code title="script.php" %}
 
 ```php
 echo $task->getName();
@@ -548,7 +663,11 @@ echo $task->getName();
 // string(21) "App\\Queue\\Task\\EmailTask"
 ```
 
+{% endcode %}
+
 Thus, we can implement the creation of a specific task with certain data for this task.
+
+{% code title="script.php" %}
 
 ```php
 $class = $task->getName();
@@ -560,15 +679,19 @@ if (!class_exists($class)) {
 $handler->process($class::fromTask($task));
 ```
 
+{% endcode %}
+
 ### Received Task Payload
 
 Each task contains a set of arbitrary user data to be processed within the task. To obtain this data, you can use one
 of the available methods:
 
-**getPayload**
+#### getPayload
 
 Also you can get payload data in `string` format using the `getPayload` method. This method may be useful to you in
 cases of transferring all data to the DTO.
+
+{% code title="script.php" %}
 
 ```php
 $class = $task->getName();
@@ -577,12 +700,16 @@ $payload = $task->getPayload();
 $dto = new $class($payload);
 ```
 
+{% endcode %}
+
 ### Received Task Headers
 
 In the case that you need to get any additional information that is not related to the task, then for this you should
 use the functionality of headers.
 
 For example, headers can convey information about the serializer, encoding, or other metadata.
+
+{% code title="script.php" %}
 
 ```php
 $message = $task->getPayload();
@@ -592,6 +719,8 @@ if (strtolower($encoding) !== 'utf-8') {
     $message = iconv($encoding, 'utf-8', $message);
 }
 ```
+
+{% endcode %}
 
 The interface for receiving headers is completely similar to [PSR-7](https://www.php-fig.org/psr/psr-7/), so methods
 are available to you:
@@ -628,6 +757,8 @@ To create a new queue, the following types of DTO are available to you:
 
 Such a DTO with the appropriate settings should be passed to the `create()` method to create the corresponding queue:
 
+{% code title="create.php" %}
+
 ```php
 use Spiral\RoadRunner\Jobs\Jobs;
 use Spiral\RoadRunner\Jobs\Queue\MemoryCreateInfo;
@@ -644,11 +775,15 @@ $queue = $jobs->create(new MemoryCreateInfo(
 ));
 ```
 
+{% endcode %}
+
 ### Getting A List Of Queues
 
 In that case, to get a list of all available queues, you just need to use the standard functionality of the `foreach`
 operator. Each element of this collection will correspond to a specific queue registered in the RoadRunner. And to
 simply get the number of all available queues, you can pass a `Job` object to the `count()` function.
+
+{% code title="list.php" %}
 
 ```php
 $jobs = new Spiral\RoadRunner\Jobs\Jobs();
@@ -662,6 +797,8 @@ $count = count($jobs);
 // Expects the number of a queues
 ```
 
+{% endcode %}
+
 ### Pausing A Queue
 
 In addition to the ability to create new queues, there may be times when a queue needs to be suspended for processing.
@@ -670,6 +807,8 @@ suspended during the deployment of new application code.
 
 In this case, the code will be pretty simple. It is enough to call the `pause()` method, passing the names of the queues
 there. In order to start the work of queues further (unpause), you need to call a similar `resume()` method.
+
+{% code title="pause.php" %}
 
 ```php
 $jobs = new Spiral\RoadRunner\Jobs\Jobs();
@@ -680,6 +819,8 @@ $jobs->pause('emails', 'billing', 'backups');
 // Resuming only "emails" and "billing".
 $jobs->resume('emails', 'billing');
 ```
+
+{% endcode %}
 
 ## RPC Interface
 
@@ -718,6 +859,8 @@ here: [Proto](https://github.com/roadrunner-server/roadrunner/blob/e9713a1d08a93
 
 From the PHP point of view, such requests (`List` for example) are as follows:
 
+{% code title="rpc.php" %}
+
 ```php
 use Spiral\Goridge\RPC\RPC;
 use Spiral\Goridge\RPC\Codec\ProtobufCodec;
@@ -728,3 +871,5 @@ $response = RPC::create('tcp://127.0.0.1:6001')
     ->withCodec(new ProtobufCodec())
     ->call('List', '', Maintenance::class);
 ```
+
+{% endcode %}

@@ -1,8 +1,10 @@
-# Jobs — NATS Driver
+# NATS Driver
 
 NATS driver supported in RR since `v2.5.0` and includes only NATS JetStream support.
 
 ## Configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml .rr.yaml
 version: "3"
@@ -59,6 +61,8 @@ jobs:
         # Default: false
         delete_after_ack: false
 ```
+
+{% endcode %}
 
 ## Configuration options
 

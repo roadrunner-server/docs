@@ -1,4 +1,4 @@
-# Jobs — Memory Driver
+# Memory Driver
 
 This type of driver is already supported by the RoadRunner and does not require any additional installations.
 
@@ -6,10 +6,13 @@ Note that using this type of queue driver, all data is in memory and will be des
 restarted. If you need persistent queue, then it is recommended to use alternative drivers: `amqp`, `beanstalk`
 or `sqs`.
 
-> **Warning**
-> This driver cannot hold more than **1000 tasks** with delay at the same time (RR limitation)
+{% hint style="warning" %}
+This driver cannot hold more than **1000 tasks** with delay at the same time (RR limitation)
+{% endhint %}
 
 ## Configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml .rr.yaml
 version: "3"
@@ -31,6 +34,8 @@ jobs:
         # Default: 10
         prefetch: 10
 ```
+
+{% endcode %}
 
 ## Configuration options
 

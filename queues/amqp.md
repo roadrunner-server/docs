@@ -1,4 +1,4 @@
-# Jobs — AMQP Driver
+# AMQP Driver
 
 Strictly speaking, AMQP (and 0.9.1 version used) is a protocol, not a full-fledged driver, so you can use any servers
 that support this protocol (on your own, only rabbitmq was tested), such as:
@@ -23,7 +23,9 @@ contains exactly one `addr` key with a [connection DSN](https://www.rabbitmq.com
 
 You should also configure `rabbitMQ` with `TLS` support: [link](https://www.rabbitmq.com/ssl.html).
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 amqp:
   addr: amqp://guest:guest@127.0.0.1:5672
 
@@ -52,12 +54,16 @@ amqp:
     client_auth_type: no_client_certs
 ```
 
+{% endcode %}
+
 Upon establishing a connection to the server, you can create a new queue that utilizes this connection and encompasses
 the queue settings, including those specific to AMQP).
 
 ## Configuration
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 amqp:
@@ -195,6 +201,8 @@ jobs:
           x-queue-mode: lazy
 ```
 
+{% endcode %}
+
 ## Configuration options
 
 **Here is a detailed description of each of the amqp-specific options:**
@@ -222,8 +230,9 @@ to true if you wish to consume raw payloads as well.
 
 `exchange` - required, rabbitMQ exchange name.
 
-> **Note**
-> See also [AMQP model](https://www.rabbitmq.com/tutorials/amqp-concepts.html#amqp-model) documentation section.
+{% hint style="info" %}
+See also [AMQP model](https://www.rabbitmq.com/tutorials/amqp-concepts.html#amqp-model) documentation section.
+{% endhint %}
 
 ### Exchange type
 
@@ -248,8 +257,9 @@ acknowledged. This feature is beneficial for batch processing of deliveries and 
 
 `requeue_on_fail` - requeue on Nack (by RabbitMQ).
 
-> **Note**
-> Read more about Nack in RabbitMQ official docs: https://www.rabbitmq.com/confirms.html#consumer-nacks-requeue
+{% hint style="info" %}
+Read more about Nack in RabbitMQ official docs: https://www.rabbitmq.com/confirms.html#consumer-nacks-requeue
+{% endhint %}
 
 ### Queue headers
 
