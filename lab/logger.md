@@ -1,17 +1,21 @@
-# Logging — Logger
+# Logger
 
 Logger Plugin is responsible for collecting logs from server plugins and PHP application workers' `STDERR` and
 displaying them in the RoadRunner `STDERR`/`STDOUT`. It comes with a variety of options that allow you to customize the
 way your application logs are collected and displayed.
 
-### Configuration
+## Configuration
 
 ### Modes
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 logs:
   mode: production
 ```
+
+{% endcode %}
 
 There are three available modes:
 
@@ -22,8 +26,9 @@ There are three available modes:
 3. `raw` - This mode displays messages as raw output without any formatting. This mode is useful in production
    environments where you need to parse logs programmatically.
 
-> **Note**
-> Use `production` mode in production environments. It is optimized for production usage.
+{% hint style="info" %}
+Use `production` mode in production environments. It is optimized for production usage.
+{% endhint %}
 
 ### Encoding
 
@@ -32,48 +37,67 @@ in a friendly format. JSON encoding, on the other hand, returns messages in a JS
 format presents log messages as JSON objects with key-value pairs representing each log message field, making them more
 machine-readable and easier to process programmatically. JSON encoding is also better suited for production usage.
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 logs:
   encoding: console
 ```
+
+{% endcode %}
 
 ### Level
 
 The level is used to specify the logging level. This means that only log messages with a severity level will be sent to
 this channel. Available levels include `panic`, `error`, `warn`, `info`, and `debug`.
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 logs:
   level: info
 ```
 
-> **Note**
-> The default level is `debug`.
+{% endcode %}
+
+{% hint style="info" %}
+The default level is `debug`.
+{% endhint %}
 
 ### Output
 
 By default, RoadRunner sends logs to `STDERR`. However, you can configure RoadRunner to send logs to `STDOUT` by using
 the output key.
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 logs:
   output: stdout
 ```
 
+{% endcode %}
+
 ### Line Endings
 
 It allows configuring custom line endings for the logger. By default, the plugin uses `\n` as the line ending. Note that the `\n` is a forced default. This means that if the value is empty, RoadRunner will still use `\n`. So no empty line endings are allowed.
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 logs:
   line_ending: "\r\n"
 ```
 
+{% endcode %}
+
 ### Channels
 
 In addition, you can configure each plugin log messages individually using the `channels` section. It allows you to
 customize the logger settings for each plugin independently. You can disable logging for a particular plugin or change
 its log mode and output destination.
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -88,12 +112,16 @@ logs:
       output: http.log
 ```
 
+{% endcode %}
+
 ## File Logger
 
 It is possible to redirect channels or the entire log output to a file. To use the file logger, you need to set
 the `file_logger_options.log_output` option to the filename where you want to write the logs.
 
 ### Entire log
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 logs:
@@ -106,9 +134,13 @@ logs:
     compress: true
 ```
 
+{% endcode %}
+
 ### Channel
 
 You can also redirect a specific channel to a file. To do this, you need to specify the channel name in the `channels`
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 logs:
@@ -123,6 +155,8 @@ logs:
         max_backups: 10
         compress: true
 ```
+
+{% endcode %}
 
 ### Available options
 

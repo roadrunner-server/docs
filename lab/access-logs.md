@@ -1,10 +1,11 @@
-# Logging — HTTP Access logs
+# HTTP Access logs
 
 RoadRunner has the HTTP access logs support, which provides detailed information about incoming HTTP requests and
 responses.
 
-> **Note**
-> This feature is disabled by default, but it can be easily enabled by configuring the HTTP server.
+{% hint style="info" %}
+This feature is disabled by default, but it can be easily enabled by configuring the HTTP server.
+{% endhint %}
 
 ## Enabling HTTP Access Logs
 
@@ -12,7 +13,9 @@ To enable HTTP access logs in RoadRunner, you need to modify the configuration f
 
 **Here's an example configuration file:**
 
-```yaml .rr.yaml
+{ % code title=".rr.yaml" % }
+
+```yaml
 version: "3"
 
 http:
@@ -20,6 +23,8 @@ http:
   access_logs: true
   # ...
 ```
+
+{ % endcode % }
 
 Once enabled, RoadRunner will log the following information for each incoming HTTP request:
 

@@ -1,3 +1,5 @@
+{% code title="temporal.json" %}
+
 ```json
 {
   "__inputs": [
@@ -705,3 +707,5 @@
   "weekStart": "monday"
 }
 ```
+
+{% endcode %}

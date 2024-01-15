@@ -1,18 +1,21 @@
-# Logging — Application logger
+# Application logger
 
 The RoadRunner server has a useful `app-logger` plugin that allows users to send logs from their applications to the
 RoadRunner server using an RPC interface. This plugin is enabled by default and does not require any additional
 configurations. It can be used to observe all application and server logs in one place. This is especially useful when
 debugging and monitoring applications.
 
-> **Note**
-> It will send raw messages to the RoadRunner `STDERR`
+{% hint style="info" %}
+It will send raw messages to the RoadRunner `STDERR`
+{% endhint %}
 
 ## Configuration
 
 The `logs` section in the RoadRunner configuration file allows you to configure logging behavior for their application.
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 rpc:
   listen: tcp://127.0.0.1:6001
 
@@ -22,15 +25,19 @@ logs:
       level: info
 ```
 
-> **Warning**
-> To interact with the RoadRunner app-logger plugin, you will need to have the RPC defined in the rpc configuration
-> section. You can refer to the documentation page [here](../php/rpc.md) to learn more about the configuration.
+{% endcode %}
+
+{% hint style="warning" %}
+To interact with the RoadRunner app-logger plugin, you will need to have the RPC defined in the rpc configuration
+section. You can refer to the documentation page [here](../php/rpc.md) to learn more about the configuration.
+{% endhint %}
 
 The `level` key is used to specify the logging level for this channel. This means that only log messages with a severity
 level of info or higher will be sent to this channel.
 
-> **Note**
-> Read more about logging in the [Logging — Logger](./logger.md) section.
+{% hint style="info" %}
+Read more about logging in the [Logging — Logger](./logger.md) section.
+{% endhint %}
 
 ## PHP client
 
@@ -41,9 +48,13 @@ plugin with your PHP application.
 
 To get started, you can install the package via Composer using the following command:
 
-```terminal
+{% code %}
+
+```bash
 composer require roadrunner-php/app-logger
 ```
+
+{% endcode %}
 
 ### Usage
 
@@ -51,6 +62,8 @@ After the installation, you can create an instance of the `RoadRunner\Logger\Log
 the available class methods.
 
 **Here is an example:**
+
+{% code title="logger.php" %}
 
 ```php
 use Spiral\Goridge\RPC\RPC;
@@ -65,8 +78,11 @@ $logger->warning('Something might be wrong...');
 $logger->error('Houston, we have a problem!');
 ```
 
-> **Note**
-> You can refer to the documentation page [here](../php/rpc.md) to learn more about creating the RPC connection.
+{% endcode %}
+
+{% hint style="info" %}
+You can refer to the documentation page [here](../php/rpc.md) to learn more about creating the RPC connection.
+{% endhint %}
 
 ### Available methods
 
@@ -84,46 +100,67 @@ RoadRunner provides an RPC API, which allows you to manage app-logger in your ap
 procedure calls. The RPC API provides a set of methods that map to the available methods of
 the `RoadRunner\Logger\Logger`class in PHP.
 
-> **Note**
-> All methods accept a `string` (which will be log message) as a first argument and a `bool` placeholder for the second
-> arg.
+{% hint style="info" %}
+All methods accept a `string` (which will be log message) as a first argument and a `bool` placeholder for the second
+arg.
+{% endhint %}
 
 #### Error
 
 Method sends an `error` log message with the specified message to the RoadRunner server.
 
+{% code %}
+
 ```go
 func (r *RPC) Error(in string, _ *bool) error {}
 ```
+
+{% endcode %}
 
 #### Info
 
 Method sends an `info` log message with the specified message to the RoadRunner server.
 
+{% code %}
+
 ```go
 func (r *RPC) Info(in string, _ *bool) error {}
 ```
+
+{% endcode %}
 
 #### Warning
 
 Method sends a `warning` log message with the specified message to the RoadRunner server.
 
+{% code %}
+
 ```go
 func (r *RPC) Warning(in string, _ *bool) error {}
 ```
+
+{% endcode %}
 
 #### Debug
 
 Method sends a `debug` log message with the specified message to the RoadRunner server.
 
+{% code %}
+
 ```go
 func (r *RPC) Debug(in string, _ *bool) error {}
 ```
+
+{% endcode %}
 
 #### Log
 
 Method sends a log message with the specified message directly to the `STDERR` of the RoadRunner server.
 
+{% code %}
+
 ```go
 func (r *RPC) Log(in string, _ *bool) error {}
 ```
+
+{% endcode %}

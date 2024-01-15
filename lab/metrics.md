@@ -1,4 +1,4 @@
-# Observability — Application Metrics
+# Metrics
 
 RoadRunner offers metrics plugin, which provides an embedded metrics server based
 on [Prometheus](https://prometheus.io/). The metrics plugin allows users to monitor the performance and health of their
@@ -11,12 +11,16 @@ configuration file.
 
 **Here is an example:**
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 metrics:
   address: 127.0.0.1:2112
 ```
+
+{% endcode %}
 
 After enabling the metrics plugin, you can access the Prometheus metrics by visiting the http://127.0.0.1:2112/metrics
 URL. The metrics plugin provides several general metrics that apply to all plugins and specific metrics for each
@@ -32,21 +36,29 @@ The general metrics provided by the metrics plugin include:
 - `{{plugin}}_workers_invalid` - Number of workers currently in invalid, killing, destroyed, errored, inactive states.
 - `{{plugin}}_workers_ready` - Number of workers currently in ready state.
 
-> **Note**
-> `{{plugin}}` is the concatenation of the rr + plugin name. For example, for the `jobs` plugin, the metric would
-> be `rr_jobs_total_workers`.
+{% hint style="info" %}
+`{{plugin}}` is the concatenation of the rr + plugin name. For example, for the `jobs` plugin, the metric would
+be `rr_jobs_total_workers`.
+{% endhint %}
 
 ### HTTP Metrics
 
-> **Note**
-> To enable specific HTTP metrics, you need to add an HTTP middleware called `http_metrics` to the `http.middleware`
-> section of your configuration file.
-> 
-> **Here is an example:**
-> ```yaml
-> http:
->   middleware: [ "http_metrics" ]
-> ```
+{% hint style="info" %}
+To enable specific HTTP metrics, you need to add an HTTP middleware called `http_metrics` to the `http.middleware`
+section of your configuration file.
+
+**Here is an example:**
+
+{% code title=".rr.yaml" %}
+
+```yaml
+http:
+  middleware: [ "http_metrics" ]
+```
+
+{% endcode %}
+
+{% endhint %}
 
 The HTTP metrics provided by the metrics plugin include:
 
@@ -85,7 +97,9 @@ Prometheus. To do this, you need to register collectors in your configuration fi
 
 **Here is an example:**
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 metrics:
@@ -96,12 +110,17 @@ metrics:
       help: "Total registered users."
 ```
 
-> **Note**
-> Supported types for collectors include `gauge`, `counter`, `summary`, and `histogram`.
+{% endcode %}
+
+{% hint style="info" %}
+Supported types for collectors include `gauge`, `counter`, `summary`, and `histogram`.
+{% endhint %}
 
 ### Tagged metrics
 
 You can also use tagged (labels) metrics to group values:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -115,6 +134,8 @@ metrics:
       labels: [ "type", "is_admin" ]
 ```
 
+{% endcode %}
+
 In the example below we will show you how to send metrics into `registered_users` collector.
 
 ### PHP client
@@ -126,9 +147,13 @@ with your PHP application.
 
 To get started, you can install the package via Composer using the following command:
 
-```terminal
+{% code %}
+
+```bash
 composer require spiral/roadrunner-metrics
 ```
+
+{% endcode %}
 
 #### Usage
 
@@ -136,6 +161,8 @@ After the installation, you can create an instance of the `Spiral\RoadRunner\Met
 you to use the available class methods.
 
 **Here is an example:**
+
+{% code title="metrics.php" %}
 
 ```php
 use Spiral\RoadRunner\Metrics\Metrics;
@@ -145,6 +172,8 @@ $metrics = new Metrics(RPC::create('127.0.0.1:6001'));
 
 $metrics->add('registered_users', 1);
 ```
+
+{% endcode %}
 
 #### Labels
 
@@ -162,6 +191,8 @@ grouping, and aggregating the data.
 
 You can also specify labels for your metrics by passing an array of labels to the `add` method:
 
+{% code title="metrics.php" %}
+
 ```php
 // ...
 
@@ -170,12 +201,16 @@ $labels = ['guest', 'false'];
 $metrics->add('registered_users', 1, $labels);
 ```
 
+{% endcode %}
+
 #### Declare metrics
 
 In addition to sending metrics to the server, you can also declare metrics from your PHP application. This can be useful
 if you want to dynamically declare custom metrics in your application.
 
 **Here is an example of how to declare a custom metric:**
+
+{% code title="metrics.php" %}
 
 ```php
 use Spiral\RoadRunner\Metrics\Collector;
@@ -188,7 +223,11 @@ $metrics->declare(
 $metrics->add('earned_money', 100_000_000);
 ```
 
+{% endcode %}
+
 You can also declare labeled metrics:
+
+{% code title="metrics.php" %}
 
 ```php
 $metrics->declare(
@@ -197,6 +236,8 @@ $metrics->declare(
         ->withLabels('type', 'is_admin'),
 );
 ```
+
+{% endcode %}
 
 ## API
 
@@ -210,46 +251,70 @@ the `Spiral\RoadRunner\Metrics\Metrics` class in PHP.
 
 Method is used to add a new metric to the declared collector.
 
+{% code %}
+
 ```go
 func (r *rpc) Add(m *Metric, ok *bool) error {}
 ```
+
+{% endcode %}
 
 #### Sub
 
 Method is used to subtract a value from a declared metric (for gauge metrics only).
 
+{% code %}
+
 ```go
 func (r *rpc) Sub(m *Metric, ok *bool) error {}
 ```
+
+{% endcode %}
 
 #### Set
 
 Method is used to set the value of a metric (for gauge metrics only).
 
+{% code %}
+
 ```go
 func (r *rpc) Set(m *Metric, ok *bool) (err error) {}
 ```
+
+{% endcode %}
 
 #### Declare
 
 Method is used to register a new collector in Prometheus.
 
+{% code %}
+
 ```go
 func (r *rpc) Declare(nc *NamedCollector, ok *bool) error {}
 ```
+
+{% endcode %}
 
 #### Unregister
 
 Method is used to remove a collector from the Prometheus registry.
 
+{% code %}
+
 ```go
 func (r *rpc) Unregister(name string, ok *bool) error {}
 ```
+
+{% endcode %}
 
 #### Observe
 
 Method is used to observe the value of a metric (for histogram and summary metrics only).
 
+{% code %}
+
 ```go
 func (r *rpc) Observe(m *Metric, ok *bool) error {}
 ```
+
+{% endcode %}

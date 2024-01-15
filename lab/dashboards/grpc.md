@@ -1,3 +1,5 @@
+{% code title="grpc.json" %}
+
 ```json
 {
   "__inputs": [
@@ -998,3 +1000,5 @@
   "weekStart": "monday"
 }
 ```
+
+{% endcode %}
