@@ -6,6 +6,8 @@ Headers middleware is used to set up request/response headers and control CORS f
 
 To enable CORS headers add the following section to your configuration.
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -29,18 +31,24 @@ http:
       debug: false
 ```
 
+{% endcode %}
+
 > Make sure to declare "headers" middleware.
 
-> **Note**
-> Since RoadRunner v2023.2.0 following changes were made:
-> ability to define status code of successful OPTIONS request via options_success_status config;
-> debug flag was added to enable additional output to debug CORS issues;
-> it's allowed to define multiple allowed_origin values separated by comma;
-> CORS requests are handled using [rs/cors](https://github.com/rs/cors) package.
+{% hint style="info" %}
+Since RoadRunner v2023.2.0 following changes were made:
+ability to define status code of successful OPTIONS request via options_success_status config;
+debug flag was added to enable additional output to debug CORS issues;
+it's allowed to define multiple allowed_origin values separated by comma;
+CORS requests are handled using [rs/cors](https://github.com/rs/cors) package.
+{% endhint %}
 
 ## Custom headers for Response or Request
 
 You can control additional headers to be set for outgoing responses and headers to be added to the request sent to your application.
+
+{% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -55,3 +63,5 @@ http:
       response:
         X-Powered-By: "RoadRunner"
 ```
+
+{% endcode %}

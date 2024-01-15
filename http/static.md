@@ -3,12 +3,15 @@
 `Static` HTTP middleware serving static content using RoadRunner on the main HTTP plugin endpoint. Using this middleware
 can slow down the overall performance by up to `~10%`, because RoadRunner has to check the path for each file request.
 
-> **INFO**
-> if there is no such file to serve, RR will redirect the request back to the PHP worker.
+{% hint style="info" %}
+If there is no such file to serve, RR will redirect the request back to the PHP worker.
+{% endhint %}
 
 ## Enable HTTP Middleware
 
 To enable static content serving use the configuration inside the http section:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -30,6 +33,8 @@ http:
       output: "output-header"
 ```
 
+{% endcode %}
+
 Where:
 
 1. `dir`: path to the directory.
@@ -40,6 +45,8 @@ Where:
 6. `request/response`: custom headers for the static files.
 
 To combine static content with other middleware, use the following sequence (static is always last in the line, then headers and gzip):
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -70,6 +77,8 @@ http:
       output: "output-header"
 ```
 
+{% endcode %}
+
 ## File server plugin
 
 Fileserver plugin serves the static files. It works similar to the `static` HTTP middleware and has extended functionality.
@@ -78,6 +87,8 @@ corresponding file.
 The file server plugin uses a different port and only serves static files.
 
 ## File server configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 fileserver:
@@ -139,3 +150,5 @@ fileserver:
       max_age: 10
       bytes_range: true
 ```
+
+{% endcode %}

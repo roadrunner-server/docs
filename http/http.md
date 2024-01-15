@@ -4,6 +4,8 @@ HTTP plugin is used to pass `HTTP`/`HTTPS`/`fCGI`/`HTTP2(h2c)`/`HTTP3` requests 
 
 ## Configuration reference
 
+{% code title=".rr.yaml" %}
+
 ```yaml .rr.yaml
 version: "3"
 
@@ -315,9 +317,13 @@ http:
     max_concurrent_streams: 128
 ```
 
+{% endcode %}
+
 ## HTTPS
 
 You can enable HTTPS support by adding `ssl` section into `http` config.
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -334,14 +340,18 @@ http:
     root_ca: root.crt
 ```
 
+{% endcode %}
+
 ### Let's Encrypt
 
 RR can automatically obtain TLS certificates for your domain. The folder with your certs might be moved between servers,
-RR will check the `certs_dir` and obtain a new certificate if the old one is above to expire. 
+RR will check the `certs_dir` and obtain a new certificate if the old one is above to expire.
 
 RR will track your certificate's expiration date and refresh it automatically.
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 version: "3"
 
 http:
@@ -388,12 +398,16 @@ http:
   # ........
 ```
 
+{% endcode %}
+
 ### mTLS
 
 To enable [mTLS](https://www.cloudflare.com/en-gb/learning/access-management/what-is-mutual-tls/) use the following
 configuration:
 
-```yaml .rr.yaml
+{% code title=".rr.yaml" %}
+
+```yaml
 http:
   pool:
     num_workers: 1
@@ -407,6 +421,8 @@ http:
     root_ca: "rootCA.pem"
     client_auth_type: require_and_verify_client_cert 
 ```
+
+{% endcode %}
 
 **Options for the `client_auth_type` are:**
 
@@ -424,6 +440,8 @@ To enable an automatic redirect from `http://` to `https://` set `redirect` opti
 
 Root CA supported by the option in `.rr.yaml`
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -432,9 +450,13 @@ http:
     root_ca: root.crt
 ```
 
+{% endcode %}
+
 ## HTTP/2
 
 You can enable HTTP2 support by adding `http2` section into `http` config.
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -446,6 +468,8 @@ http:
     h2c: false
     max_concurrent_streams: 128
 ```
+
+{% endcode %}
 
 ### Upgrade connection from `http1.1` to `h2c` [`v2.10.2`]
 
@@ -464,19 +488,26 @@ to `h2c`: [rfc7540](https://datatracker.ietf.org/doc/html/rfc7540#section-3.4)
 RoadRunner support [HTTP/2 push](https://en.wikipedia.org/wiki/HTTP/2_Server_Push) via virtual headers provided by PHP
 response.
 
+{% code title="script.php" %}
+
 ```php
 return $response->withAddedHeader('http2-push', '/test.js');
 ```
 
+{% endcode %}
+
 Note that the path of the resource must be related to the public application directory and must include `/` at the
 beginning.
 
-> **Note**
-> HTTP2 push only works under HTTPS with `static` service enabled.
+{% hint style="info" %}
+HTTP2 push only works under HTTPS with `static` service enabled.
+{% endhint %}
 
 ### H2C
 
 You can enable HTTP/2 support over non-encrypted TCP connection using H2C:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -485,9 +516,13 @@ http:
   http2.h2c: true
 ```
 
+{% endcode %}
+
 ## FastCGI
 
 There is FastCGI frontend support inside the HTTP module, you can enable it (disabled by default):
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -498,10 +533,15 @@ http:
     address: tcp://0.0.0.0:6920
 ```
 
+{% endcode %}
+
 ## HTTP/3
+
 HTTP3 support is experimental and might be changed in the future. Docs are available in the [experimental](../experimental/experimental.md) section.
 
 ## Overriding HTTP default error code
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -510,6 +550,8 @@ http:
   # override http error code for the internal RR errors (default 500)
   internal_error_code: 505
 ```
+
+{% endcode %}
 
 `http.internal_error_code` code is used for the `SoftJob`, allocation, all kinds of TTL, Network, errors. But for
 example, for the load balancer might be better to use a different code. So, you may override the default one.
@@ -521,16 +563,20 @@ the [previous one](https://github.com/roadrunner-server/roadrunner/issues/1501).
 
 **Note that the request (imagine) comes from the right:**
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 http:
   middleware: # RESPONSE FROM HERE --> [ "static", "gzip", "sendfile" ] # <-- REQUEST COMES FROM HERE
 ```
+
+{% endcode %}
 
 So in this case the request gets into the `sendfile` middleware, then `gzip` and `static`. And vice versa from the
 response.
 
 ## Request queues
 
-RR has an internal queue for requests. The `allocate_timeout` is used to assign a worker to the request. 
-If your worker works for 1 minute for example, but `allocate_timeout` is equal to 30 seconds, after this timeout, RR will start rejecting the first request in queue. 
+RR has an internal queue for requests. The `allocate_timeout` is used to assign a worker to the request.
+If your worker works for 1 minute for example, but `allocate_timeout` is equal to 30 seconds, after this timeout, RR will start rejecting the first request in queue.
 Then +30s for the second, and so on and so forth.

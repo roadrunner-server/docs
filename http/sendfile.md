@@ -7,12 +7,14 @@ Original issue: [link](https://github.com/roadrunner-server/roadrunner-plugins/i
 The middleware reads the file in 10MB chunks. For example, for the 5Gb file, only 10MB of RSS is used. If the file
 is smaller than 10MB, the middleware adjusts the buffer to fit the file size.
 
-## Similar approaches:
+## Similar approaches
 
 - [NGINX](https://www.nginx.com/resources/wiki/start/topics/examples/xsendfile/)
 - [Apache2](https://tn123.org/mod_xsendfile/)
 
 ## Configuration
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -30,4 +32,4 @@ http:
     destroy_timeout: 60s
 ```
 
-
+{% endcode %}

@@ -9,6 +9,8 @@ outgoing/incoming requests.
 
 ## Configuration
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -20,5 +22,7 @@ http:
     allocate_timeout: 60s
     destroy_timeout: 60s
 ```
+
+{% endcode %}
 
 Gzip middleware supports OpenTelemetry headers propagation.

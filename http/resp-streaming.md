@@ -7,8 +7,11 @@ You don't need to update the configuration to enable this feature. It is enabled
 
 ### Sending a response in chunks
 
-The size of the chunks is controlled by the PHP worker. You can send a chunk by calling the `respond()` method of the `Spiral\RoadRunner\Http\HttpWorker` class. 
+The size of the chunks is controlled by the PHP worker. You can send a chunk by calling the `respond()` method of the `Spiral\RoadRunner\Http\HttpWorker` class.
 The signature of the method is the following:
+
+{% code title="script.php" %}
+
 ```php
     /**
      * @throws \JsonException
@@ -16,11 +19,15 @@ The signature of the method is the following:
     public function respond(int $status, string|Generator $body = '', array $headers = [], bool $endOfStream = true): void
 ```
 
+{% endcode %}
+
 The `$body` parameter can be a string or a generator. If it is a generator, the worker will iterate over it and send chunks to the client.
 `$status` and `$headers` are the same as in the `respond()` method of the `Spiral\RoadRunner\Http\HttpWorker` class.
 The `$endOfStream` parameter indicates whether the response is finished. If set to false, the worker will wait for the next chunk.
 
 Here is the example of the streaming response:
+
+{% code title="worker.php" %}
 
 ```php
 <?php
@@ -54,9 +61,13 @@ try {
 }
 ```
 
+{% endcode %}
+
 ### Sending headers and status codes
 
 You can send headers and status codes (`1XX` multiple times, or other, but only once) to the client during the streaming.
+
+{% code title="worker.php" %}
 
 ```php
 <?php
@@ -99,5 +110,7 @@ try {
     $worker->error($e->getMessage());
 }
 ```
+
+{% endcode %}
 
 In this example, we send 5 status codes and 5 headers to the client. You may send a `103 Early Hints` status code (or any `1XX` status code) to the client at any time during streaming (do not forget about `$endOfStream`).
