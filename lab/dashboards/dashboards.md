@@ -17,4 +17,4 @@ This dashboard contains jobs plugin metrics: [link](jobs.md)
 ## Temporal dashboard
 
 [This](temporal.md) dashboard contains temporal (RR part) plugin metrics.
-Official repo with the temporal metrics available here: https://github.com/temporalio/dashboards
+Official repo with the temporal metrics available here: [temporal](https://github.com/temporalio/dashboards)
