@@ -1,6 +1,6 @@
 # Table of contents
 
-## 🟠 General
+## 😃 General
 
 * [Intro into RoadRunner](intro/about.md)
 * [Quick Start](intro/quick-start.md)
@@ -11,22 +11,22 @@
 
 ## 👷 PHP Worker
 
-* [Worker](php/worker.md)
 * [Dynamic Workers Scaling](php/scaling.md)
-* [Debugging](php/debugging.md)
 * [Developer mode](php/developer.md)
 * [Environment](php/environment.md)
+* [Debugging](php/debugging.md)
+* [Worker](php/worker.md)
 * [RPC](php/rpc.md)
 
-## 🟢 Customization
+## 🛠️ Customization
 
 * [Building RR with a custom plugin](customization/build.md)
-* [Events Bus](customization/events-bus.md)
-* [Writing a Plugin](customization/plugin.md)
-* [Writing a Middleware](customization/middleware.md)
 * [Integrating with Golang Apps](customization/embedding.md)
+* [Writing a Middleware](customization/middleware.md)
+* [Writing a Plugin](customization/plugin.md)
+* [Events Bus](customization/events-bus.md)
 
-## 🔵 App Server
+## 📡 App Server
 
 * [Production Usage](app-server/production.md)
 * [RoadRunner with NGINX](app-server/nginx-with-rr.md)
@@ -51,19 +51,19 @@
 ## 🔐 Key-Value
 
 * [Intro into KV](kv/overview.md)
-* [Redis](kv/redis.md)
 * [Memcached](kv/memcached.md)
-* [BoltDG](kv/boltdb.md)
 * [In-Memory](kv/memory.md)
+* [BoltDG](kv/boltdb.md)
+* [Redis](kv/redis.md)
 
 ## 📦 Queues and Jobs
 
 * [Intro into Jobs](queues/overview.md)
-* [RabbitMQ](queues/amqp.md)
 * [Beanstalk](queues/beanstalk.md)
-* [Kafka](queues/kafka.md)
-* [BoltDB](queues/boltdb.md)
 * [In-Memory](queues/memory.md)
+* [RabbitMQ](queues/amqp.md)
+* [BoltDB](queues/boltdb.md)
+* [Kafka](queues/kafka.md)
 * [NATS](queues/nats.md)
 * [SQS](queues/sqs.md)
 
