@@ -37,10 +37,11 @@ http:
 
 {% hint style="info" %}
 Since RoadRunner v2023.2.0 following changes were made:
-ability to define status code of successful OPTIONS request via options_success_status config;
-debug flag was added to enable additional output to debug CORS issues;
-it's allowed to define multiple allowed_origin values separated by comma;
-CORS requests are handled using [rs/cors](https://github.com/rs/cors) package.
+
+- Ability to define status code of successful OPTIONS request via options_success_status config;
+- Debug flag was added to enable additional output to debug CORS issues;
+- Allowed to define multiple allowed_origin values separated by comma;
+- CORS requests are handled using [rs/cors](https://github.com/rs/cors) package.
 {% endhint %}
 
 ## Custom headers for Response or Request
