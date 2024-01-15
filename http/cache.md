@@ -12,11 +12,8 @@ information.
 
 ## Features
 
+* Sets [the `Cache-Status` HTTP Response Header](https://httpwg.org/http-extensions/draft-ietf-httpbis-cache-header.html)
 * [RFC 7234](https://httpwg.org/specs/rfc7234.html) compliant HTTP Cache.
-*
-
-Sets [the `Cache-Status` HTTP Response Header](https://httpwg.org/http-extensions/draft-ietf-httpbis-cache-header.html)
-
 * REST API to purge the cache and list stored resources.
 * Builtin support for distributed cache.
 * Tag-based invalidation.
@@ -51,13 +48,13 @@ mode = "development"
 **Available storages**:  
 In-memory/Filesystem
 
-- `nutsdb`
-- `badger` (default one)
+* `nutsdb`
+* `badger` (default one)
 
 Distributed
 
-- `etcd`
-- `olric`
+* `etcd`
+* `olric`
 
 More info about customizing RR with your own plugins: [link](../customization/plugin.md)
 
@@ -116,5 +113,3 @@ http:
 ```
 
 {% endcode %}
-
-**Detailled configuration: [link](https://github.com/darkweak/souin)**
