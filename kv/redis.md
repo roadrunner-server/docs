@@ -1,9 +1,10 @@
-# KV Plugin — Redis Driver
+# Redis Driver
 
 Before configuring the Redis driver, please make sure that the Redis Server is installed and running.
 
-> **Note**
-> You can read more about this [in the documentation](https://redis.io/).
+{% hint style="info" %}
+You can read more about this [in the documentation](https://redis.io/).
+{% endhint %}
 
 ## Configuration
 
@@ -11,6 +12,8 @@ In the simplest case, when a full-fledged cluster or a fault-tolerant system is 
 the Redis Server.
 
 The complete redis driver configuration:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -93,6 +96,8 @@ kv:
       read_only: false
 ```
 
+{% endcode %}
+
 ## Options
 
 Below is a more detailed description of each of the Redis-specific options:
@@ -114,9 +119,10 @@ specify an empty string if the password of the connection is not specified.
 
 `db`: An optional identifier for the database used in this connection to the Redis Server.
 
-> **Note**
-> Read more about databases section on the documentation page for the description of
-> the [select command](https://redis.io/commands/select).
+{% hint style="info" %}
+Read more about databases section on the documentation page for the description of
+the [select command](https://redis.io/commands/select).
+{% endhint %}
 
 ### Timeouts
 
@@ -133,9 +139,9 @@ Must be in the format of a "numeric value" + "time format suffix", like "`2h`" w
 If no suffix is specified, the value will be interpreted as specified in nanoseconds. In most cases, this accuracy is
 redundant and may not be true. For example `5` means 5 nanoseconds.
 
-> **Note**
-> All time intervals can be suffixed.
-
+{% hint style="info" %}
+All time intervals can be suffixed.
+{% endhint %}
 
 `read_timeout`: Timeout for socket reads. If reached, commands will fail with a timeout instead of blocking. Must be in
 the format of a "numeric value" + "time format suffix". A value of `0` is equivalent to a timeout of 3 seconds (`3s`). A
@@ -199,6 +205,8 @@ command `redis-cli --cluster create 127.0.0.1:6379 127.0.0.1:6380`, you should s
 connections. In addition, when organizing a cluster, two additional options with algorithms for working with connections
 will be available to you: `route_by_latency` and `route_randomly`.
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -219,6 +227,8 @@ kv:
       route_randomly: false
 ```
 
+{% endcode %}
+
 Where new options means:
 
 - `route_by_latency`: Allows routing read-only commands to the closest master
@@ -236,6 +246,8 @@ about [Sentinel on the documentation page](https://redis.io/topics/sentinel).
 
 There are two additional options available for the Sentinel configuration: `master_name` and `sentinel_password`.
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -251,6 +263,8 @@ kv:
       # Default: "" (no password)
       sentinel_password: ""
 ```
+
+{% endcode %}
 
 Where Sentinel's options means:
 

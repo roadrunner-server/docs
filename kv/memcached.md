@@ -1,4 +1,4 @@
-# KV Plugin — Memcached Driver
+# Memcached Driver
 
 Before configuring the Memcached driver, please make sure that the Memcached Server is installed and running. You can
 read more about this [in the documentation](https://memcached.org/).
@@ -6,6 +6,8 @@ read more about this [in the documentation](https://memcached.org/).
 ## Configuration
 
 The complete memcached driver configuration:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -22,6 +24,8 @@ kv:
       addr: "127.0.0.1:11211"
 ```
 
+{% endcode %}
+
 ## Options
 
 Below is a more detailed description of each of the memcached-specific options:
@@ -33,6 +37,8 @@ Below is a more detailed description of each of the memcached-specific options:
 In the case that there are several memcached servers, then the list of connections can be listed in an array format, for
 example:
 
+{% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -42,3 +48,5 @@ kv:
     config:
       addr: [ "127.0.0.1:11211", "127.0.0.1:11222" ]
 ```
+
+{% endcode %}

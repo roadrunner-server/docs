@@ -1,10 +1,12 @@
-# KV Plugin — Boltdb Driver
+# Boltdb Driver
 
 This type of driver is already supported by the RoadRunner and does not require any additional installations.
 
 ## Configuration
 
 The complete boltdb driver configuration:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -33,6 +35,8 @@ kv:
       # Default: 60
       interval: 60
 ```
+
+{% endcode %}
 
 ## Options
 
