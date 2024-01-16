@@ -3,8 +3,8 @@
 ## 😃 General
 
 * [Intro into RoadRunner](intro/about.md)
-* [Quick Start](intro/quick-start.md)
 * [Features](README.md)
+* [Quick Start](intro/quick-start.md)
 * [Installation](intro/install.md)
 * [Configuration](intro/config.md)
 * [Contributing](intro/contributing.md)
