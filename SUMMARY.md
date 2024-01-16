@@ -79,9 +79,9 @@
 
 ## 📈 Logging and Observability
 
-* [HTTP Access Logs](lab/access-logs.md)
 * [OpenTelemetry](lab/otel.md)
 * [HealthChecks](lab/health.md)
+* [Access Logs](lab/accesslogs.md)
 * [AppLogger](lab/applogger.md)
 * [Metrics](lab/metrics.md)
 * [Grafana](lab/dashboards/dashboards.md)

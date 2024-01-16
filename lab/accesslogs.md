@@ -1,7 +1,6 @@
-# HTTP Access logs
+# Access logs (HTTP)
 
-RoadRunner has the HTTP access logs support, which provides detailed information about incoming HTTP requests and
-responses.
+RoadRunner has the HTTP access logs support, which provides detailed information about incoming HTTP requests and responses.
 
 {% hint style="info" %}
 This feature is disabled by default, but it can be easily enabled by configuring the HTTP server.
