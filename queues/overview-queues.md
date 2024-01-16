@@ -742,7 +742,7 @@ advanced features.
 
 ### Creating A New Queue
 
-In the very [first chapter](overview.md), we got acquainted with the queue settings and drivers for them. In
+In the very [first chapter](./overview-queues.md), we got acquainted with the queue settings and drivers for them. In
 approximately the same way, we can do almost the same thing with the help of the PHP code using `create()` method
 through `Jobs` instance.
 

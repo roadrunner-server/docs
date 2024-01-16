@@ -40,13 +40,13 @@
 * [Intro into Plugins](plugins/intro.md)
 * [Centrifuge (WebSockets)](plugins/centrifuge.md)
 * [Service (Systemd)](plugins/service.md)
-* [Queues and Jobs](queues/overview.md)
+* [Queues and Jobs](queues/overview-queues.md)
 * [Configuration](plugins/config.md)
 * [Server](plugins/server.md)
 * [Locks](plugins/locks.md)
 * [gRPC](plugins/grpc.md)
 * [TCP](plugins/tcp.md)
-* [KV](kv/overview.md)
+* [KV](kv/overview-kv.md)
 
 ## 🔐 Key-Value
 

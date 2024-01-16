@@ -20,8 +20,8 @@ development process. Some of the most notable plugins include:
 - [**Locks**](./locks.md): Distributed locking mechanisms for concurrency control.
 - [**TCP**](./tcp.md): High-performance TCP server for custom networking solutions.
 - [**Metrics**](../lab/metrics.md): Application-level metrics and monitoring.
-- [**KV**](../kv/overview.md): Key-value store interface for storage and retrieval of data.
-- [**Jobs**](../queues/overview.md): Background job processing and management.
+- [**KV**](../kv/overview-kv.md): Key-value store interface for storage and retrieval of data.
+- [**Jobs**](../queues/overview-queues.md): Background job processing and management.
 - [**HealthChecks**](../lab/health.md): Health monitoring and reporting for system components.
 - [**OpenTelemetry (otel)**](../lab/otel.md): Distributed tracing and observability with OpenTelemetry integration.
 

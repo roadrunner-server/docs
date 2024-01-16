@@ -21,7 +21,7 @@ and send responses back to clients.
 The following plugins are designed to run workers and handle specific types of requests:
 
 - [**HTTP**](../http/http.md) - Processes incoming HTTP requests from clients and forwards them to the PHP application.
-- [**Jobs**](../queues/overview.md) - Handles queued tasks received from queue brokers and sends them to a consumer PHP
+- [**Jobs**](../queues/overview-queues.md) - Handles queued tasks received from queue brokers and sends them to a consumer PHP
   application for processing.
 - [**Centrifuge**](../plugins/centrifuge.md) - Manages events from Centrifugo WebSocket server clients and forwards them
   to the PHP application. It supports bidirectional communication, allowing for efficient and seamless interaction
@@ -40,12 +40,12 @@ RoadRunner also provides an customized gRPC interface for communication between 
 significant role in enhancing the interaction between the two components. This interface is particularly useful when
 working with the various plugins that support RPC communication, such as:
 
-- [**KV**](../kv/overview.md) - A cache service that allows for efficient storage and retrieval of cached data.
+- [**KV**](../kv/overview-kv.md) - A cache service that allows for efficient storage and retrieval of cached data.
 - [**Locks**](../plugins/locks.md) - Offers a convenient means to manage distributed locks, ensuring resource access
   coordination across multiple processes or systems.
 - [**Service**](../plugins/service.md) - A dynamic server processes supervisor that enables seamless management of
   server processes directly from the application.
-- [**Jobs**](../queues/overview.md) - Provides the ability to dynamically manage queue pipelines from within the
+- [**Jobs**](../queues/overview-queues.md) - Provides the ability to dynamically manage queue pipelines from within the
   application, streamlining the execution of tasks and jobs.
 - [**Logger**](../lab/logger.md) - Facilitates the forwarding of logs from the application to the RoadRunner logger,
   ensuring centralized and efficient log management.

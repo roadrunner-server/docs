@@ -11,7 +11,7 @@ currently processing any request.
 {% hint style="warning" %}
 It's essential to note that PHP workers are stateless, meaning you cannot save the context of a request between
 multiple requests from a single client. Instead, you must use external storage, for
-example [Key Value](../kv/overview.md), to maintain context and rely on the connection UUID to identify requests from
+example [Key Value](../kv/overview-kv.md), to maintain context and rely on the connection UUID to identify requests from
 individual clients.
 {% endhint %}
 
@@ -215,4 +215,4 @@ while ($request = $tcpWorker->waitRequest()) {
 
 ## What's Next?
 
-1. [Plugins — KV](../kv/overview.md) - Learn how to use the Key Value plugin to store data between requests.
+1. [Plugins — KV](../kv/overview-kv.md) - Learn how to use the Key Value plugin to store data between requests.
