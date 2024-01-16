@@ -50,7 +50,7 @@
 
 ## 🔐 Key-Value
 
-* [Intro into KV](kv/overview.md)
+* [Intro into KV](kv/overview-kv.md)
 * [Memcached](kv/memcached.md)
 * [In-Memory](kv/memory.md)
 * [BoltDG](kv/boltdb.md)
@@ -58,7 +58,7 @@
 
 ## 📦 Queues and Jobs
 
-* [Intro into Jobs](queues/overview.md)
+* [Intro into Jobs](queues/overview-queues.md)
 * [Beanstalk](queues/beanstalk.md)
 * [In-Memory](queues/memory.md)
 * [RabbitMQ](queues/amqp.md)
