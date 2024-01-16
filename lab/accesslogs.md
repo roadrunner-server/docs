@@ -12,7 +12,7 @@ To enable HTTP access logs in RoadRunner, you need to modify the configuration f
 
 **Here's an example configuration file:**
 
-{ % code title=".rr.yaml" % }
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -23,7 +23,7 @@ http:
   # ...
 ```
 
-{ % endcode % }
+{% endcode %}
 
 Once enabled, RoadRunner will log the following information for each incoming HTTP request:
 
