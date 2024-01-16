@@ -18,7 +18,7 @@
 * [Worker](php/worker.md)
 * [RPC](php/rpc.md)
 
-## 🛠️ Customization
+## Customization
 
 * [Building RR with a custom plugin](customization/build.md)
 * [Integrating with Golang Apps](customization/embedding.md)
