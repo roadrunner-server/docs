@@ -78,7 +78,7 @@ processes. It does not require any network connections or external libraries, ma
 
 {% hint style="info" %}
 Use `on_init.user` option to execute the on_init command under a different user.
-{ % endhint %}
+{% endhint %}
 
 ### Server initialization
 
