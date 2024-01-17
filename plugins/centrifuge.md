@@ -111,17 +111,17 @@ For example:
   "proxy_publish": true,
   "proxy_subscribe": true,
   "allow_subscribe_for_client": true,
-  "proxy_connect_endpoint": "grpc://127.0.0.1:10001",
+  "proxy_connect_endpoint": "grpc://127.0.0.1:30000",
   "proxy_connect_timeout": "10s",
-  "proxy_publish_endpoint": "grpc://127.0.0.1:10001",
+  "proxy_publish_endpoint": "grpc://127.0.0.1:30000",
   "proxy_publish_timeout": "10s",
-  "proxy_subscribe_endpoint": "grpc://127.0.0.1:10001",
+  "proxy_subscribe_endpoint": "grpc://127.0.0.1:30000",
   "proxy_subscribe_timeout": "10s",
-  "proxy_refresh_endpoint": "grpc://127.0.0.1:10001",
+  "proxy_refresh_endpoint": "grpc://127.0.0.1:30000",
   "proxy_refresh_timeout": "10s",
-  "proxy_sub_refresh_endpoint": "grpc://127.0.0.1:10001",
+  "proxy_sub_refresh_endpoint": "grpc://127.0.0.1:30000",
   "proxy_sub_refresh_timeout": "1s",
-  "proxy_rpc_endpoint": "grpc://127.0.0.1:10001",
+  "proxy_rpc_endpoint": "grpc://127.0.0.1:30000",
   "proxy_rpc_timeout": "10s"
 }
 ```
