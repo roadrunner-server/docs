@@ -16,6 +16,7 @@
 * [Environment](php/environment.md)
 * [Debugging](php/debugging.md)
 * [Worker](php/worker.md)
+* [Workers pool](php/pool.md)
 * [RPC](php/rpc.md)
 
 ## Customization
