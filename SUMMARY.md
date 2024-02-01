@@ -119,13 +119,8 @@
 
 ## 📚 Releases
 
+* [v2023.3.10](releases/v2023-3-10.md)
 * [v2023.3.9](releases/v2023-3-9.md)
 * [v2023.3.8](releases/v2023-3-8.md)
 * [v2023.3.7](releases/v2023-3-7.md)
 * [v2023.3.6](releases/v2023-3-6.md)
-* [v2023.3.5](releases/v2023-3-5.md)
-* [v2023.3.4](releases/v2023-3-4.md)
-* [v2023.3.3](releases/v2023-3-3.md)
-* [v2023.3.2](releases/v2023-3-2.md)
-* [v2023.3.1](releases/v2023-3-1.md)
-* [v2023.3.0](releases/v2023-3-0.md)
