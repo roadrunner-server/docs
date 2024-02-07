@@ -15,7 +15,7 @@ to determine which plugins and repositories are required for building a RoadRunn
 ## Configuration
 
 The configuration file is written in TOML format and contains a list of repositories to add to the build. For each
-repository, you can specify the owner and version. You can also add private repositories from Github or Gitlab, and
+repository, you can specify the owner and version. You can also add private repositories from GitHub or Gitlab, and
 authenticate with access tokens.
 
 {% hint style="info" %}
@@ -161,7 +161,7 @@ variable to write the build time in the output binary.
 | **owner**      | Repository owner (might be the user or organization).                                                                                                                                                                        |
 | **repository** | Repository name.                                                                                                                                                                                                             |
 | **folder**     | If the plugin is in some folder in your repository, you may specify it via this configuration option. <br/>For example: `cache = { ref = "v1.6.18", owner = "darkweak", repository = "souin", folder="plugins/roadrunner" }` |
-| **replace**    | Go.mod [replace directive](https://go.dev/ref/mod#go-mod-file-replace).
+| **replace**    | Go.mod [replace directive](https://go.dev/ref/mod#go-mod-file-replace).                                                                                                                                                      |
 
 ### Private repositories
 
@@ -260,7 +260,7 @@ vx build -c velox_rr_2023.toml -o ~/Downloads
 {% tab title="Downloading Binary" %}
 
 To build the application server, you need to download Velox binary
-the [Github releases page](https://github.com/roadrunner-server/velox/releases) and unpack it to your `PATH`.
+the [GitHub releases page](https://github.com/roadrunner-server/velox/releases) and unpack it to your `PATH`.
 
 {% hint style="warning" %}
 To build an application server you need [Golang 1.20+](https://golang.org/dl/) on you local server.

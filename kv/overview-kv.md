@@ -253,9 +253,9 @@ increase the speed of serialization and deserialization, it is recommended to us
 the [igbinary extension](https://github.com/igbinary/igbinary).
 
 {% tabs %}
-{% tab title="Linux and MacOS" %}
+{% tab title="Linux and macOS" %}
 
-In a Linux and MacOS environment, it may be installed with a simple command:
+In a Linux and macOS environment, it may be installed with a simple command:
 
 {% code %}
 

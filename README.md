@@ -40,9 +40,9 @@ RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https:/
 - And more 😉
 
 If you have a feature request in mind, you can check
-out [Github issues](https://github.com/roadrunner-server/roadrunner/issues) page. Here you'll find a list of open
+out [GitHub issues](https://github.com/roadrunner-server/roadrunner/issues) page. Here you'll find a list of open
 feature requests. The RoadRunner community is active and responsive, so feel free to join the discussion on
-our [Discord channel](https://discord.gg/spiralphp) or [contribute](./contributing.md) to the project.
+our [Discord channel](https://discord.gg/spiralphp) or [contribute](intro/contributing.md) to the project.
 
 <a href="https://discord.gg/spiralphp"><img src="https://img.shields.io/badge/discord-chat-magenta.svg"></a>
 

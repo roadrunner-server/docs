@@ -80,7 +80,7 @@ sudo dpkg -i roadrunner-2023.X.X-linux-amd64.deb
 Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
 {% endhint %}
 
-## MacOS package using [Homebrew](https://brew.sh/):
+## macOS package using [Homebrew](https://brew.sh/):
 ```terminal
 brew install roadrunner
 ```

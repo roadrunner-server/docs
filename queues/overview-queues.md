@@ -118,7 +118,7 @@ driver queue until after Ack.
 
 - `pipelines`: This section contains a list of all queues created in the
   RoadRunner. The key is a unique *queue identifier*, and the value is an object of the
-  from the driver-specific settings (we will talk about this later).
+  driver-specific configuration (we will talk about this later).
 
 ## PHP Client (Producer)
 
@@ -688,7 +688,7 @@ of the available methods:
 
 #### getPayload
 
-Also you can get payload data in `string` format using the `getPayload` method. This method may be useful to you in
+Also, you can get payload data in `string` format using the `getPayload` method. This method may be useful to you in
 cases of transferring all data to the DTO.
 
 {% code title="script.php" %}
