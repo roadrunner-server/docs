@@ -3,7 +3,7 @@
 The RoadRunner lock plugin is a powerful tool that enables you to manage resource locks in their applications using the 
 RPC protocol. By leveraging the benefits of using GO with PHP, it provides a lightweight, fast, and reliable way to
 acquire, release, and manage locks. With this plugin, you can easily manage critical sections of your application and 
-prevent race conditions, data corruption, and other synchronization issues that can occur in multi-process environments.
+prevent race conditions, data corruption, and other synchronization issues that can occur in multiprocess environments.
 
 {% hint style="warning" %}
 RoadRunner lock plugin uses an in-memory storage to store information about locks at this moment. When multiple

@@ -36,7 +36,7 @@ and communication protocols, delivering optimal performance and flexibility.
 
 ## (g)RPC Interface
 
-RoadRunner also provides an customized gRPC interface for communication between the application and the server, which plays a
+RoadRunner also provides a customized gRPC interface for communication between the application and the server, which plays a
 significant role in enhancing the interaction between the two components. This interface is particularly useful when
 working with the various plugins that support RPC communication, such as:
 
