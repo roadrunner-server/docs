@@ -40,8 +40,28 @@ otel:
   exporter: otlp
   endpoint: 127.0.0.1:4317
 ```
-
 {% endcode %}
+
+{% hint style="info" %}
+Note, that you may also use OTEL envs in the `OTEL` plugin configuration using [Shell-Parameter-Expansion](https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html) syntax. For example:
+
+{% code title=".rr.yaml" %}
+```yaml
+version: "3"
+
+otel:
+  # https://github.com/open-telemetry/opentelemetry-specification/blob/v1.25.0/specification/resource/semantic_conventions/README.md
+  resource:
+    service_name: "${OTEL_SERVICE_NAME:-rr_test}"
+    service_version: "${OTEL_SERVICE_VERSION:-1.0.0}"
+  insecure: "${OTEL_EXPORTER_OTLP_INSECURE:-true}"
+  exporter: "${OTEL_TRACES_EXPORTER:-otlp}"
+  endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-127.0.0.1:4317}"
+
+```
+{% endcode %}
+
+{% endhint %}
 
 Once the plugin is activated, the `grpc` and `jobs` plugins will use the configuration to send tracing data to the
 collector. The `http` plugin requires the `otel` middleware to be added to the middleware list.
