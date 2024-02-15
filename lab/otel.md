@@ -253,3 +253,7 @@ Thanks to [Brett McBride](https://github.com/brettmc), he created a rr-otel [PHP
 ## Original issue
 
 * [link](https://github.com/roadrunner-server/roadrunner/issues/1027)
+
+## Troubleshooting:
+
+* If you have problems with setting endpoints via OTEL envs, read this comment: [link](https://github.com/roadrunner-server/roadrunner/issues/1848#issuecomment-1938860185)
