@@ -6,7 +6,7 @@ communication with cache drivers such as:
 - [Redis Server](https://redis.io/),
 - [Memcached](https://memcached.org/),
 - [BoltDB](https://github.com/etcd-io/bbolt) - does not require a separate server,
-- [In-memory](memory.md) storage — temporary stores data in RAM.
+- [In-memory](./memory.md) storage — temporary stores data in RAM.
 
 It is able to handle cache operations more efficiently than the same operations in PHP, leading to faster response times
 and improved application performance.

@@ -19,22 +19,13 @@
 * [Workers pool](php/pool.md)
 * [RPC](php/rpc.md)
 
-## Customization
+## 🚀 Customization
 
 * [Building RR with a custom plugin](customization/build.md)
 * [Integrating with Golang Apps](customization/embedding.md)
 * [Writing a Middleware](customization/middleware.md)
 * [Writing a Plugin](customization/plugin.md)
 * [Events Bus](customization/events-bus.md)
-
-## 📡 App Server
-
-* [Production Usage](app-server/production.md)
-* [RoadRunner with NGINX](app-server/nginx-with-rr.md)
-* [RR as AWS Lambda](app-server/aws-lambda.md)
-* [Docker Images](app-server/images.md)
-* [CLI Commands](app-server/cli.md)
-* [Systemd](app-server/systemd.md)
 
 ## 🔌 Plugins
 
@@ -46,6 +37,15 @@
 * [Locks](plugins/locks.md)
 * [gRPC](plugins/grpc.md)
 * [TCP](plugins/tcp.md)
+
+## 📡 App Server
+
+* [Production Usage](app-server/production.md)
+* [RoadRunner with NGINX](app-server/nginx-with-rr.md)
+* [RR as AWS Lambda](app-server/aws-lambda.md)
+* [Docker Images](app-server/images.md)
+* [CLI Commands](app-server/cli.md)
+* [Systemd](app-server/systemd.md)
 
 ## 🔐 Key-Value
 
