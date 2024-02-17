@@ -258,6 +258,18 @@ You may also use RPC methods to communicate with Centrifugo server. RR follows t
 official [Centrifugo proto API](https://github.com/centrifugal/centrifugo/blob/master/internal/apiproto/api.proto).
 Official documentation available [here](https://centrifugal.dev/docs/server/server_api#grpc-api)
 
+### Proxy events
+
+With the incoming payload, RoadRunner also adds the type of the proxied request to the headers before sending it to the PHP worker. The key in the headers is called `type`. Here is the complete list of types supported by RoadRunner:
+
+- `connect`: Connect proxy request.
+- `refresh`: Refresh proxy request.
+- `subscribe`: Subscribe proxy request.
+- `publish`: Publish proxy request.
+- `rpc`: RPC proxy request.
+- `subrefresh`: Subscription refres proxy request.
+- `notifychannelstate`: Notify channel state proxy request.
+
 ## Metrics
 
 RoadRunner has a [metrics plugin](../lab/metrics.md) that provides metrics for the Centrifuge plugin, which can be used
