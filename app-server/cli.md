@@ -377,7 +377,7 @@ For example:
 
 {% code %}
 
-```yaml .rr.yaml
+```yaml
 rpc:
   listen: "127.0.0.1:6001"
 ```
