@@ -98,6 +98,7 @@ server {
       proxy_set_header X-Forwarded-Host $host;
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_read_timeout 1200s;
+  }
 }
 ```
 
