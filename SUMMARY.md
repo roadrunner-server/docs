@@ -74,6 +74,7 @@
 * [RFC 7234 cache](http/cache.md)
 * [Static files](http/static.md)
 * [X-Sendfile](http/sendfile.md)
+* [X-Sendremotefile](http/sendremotefile.md)
 * [Streaming](http/resp-streaming.md)
 * [gzip](http/gzip.md)
 
