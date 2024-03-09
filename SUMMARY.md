@@ -120,6 +120,7 @@
 
 ## 📚 Releases
 
+* [v2023.3.12](releases/v2023-3-12.md)
 * [v2023.3.11](releases/v2023-3-11.md)
 * [v2023.3.10](releases/v2023-3-10.md)
 * [v2023.3.9](releases/v2023-3-9.md)
