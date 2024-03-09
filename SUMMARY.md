@@ -97,17 +97,9 @@
 * [Migration from RRv1 to RRv2](integration/migration.md)
 * [Spiral Framework](integration/spiral.md)
 * [Yii](integration/yii.md)
-* [Laravel](integration/laravel.md)
 * [Symfony](integration/symfony.md)
-* [CakePHP](integration/cake.md)
+* [Laravel](integration/laravel.md)
 * [ChubbyPHP](integration/chubbyphp.md)
-* [CodeIgniter](integration/codeigniter.md)
-* [Mezzio](integration/mezzio.md)
-* [Phalcon](integration/phalcon.md)
-* [Slim](integration/slim.md)
-* [Symlex](integration/symlex.md)
-* [Ubiquity](integration/ubiquity.md)
-* [Zend Expressive](integration/zend.md)
 
 ## 🧪 Experimental Features
 

@@ -1,6 +1,6 @@
-# Migration from v1.0 to v2.0
+# Migration from v1.0 to v2.0/v2023+
 
-To migration integration from RoadRunner v1.* to v2.* follow the next steps.
+To migration integration from RoadRunner v1.* to v2.*/v2023+ follow the next steps.
 
 ## Update Configuration
 
@@ -33,7 +33,7 @@ Read more in [config reference](/intro/config.md).
 
 ## No longer worry about echoing
 
-RoadRunner 2.0 intercepts all output to the STDOUT, this means you can start using default var_dump and other echo
+RoadRunner 2.0+ intercepts all output to the STDOUT, this means you can start using default var_dump and other echo
 function
 without breaking the communication. Yay!
 
