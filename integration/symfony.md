@@ -1,4 +1,4 @@
-# Integration — Symfony Framework
+# Symfony Framework
 
 
 | Repository                                                 | Status                                                                                                                                                                                                   |

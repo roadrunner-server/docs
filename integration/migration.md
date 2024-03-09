@@ -1,4 +1,4 @@
-# Integration — Migration from v1.0 to v2.0
+# Migration from v1.0 to v2.0
 
 To migration integration from RoadRunner v1.* to v2.* follow the next steps.
 
@@ -9,6 +9,8 @@ section
 into your config `server` which is responsible for the worker creation. Limit service no longer presented as separate
 entity
 but rather part of specific service configuration.
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 rpc:
@@ -23,7 +25,11 @@ http:
     num_workers: 4
 ```
 
-> Read more in [config reference](/intro/config.md).
+{% endcode %}
+
+{% hint style="warning" %}
+Read more in [config reference](/intro/config.md).
+{% endhint %}
 
 ## No longer worry about echoing
 
@@ -45,6 +51,8 @@ $ composer require nyholm/psr7
 
 RoadRunner simplifies worker creation, use static `create()` method to automatically configure your worker:
 
+{% code title="worker.php" %}
+
 ```php
 <?php
 
@@ -55,7 +63,11 @@ include "vendor/autoload.php";
 $worker = RoadRunner\Worker::create();
 ```
 
+{% endcode %}
+
 Pass the PSR-15 factories to your PSR Worker:
+
+{% code title="worker.php" %}
 
 ```php
 <?php
@@ -71,9 +83,15 @@ $psrFactory = new Psr7\Factory\Psr17Factory();
 $worker = new RoadRunner\Http\PSR7Worker($worker, $psrFactory, $psrFactory, $psrFactory);
 ```
 
+{% endcode %}
+
 RoadRunner 2 unifies all workers to use similar naming, change `acceptRequest` to `waitRequest`:
 
+{% code title="worker.php" %}
+
 ```php
+<?php
+
 while ($req = $worker->waitRequest()) {
     try {
         $rsp = new Psr7\Response();
@@ -86,10 +104,18 @@ while ($req = $worker->waitRequest()) {
 }
 ```
 
+{% endcode %}
+
 ## Update RPCs
 
 To create RPC client use new Goridge API:
 
+{% code title="worker.php" %}
+
 ```php
+<?php
+
 $rpc = \Spiral\Goridge\RPC\RPC::create('tcp://127.0.0.1:6001');
 ```
+
+{% endcode %}

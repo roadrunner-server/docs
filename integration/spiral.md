@@ -1,4 +1,4 @@
-# Integration — Spiral Framework
+# Spiral Framework
 
 [Spiral Framework](https://spiral.dev) is a robust and powerful PHP framework developed by the R&D team
 at [Spiral Scout](https://spiralscout.com/). It is designed to facilitate the development and maintenance of medium to

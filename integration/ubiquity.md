@@ -1,7 +1,8 @@
-# Integration — Ubiquity Framework
+# Ubiquity Framework
 
-> **Warning**
-> These set of integrations are currently available only for RoadRunner `v1.*`.
+{% hint style="note" %}
+These set of integrations are currently available only for RoadRunner `v1.*`.
+{% endhint %}
 
 | Repository                                       | Status        |
 |--------------------------------------------------|---------------|

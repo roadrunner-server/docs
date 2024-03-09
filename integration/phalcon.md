@@ -1,4 +1,4 @@
-# Integration — Phalcon
+# Phalcon
 
 ## Phalcon 3
 

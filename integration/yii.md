@@ -1,4 +1,4 @@
-# Integration — Yii
+# Yii
 
 ### Yii 2
 
