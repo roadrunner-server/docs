@@ -1,4 +1,4 @@
-# Running server as Systemd unit
+# Running server as systemd unit
 
 ## Configuring unit
 
