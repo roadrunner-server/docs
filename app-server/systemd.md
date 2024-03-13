@@ -10,7 +10,7 @@ a server:
 ```ini
 [Unit]
 Description=High-performance PHP application server
-Documentation=https://roadrunner.dev/docs
+Documentation=https://docs.roadrunner.dev/
 
 [Service]
 ExecStart=/usr/local/bin/rr serve -c /var/www/.rr.yaml
