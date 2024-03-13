@@ -1,4 +1,6 @@
-# Running server as daemon on Linux
+# Running server as systemd unit
+
+## Configuring unit
 
 Here you can find an example of systemd unit file that can be used to run RoadRunner as a daemon on
 a server:
@@ -7,16 +9,19 @@ a server:
 
 ```ini
 [Unit]
-Description = High-performance PHP application server
+Description=High-performance PHP application server
+Documentation=https://docs.roadrunner.dev/
 
 [Service]
-Type = simple
-ExecStart = /usr/local/bin/rr serve -c /var/www/.rr.yaml
-Restart = always
-RestartSec = 30
+ExecStart=/usr/local/bin/rr serve -c /var/www/.rr.yaml
+
+Type=notify
+
+Restart=always
+RestartSec=30
 
 [Install]
-WantedBy = default.target 
+WantedBy=default.target 
 ```
 
 {% endcode %}
@@ -59,10 +64,53 @@ This will start RoadRunner as a daemon on the server.
 For more information about systemd unit files, the user can refer to the
 following [link](https://wiki.archlinux.org/index.php/systemd#Writing_unit_files).
 
-## SDNotify support
+## Status and logs
 
-RR supports SDNotify protocol. You can use it to notify systemd about the readiness of your application. You don't need
-to configure anything, RR will automatically detect systemd and send the notification. The only one option which might be
+Make sure that the systemd service has started successfully, use the command:
+
+{% code %}
+
+```bash
+systemctl status rr.service
+```
+{% endcode %}
+
+Example output:
+
+```
+● rr.service - High-performance PHP application server
+     Loaded: loaded (/lib/systemd/system/rr.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2024-03-12 19:20:55 UTC; 35min ago
+     Docs: https://docs.roadrunner.dev/
+     CGroup: /system.slice/rr.service
+             ├─2835793 /usr/local/bin/rr serve -c /var/www/.rr.yaml
+             ├─2895807 /usr/local/bin/php worker.php
+             ├─2897198 /usr/local/bin/php worker.php
+             ├─2897765 /usr/local/bin/php worker.php
+```
+
+To view logs in real time, use the command:
+
+{% code %}
+
+```bash
+journalctl -f -u rr.service
+```
+
+{% endcode %}
+
+Example output with `info` [level logs](../lab/logger.md#level):
+
+```bash
+Mar 12 20:12:53 server systemd[1]: Starting PHP application server...
+Mar 12 20:12:55 server rr[2936506]: [INFO] RoadRunner server started; version: 2023.3.10, buildtime: 2024-02-01T22:33:17+0000
+Mar 12 20:12:55 server rr[2936506]: [INFO] sdnotify: notified
+Mar 12 20:12:55 server systemd[1]: Started PHP application server.
+```
+
+## `sd_notify` protocol
+
+Roadrunner supports [sd_notify](https://man.archlinux.org/man/sd_notify.3.en) protocol. You can use it to notify systemd about the readiness of your application. Don't forget to add `Type=notify` directive to the `Service` section, Roadrunner will automatically detect systemd and send the notification. The only one option which might be
 configured is watchdog timeout. By default, it's turned off. You can enable it by setting the following option in your
 `.rr.yaml` config:
 
