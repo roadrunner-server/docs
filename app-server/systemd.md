@@ -81,7 +81,7 @@ Example output:
 ● rr.service - High-performance PHP application server
      Loaded: loaded (/lib/systemd/system/rr.service; enabled; vendor preset: enabled)
      Active: active (running) since Tue 2024-03-12 19:20:55 UTC; 35min ago
-     Docs: https://roadrunner.dev/docs
+     Docs: https://docs.roadrunner.dev/
      CGroup: /system.slice/rr.service
              ├─2835793 /usr/local/bin/rr serve -c /var/www/.rr.yaml
              ├─2895807 /usr/local/bin/php worker.php
