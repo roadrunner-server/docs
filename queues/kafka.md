@@ -37,6 +37,36 @@ kafka:
   ping:
     timeout: "10s"
 
+  # SSL/TLS configuration
+  #
+  # Optional, default: empty
+  tls:
+    # Secure connection timeout
+    #
+    # Examples: "2s", "5m"
+    # Optional, default: "10s"
+    timeout: "10s"
+    
+    # Path to the key file
+    #
+    # This option is required
+    key: ""
+
+    # Path to the certificate
+    #
+    # This option is required
+    cert: ""
+
+    # Path to the CA certificate, defines the set of root certificate authorities that servers use if required to verify a client certificate. Used with the `client_auth_type` option.
+    #
+    # This option is optional
+    root_ca: ""
+
+    # Client auth type.
+    #
+    # This option is optional. Default value: no_client_certs. Possible values: request_client_cert, require_any_client_cert, verify_client_cert_if_given, require_and_verify_client_cert, no_client_certs
+    client_auth_type: no_client_certs
+
   # SASL authentication options to use for all connections. Depending on the auth type, plain or aws_msk_plain sections might be removed.
   #
   # Optional, default: empty
