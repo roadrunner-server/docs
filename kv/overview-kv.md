@@ -443,7 +443,7 @@ Clears all keys from the specified storage.
 {% code %}
 
 ```go
-func (r *rpc) `Clear(in *kvv1.Request, _ *kvv1.Response) error {}
+func (r *rpc) Clear(in *kvv1.Request, _ *kvv1.Response) error {}
 ```
 
 {% endcode %}
