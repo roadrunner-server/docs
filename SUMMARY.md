@@ -8,6 +8,7 @@
 * [Installation](intro/install.md)
 * [Configuration](intro/config.md)
 * [Contributing](intro/contributing.md)
+* [Upgrade and Compatibility](intro/compatibility.md)
 
 ## 👷 PHP Worker
 
