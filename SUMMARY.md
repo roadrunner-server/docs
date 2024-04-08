@@ -108,7 +108,7 @@
 
 ## 🚨 Error codes
 
-* [CRC valication failed](known-issues/stdout-crc.md)
+* [CRC validation failed](known-issues/stdout-crc.md)
 * [Allocate Timeout](known-issues/allocate-timeout.md)
 
 ## 📚 Releases

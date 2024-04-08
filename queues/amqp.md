@@ -57,7 +57,7 @@ amqp:
 {% endcode %}
 
 Upon establishing a connection to the server, you can create a new queue that utilizes this connection and encompasses
-the queue settings, including those specific to AMQP).
+the queue settings, including those specific to AMQP.
 
 ## Configuration
 

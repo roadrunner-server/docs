@@ -79,7 +79,7 @@ http:
 
 {% endcode %}
 
-## File server plugin
+## Fileserver plugin
 
 Fileserver plugin serves the static files. It works similar to the `static` HTTP middleware and has extended functionality.
 Static HTTP middleware slows down request processing by `~10%` because RR has to check each request for the

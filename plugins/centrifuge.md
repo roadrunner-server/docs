@@ -267,7 +267,7 @@ With the incoming payload, RoadRunner also adds the type of the proxied request 
 - `subscribe`: Subscribe proxy request.
 - `publish`: Publish proxy request.
 - `rpc`: RPC proxy request.
-- `subrefresh`: Subscription refres proxy request.
+- `subrefresh`: Subscription refresh proxy request.
 - `notifychannelstate`: Notify channel state proxy request.
 
 ## Metrics

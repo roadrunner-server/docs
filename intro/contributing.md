@@ -20,7 +20,7 @@ in `roadrunner-server/roadrunner` GitHub repository.
 ## Pull Requests
 
 One way to contribute to the RoadRunner is by submitting pull requests on GitHub. If you have a fix or improvement, you
-can submit a [pull request](https://github.com/roadrunner-server/roadrunner/pulls) and it will be reviewed by the
+can submit a [pull request](https://github.com/roadrunner-server/roadrunner/pulls), and it will be reviewed by the
 maintainers.
 
 ## Commercial Support

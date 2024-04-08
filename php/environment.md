@@ -17,12 +17,12 @@ configuration file. These variables will be applied to all workers when they are
 server:
   command: "php worker.php"
   env:
-    DEBUG: true
+     APP_RUNTIME: prod
 ```
 
 {% endcode %}
 
-In this example, when RoadRunner starts a PHP worker, it will set the `DEBUG` environment variable to `true`.
+In this example, when RoadRunner starts a PHP worker, it will set the `APP_RUNTIME` environment variable to `prod`.
 
 {% hint style="warning" %}
 All environment variable keys will be automatically converted to uppercase.
