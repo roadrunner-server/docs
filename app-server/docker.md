@@ -15,28 +15,31 @@ Here is an example of a `Dockerfile` that can be used to build a Docker image wi
 ```dockerfile
 FROM php:8.3-cli-alpine3.17 as backend
 
-RUN --mount=type=bind,from=mlocati/php-extension-installer:1.5,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
-     install-php-extensions opcache zip xsl dom exif intl pcntl bcmath sockets && \
+FROM spiralscout/roadrunner:2023.3 as roadrunner
+
+# https://github.com/mlocati/docker-php-extension-installer
+RUN --mount=type=bind,from=mlocati/php-extension-installer:2,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
+     install-php-extensions @composer-2 opcache zip intl pcntl sockets && \
      apk del --no-cache ${PHPIZE_DEPS} ${BUILD_DEPENDS}
+
+EXPOSE 8080/tcp
 
 WORKDIR /app
 
+COPY --from=roadrunner /usr/bin/rr ./
+
 ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --from=composer:2.3 /usr/bin/composer /usr/bin/composer
 
 # Copy composer files from app directory to install dependencies
 COPY ./app/composer.* .
+
 RUN composer install --optimize-autoloader --no-dev
-
-COPY --from=ghcr.io/roadrunner-server/roadrunner:2023.1.1 /usr/bin/rr /app
-
-EXPOSE 8080/tcp
 
 # Copy application files
 COPY ./app .
 
 # Run RoadRunner server
-CMD ./rr serve -c .rr.yaml
+CMD ./rr serve -c .rr.yaml -p
 ```
 
 {% endcode %}
