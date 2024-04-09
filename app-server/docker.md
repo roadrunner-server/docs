@@ -19,7 +19,7 @@ FROM spiralscout/roadrunner:2023.3 as roadrunner
 
 # https://github.com/mlocati/docker-php-extension-installer
 RUN --mount=type=bind,from=mlocati/php-extension-installer:2,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
-     install-php-extensions @composer-2 opcache zip intl pcntl sockets && \
+     install-php-extensions @composer-2 opcache zip intl sockets && \
      apk del --no-cache ${PHPIZE_DEPS} ${BUILD_DEPENDS}
 
 EXPOSE 8080/tcp
@@ -39,7 +39,7 @@ RUN composer install --optimize-autoloader --no-dev
 COPY ./app .
 
 # Run RoadRunner server
-CMD ./rr serve -c .rr.yaml -p
+CMD ./rr serve -c .rr.yaml
 ```
 
 {% endcode %}
