@@ -70,7 +70,7 @@ server:
 {% endcode %}
 
 {% hint style="info" %}
-Worker relay can be: `pipes`, TCP (eg.: `tcp://127.0.0.1:6002`), or socket (eg.: `unix:///var/run/rr.sock`). But in
+Worker relay can be: `pipes`, TCP (e.g.: `tcp://127.0.0.1:6002`), or socket (e.g.: `unix:///var/run/rr.sock`). But in
 most cases, you should use the default `pipes` relay, it is the fastest communication transport.
 It uses an inter-process communication mechanism that allows for fast and efficient communication between
 processes. It does not require any network connections or external libraries, making it a lightweight and fast option.

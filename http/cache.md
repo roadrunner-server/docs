@@ -6,7 +6,7 @@ cache library.
 Have a look at the [Souin documentation](https://github.com/darkweak/souin) if you need more information.
 
 {% hint style="warning" %}
-This is a third party plugin and isn't included by default. See the `Building RoadRunner with Cache` section for more
+This is a third-party plugin and isn't included by default. See the `Building RoadRunner with Cache` section for more
 information.
 {% endhint %}
 

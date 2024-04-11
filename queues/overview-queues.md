@@ -151,7 +151,7 @@ $jobs = new Spiral\RoadRunner\Jobs\Jobs();
 
 {% hint style="info" %}
 In this case we did not specify any connection settings. And this is really not necessary if this code is
-executed in a RoadRunner environment. However, in case you need to connect from a third party application (e.g. a CLI
+executed in a RoadRunner environment. However, in case you need to connect from a third-party application (e.g. a CLI
 command), you need to specify the settings explicitly.
 {% endhint %}
 
