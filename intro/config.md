@@ -61,68 +61,7 @@ Read more about starting the server in the [**Server Commands**](../app-server/c
 
 {% endhint %}
 
-## Environment variables
-
-Environment variables allow you to separate configuration data from your application code, making it more maintainable
-and portable.
-
-RoadRunner supports the expansion of environment variables using the `${VARIABLE}` or `$VARIABLE` syntax in a
-configuration file and CLI commands. You can use this feature to dynamically set values based on the current
-environment, such as database connection strings, API keys, and other sensitive information.
-
-You can specify a default value for an environment variable using the `${VARIABLE:-DEFAULT_VALUE}` syntax. For example,
-if you want to use a default value of `8080` for the `HTTP_PORT` environment variable if it is not defined or is empty,
-you can use the following configuration:
-
-{% code title=".rr.yaml" %}
-
-```yaml
-http:
-  address: 127.0.0.1:${HTTP_PORT:-8080}
-```
-
-{% endcode %}
-
-{% hint style="info" %}
-You can find more information on Bash Environment Variable Defaults in
-the [Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion).
-{% endhint %}
-
-This allows you to easily customize the configuration based on your specific environment without changing the
-configuration file itself.
-
-Here's an example of a `docker-compose.yaml` file that redefines the `HTTP_PORT` for an RR service:
-
-{% code title="docker-compose.yaml" %}
-
-```yaml
-version: '3.8'
-
-services:
-  app:
-    image: xxx
-    environment:
-      - HTTP_PORT=8081
-```
-
-{% endcode %}
-
-### Dotenv
-
-RoadRunner supports reading environment variables from `.env` files, which are typically used to store sensitive or
-environment-specific variables outside your codebase.
-
-To read environment variables from an `.env` file, you can use the `--dotenv` CLI option when starting RoadRunner.
-
-{% code %}
-
-```bash
-./rr serve --dotenv /var/www/config/.env
-```
-
-{% endcode %}
-
-### CLI Commands
+### CLI command and arguments
 
 You can also use environment variables in CLI commands to customize the behavior of your RR server. This is especially
 useful when you need to pass configuration values that are environment-specific or sensitive, such as secrets or API
@@ -165,5 +104,5 @@ In this example, the following options are used:
 ## What's Next?
 
 1. [Server Commands](../app-server/cli.md) - learn how to start the server.
-2. [Configuration plugin](../plugins/config.md) - learn more about the configuration plugin.
-3. [PHP Workers — Environment configuration](../php/environment.md) - learn how to configure PHP workers environment.
+2. [PHP Workers — Environment variables](../php/environment.md) - learn how to configure PHP workers environment.
+e. [Config plugin](../plugins/config.md) - learn more about the Config plugin.
