@@ -24,7 +24,7 @@ found [here](https://github.com/roadrunner-server/roadrunner/pkgs/container/road
 **Here is an example of usage**
 
 ```dockerfile
-FROM ghcr.io/roadrunner-server/roadrunner:2023.X.X AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:2024.X.X AS roadrunner
 FROM php:8.x-cli
 
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
@@ -36,7 +36,7 @@ CMD rr serve -c .rr.yaml
 ```
 
 {% hint style="warning" %}
-Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
+Don't forget to replace `2024.X.X` with a desired version of RoadRunner.
 {% endhint %}
 
 ## Composer
@@ -72,12 +72,12 @@ the RoadRunner GitHub releases page and install it using dpkg.
 **Just run the following commands**
 
 ```bash
-wget https://github.com/roadrunner-server/roadrunner/releases/download/v2023.X.X/roadrunner-2023.X.X-linux-amd64.deb
-sudo dpkg -i roadrunner-2023.X.X-linux-amd64.deb
+wget https://github.com/roadrunner-server/roadrunner/releases/download/v2024.X.X/roadrunner-2024.X.X-linux-amd64.deb
+sudo dpkg -i roadrunner-2024.X.X-linux-amd64.deb
 ```
 
 {% hint style="warning" %}
-Don't forget to replace `2023.X.X` with a desired version of RoadRunner.
+Don't forget to replace `2024.X.X` with a desired version of RoadRunner.
 {% endhint %}
 
 ## macOS package using [Homebrew](https://brew.sh/):

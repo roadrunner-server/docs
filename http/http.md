@@ -71,7 +71,7 @@ http:
     # Default: empty
     allow: [ ".html", ".aaa" ]
 
-  # Settings for "headers" middleware (docs: https://roadrunner.dev/docs/http-http/2023.x/en).
+  # Settings for "headers" middleware.
   headers:
     # Allows to control CORS headers. Additional headers "Vary: Origin", "Vary: Access-Control-Request-Method",
     # "Vary: Access-Control-Request-Headers" will be added to the server responses. Drop this section for this
@@ -119,7 +119,7 @@ http:
     response:
       X-Powered-By: "RoadRunner"
 
-  # Settings for "static" middleware (docs: https://roadrunner.dev/docs/http-http/2023.x/en).
+  # Settings for "static" middleware.
   static:
     # Path to the directory to serve
     #
@@ -224,7 +224,7 @@ http:
       # Default: 0s
       exec_ttl: 60s
 
-  # SSL (Secure Sockets Layer) (TLS) settings (docs: https://roadrunner.dev/docs/http-http/2023.x/en).
+  # SSL (Secure Sockets Layer) (TLS) settings.
   ssl:
     # Host and port to listen on (e.g.: `127.0.0.1:443`).
     #

@@ -20,7 +20,6 @@ http:
   # host and port separated by semicolon
   address: 127.0.0.1:44933
   middleware: [ "static" ] # <-- Add static to the list of the middleware
-  # Settings for "static" middleware (docs: https://roadrunner.dev/docs/http-http/2023.x/en).
   static:
     dir: "."
     forbid: [ "" ]
@@ -55,7 +54,7 @@ http:
   # host and port separated by semicolon
   address: 127.0.0.1:44933
   middleware: [ "static", "headers", "gzip" ]
-  # Settings for "headers" middleware (docs: https://roadrunner.dev/docs/http-http/2023.x/en).
+  # Settings for "headers" middleware.
   headers:
     cors:
       allowed_origin: "*"
@@ -64,7 +63,7 @@ http:
       allow_credentials: true
       exposed_headers: "Cache-Control,Content-Language,Content-Type,Expires,Last-Modified,Pragma"
       max_age: 600
-  # Settings for "static" middleware (docs: https://roadrunner.dev/docs/http-http/2023.x/en).
+  # Settings for "static" middleware.
   static:
     dir: "."
     forbid: [ "" ]

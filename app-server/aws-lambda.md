@@ -89,7 +89,7 @@ func main() {
   cont := endure.New(slog.LevelError)
 
   cfg := &config.Plugin{
-    Version:   "2023.3.0",
+    Version:   "2024.1.0",
     Timeout:   time.Second * 30,
     Prefix:    "rr",
     Type:      "yaml",

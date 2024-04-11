@@ -25,7 +25,7 @@ Here's an example of a simple event subscription:
 package foo
 
 import (
-    "github.com/spiral/roadrunner/v2023/events"
+    "github.com/spiral/roadrunner/v2024/events"
 )
 
 func foo() {
@@ -95,7 +95,7 @@ Here's an example of a wildcard subscription:
 package foo
 
 import (
-    "github.com/spiral/roadrunner/v2023/events"
+    "github.com/spiral/roadrunner/v2024/events"
 )
 
 func foo() {
@@ -208,7 +208,7 @@ application like this:
 package foo
 
 import (
-    "github.com/spiral/roadrunner/v2023/events"
+    "github.com/spiral/roadrunner/v2024/events"
 )
 
 func foo() {
