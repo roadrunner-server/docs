@@ -11,7 +11,7 @@ version: "3"
 
 # HTTP plugin settings.
 http:
-  # Host and port to listen on (eg.: `127.0.0.1:8080`).
+  # Host and port to listen on (e.g.: `127.0.0.1:8080`).
   #
   # This option is required.
   address: 127.0.0.1:8080
@@ -226,7 +226,7 @@ http:
 
   # SSL (Secure Sockets Layer) (TLS) settings (docs: https://roadrunner.dev/docs/http-http/2023.x/en).
   ssl:
-    # Host and port to listen on (eg.: `127.0.0.1:443`).
+    # Host and port to listen on (e.g.: `127.0.0.1:443`).
     #
     # Default: ":443"
     address: "127.0.0.1:443"

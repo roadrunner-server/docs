@@ -299,9 +299,9 @@ vx build -c velox_rr_2023.toml -o ~/Downloads
 
 {% embed url="https://www.youtube.com/watch?v=sddi_lh7ePo" %}
 
-## Third party and deprecated plugins
+## Third-party and deprecated plugins
 
-- [souin, third party](https://github.com/darkweak/souin/tree/master/plugins/roadrunner)
+- [souin, third-party](https://github.com/darkweak/souin/tree/master/plugins/roadrunner)
 - [reload, deprecated](https://github.com/roadrunner-server/reload)
 
 ## Known limitation

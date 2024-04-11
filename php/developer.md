@@ -81,7 +81,7 @@ Every plugin in RoadRunner that creates workers has a `pool` section in which yo
 
 {% hint style="warning" %}
 When using the `pool.debug` option in RoadRunner, it is important to note that settings in `pool` section would work
-differently. All options will be ignored (`supervisor`, `max_jobs`, `num_workers`, etc). This is because, in debug
+differently. All options will be ignored (`supervisor`, `max_jobs`, `num_workers`, etc.). This is because, in debug
 mode, RoadRunner does not create a worker at startup. Instead, it waits for requests to come in and creates workers
 accordingly. After the response, RoadRunner stops and removes the worker.
 When you send 2-3-n parallel requests to RoadRunner, it creates 2-3-n workers to handle those requests simultaneously.
