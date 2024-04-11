@@ -13,9 +13,9 @@ Here is an example of a `Dockerfile` that can be used to build a Docker image wi
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM php:8.3-cli-alpine3.17 as backend
+FROM php:8.3-cli-alpine3 as backend
 
-FROM spiralscout/roadrunner:2023.3 as roadrunner
+FROM spiralscout/roadrunner:2024.1 as roadrunner
 
 # https://github.com/mlocati/docker-php-extension-installer
 RUN --mount=type=bind,from=mlocati/php-extension-installer:2,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \

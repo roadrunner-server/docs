@@ -27,79 +27,83 @@ page.
 
 **Here is an example of a configuration file:**
 
-{% code title="velox_rr_2023.toml" %}
+{% code title="velox_rr_2024.toml" %}
 
 ```toml
 [velox]
 build_args = [
-    '-trimpath',
-    '-ldflags',
-    '-s -X github.com/roadrunner-server/roadrunner/v2023/internal/meta.version=${VERSION} -X github.com/roadrunner-server/roadrunner/v2023/internal/meta.buildTime=${TIME}'
+  '-trimpath',
+  '-ldflags',
+  '-s -X github.com/roadrunner-server/roadrunner/v2024/internal/meta.version=${VERSION} -X github.com/roadrunner-server/roadrunner/v2024/internal/meta.buildTime=${TIME}'
 ]
 
 [roadrunner]
-ref = "v2023.1.3"
+ref = "v2024.1.0"
 
 [github]
 [github.token]
 token = "${RT_TOKEN}"
 
+# ref -> master, commit or tag
 [github.plugins]
 # LOGS
-appLogger = { ref = "v4.0.4", owner = "roadrunner-server", repository = "app-logger" }
-logger = { ref = "v4.1.3", owner = "roadrunner-server", repository = "logger" }
+appLogger = { ref = "v4.4.0", owner = "roadrunner-server", repository = "app-logger" }
+logger = { ref = "v4.4.0", owner = "roadrunner-server", repository = "logger" }
+lock = { ref = "v4.7.0", owner = "roadrunner-server", repository = "lock" }
+rpc = { ref = "v4.4.0", owner = "roadrunner-server", repository = "rpc" }
 
 # CENTRIFUGE BROADCASTING PLATFORM
-centrifuge = { ref = "v4.1.2", owner = "roadrunner-server", repository = "centrifuge" }
+centrifuge = { ref = "v4.9.0", owner = "roadrunner-server", repository = "centrifuge" }
 
 # WORKFLOWS ENGINE
-temporal = { ref = "v4.2.1", owner = "temporalio", repository = "roadrunner-temporal" }
+temporal = { ref = "v4.7.0", owner = "temporalio", repository = "roadrunner-temporal" }
 
 # METRICS
-metrics = { ref = "v4.0.4", owner = "roadrunner-server", repository = "metrics" }
+metrics = { ref = "v4.3.0", owner = "roadrunner-server", repository = "metrics" }
 
 # HTTP + MIDDLEWARE
-http = { ref = "v4.1.4", owner = "roadrunner-server", repository = "http" }
-gzip = { ref = "v4.0.4", owner = "roadrunner-server", repository = "gzip" }
-prometheus = { ref = "v4.0.5", owner = "roadrunner-server", repository = "prometheus" }
-headers = { ref = "v4.0.4", owner = "roadrunner-server", repository = "headers" }
-static = { ref = "v4.0.5", owner = "roadrunner-server", repository = "static" }
+http = { ref = "v4.7.0", owner = "roadrunner-server", repository = "http" }
+gzip = { ref = "v4.3.0", owner = "roadrunner-server", repository = "gzip" }
+prometheus = { ref = "v4.3.0", owner = "roadrunner-server", repository = "prometheus" }
+headers = { ref = "v4.4.0", owner = "roadrunner-server", repository = "headers" }
+static = { ref = "v4.3.0", owner = "roadrunner-server", repository = "static" }
+proxy = { ref = "v4.3.0", owner = "roadrunner-server", repository = "proxy_ip_parser" }
 
 # OpenTelemetry
-otel = { ref = "v4.1.5", owner = "roadrunner-server", repository = "otel" }
+otel = { ref = "v4.5.0", owner = "roadrunner-server", repository = "otel" }
 
 # SERVER
-server = { ref = "v4.1.1", owner = "roadrunner-server", repository = "server" }
+server = { ref = "v4.8.0", owner = "roadrunner-server", repository = "server" }
 
 # SERVICE aka lightweit systemd
-service = { ref = "v4.1.0", owner = "roadrunner-server", repository = "service" }
+service = { ref = "v4.7.0", owner = "roadrunner-server", repository = "service" }
 
 # JOBS
-jobs = { ref = "v4.3.2", owner = "roadrunner-server", repository = "jobs" }
-amqp = { ref = "v4.4.3", owner = "roadrunner-server", repository = "amqp" }
-sqs = { ref = "v4.2.3", owner = "roadrunner-server", repository = "sqs" }
-beanstalk = { ref = "v4.2.2", owner = "roadrunner-server", repository = "beanstalk" }
-nats = { ref = "v4.2.2", owner = "roadrunner-server", repository = "nats" }
-kafka = { ref = "v4.1.4", owner = "roadrunner-server", repository = "kafka" }
+jobs = { ref = "v4.9.0", owner = "roadrunner-server", repository = "jobs" }
+amqp = { ref = "v4.11.0", owner = "roadrunner-server", repository = "amqp" }
+sqs = { ref = "v4.8.0", owner = "roadrunner-server", repository = "sqs" }
+beanstalk = { ref = "v4.8.0", owner = "roadrunner-server", repository = "beanstalk" }
+nats = { ref = "v4.8.0", owner = "roadrunner-server", repository = "nats" }
+kafka = { ref = "v4.6.0", owner = "roadrunner-server", repository = "kafka" }
 
 # KV
-kv = { ref = "v4.1.5", owner = "roadrunner-server", repository = "kv" }
-boltdb = { ref = "v4.3.2", owner = "roadrunner-server", repository = "boltdb" }
-memory = { ref = "v4.2.2", owner = "roadrunner-server", repository = "memory" }
-redis = { ref = "v4.1.5", owner = "roadrunner-server", repository = "redis" }
-memcached = { ref = "v4.1.5", owner = "roadrunner-server", repository = "memcached" }
+kv = { ref = "v4.6.0", owner = "roadrunner-server", repository = "kv" }
+boltdb = { ref = "v4.9.0", owner = "roadrunner-server", repository = "boltdb" }
+memory = { ref = "v4.8.0", owner = "roadrunner-server", repository = "memory" }
+redis = { ref = "v4.4.0", owner = "roadrunner-server", repository = "redis" }
+memcached = { ref = "v4.5.0", owner = "roadrunner-server", repository = "memcached" }
 
 # FILESERVER (static files)
-fileserver = { ref = "v4.0.5", owner = "roadrunner-server", repository = "fileserver" }
+fileserver = { ref = "v4.3.0", owner = "roadrunner-server", repository = "fileserver" }
 
 # gRPC plugin
-grpc = { ref = "v4.1.5", owner = "roadrunner-server", repository = "grpc" }
+grpc = { ref = "v4.8.0", owner = "roadrunner-server", repository = "grpc" }
 
 # HEALTHCHECKS + READINESS CHECKS
-status = { ref = "v4.1.5", owner = "roadrunner-server", repository = "status" }
+status = { ref = "v4.6.0", owner = "roadrunner-server", repository = "status" }
 
 # TCP for the RAW TCP PAYLOADS
-tcp = { ref = "v4.0.4", owner = "roadrunner-server", repository = "tcp" }
+tcp = { ref = "v4.5.0", owner = "roadrunner-server", repository = "tcp" }
 
 [gitlab]
 [gitlab.token]
@@ -130,7 +134,7 @@ the [official repository](https://github.com/roadrunner-server/velox/blob/master
 When using official plugins for RoadRunner, it is recommended avoid using the `master` branch as it may contain
 unstable code. Instead, use tags with the same major version (e.g., `logger:v4.x.x` + `amqp:v4.x.x`, but
 not `logger:v4.0.0` + `amqp:v3.0.5`). Please note that the currently supported plugin version is `v4.x.x`, and the
-supported RoadRunner version is `v2023.x.x`.
+supported RoadRunner version is `v2024.x.x`.
 
 Failure to follow these guidelines may result in compatibility issues and
 other problems. Please pay close attention to your configuration file to ensure proper use of plugins.
@@ -203,15 +207,15 @@ ARG APP_VERSION="undefined"
 ARG BUILD_TIME="undefined"
 
 # copy your configuration into the docker
-COPY velox_rr_2023.toml .
+COPY velox_rr_2024.toml .
 
 # we don't need CGO
 ENV CGO_ENABLED=0
 
 # RUN build
-RUN vx build -c velox_rr_2023.toml -o /usr/bin/
+RUN vx build -c velox_rr_2024.toml -o /usr/bin/
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} php:8.2-cli
+FROM --platform=${TARGETPLATFORM:-linux/amd64} php:8.3-cli
 
 # copy required files from builder image
 COPY --from=velox /usr/bin/rr /usr/bin/rr
@@ -245,7 +249,7 @@ After the binary has been downloaded, you can build the application server:
 {% code title="vx build" %}
 
 ```bash
-vx build -c velox_rr_2023.toml -o ~/Downloads
+vx build -c velox_rr_2024.toml -o ~/Downloads
 ```
 
 {% endcode %}
@@ -271,7 +275,7 @@ After the binary has been downloaded, you can build the application server:
 {% code title="vx build" %}
 
 ```bash
-vx build -c velox_rr_2023.toml -o ~/Downloads
+vx build -c velox_rr_2024.toml -o ~/Downloads
 ```
 
 {% endcode %}
