@@ -233,13 +233,13 @@ CMD ["/usr/bin/rr"]
 You can use the `go install` command to download Velox.
 
 {% hint style="warning" %}
-To download Velox and build an application server you need [Golang 1.20+](https://golang.org/dl/) on you local server.
+To download Velox and build an application server you need [Golang 1.22+](https://golang.org/dl/) on you local server.
 {% endhint %}
 
 {% code title="go install" %}
 
 ```bash
-go install github.com/roadrunner-server/velox/cmd/vx@latest
+go install github.com/roadrunner-server/velox/v2024/cmd/vx@latest
 ```
 
 {% endcode %}
@@ -267,7 +267,7 @@ To build the application server, you need to download Velox binary
 the [GitHub releases page](https://github.com/roadrunner-server/velox/releases) and unpack it to your `PATH`.
 
 {% hint style="warning" %}
-To build an application server you need [Golang 1.20+](https://golang.org/dl/) on you local server.
+To build an application server you need [Golang 1.22+](https://golang.org/dl/) on you local server.
 {% endhint %}
 
 After the binary has been downloaded, you can build the application server:
