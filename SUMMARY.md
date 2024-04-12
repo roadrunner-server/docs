@@ -2,7 +2,7 @@
 
 ## 😃 General
 
-* [Intro into RoadRunner](intro/about.md)
+* [Intro](intro/about.md)
 * [Features](README.md)
 * [Quick Start](intro/quick-start.md)
 * [Installation](intro/install.md)
