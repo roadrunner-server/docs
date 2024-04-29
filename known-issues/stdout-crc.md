@@ -10,3 +10,39 @@ How to fix that?
 3. Worker from the RRv1 was used. To update, see: [link](../integration/migration.md)
 4. OPcache is enabled with JIT, but some extensions don't support it, which leads to the warnings. Tune the `error_reporting` configuration option (use only errors): [issue](https://github.com/roadrunner-server/roadrunner/issues/1306)
 5. If you use a Symfony runtime, do not forget to add `APP_RUNTIME` to the server environment variables, as described here: https://github.com/php-runtime/roadrunner-symfony-nyholm.
+
+
+# RoadRunner can’t communicate with the worker
+
+How to fix that?  
+
+1. update .rr.yaml file `logs` module, show debug log
+```yaml
+logs:
+  mode: production
+  ## here
+  level: debug
+  encoding: console
+  output: stderr
+  err_output: stderr
+  channels:
+    http:
+      mode: production
+      ## here
+      level: debug
+      encoding: console
+      output: stdout
+      err_output: stderr
+    server:
+      mode: production
+      level: info
+      encoding: json
+      output: stdout
+      err_output: stdout
+    rpc:
+      mode: production
+      level: debug
+      encoding: console
+      output: stderr
+      err_output: stdout
+```
