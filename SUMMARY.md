@@ -11,13 +11,12 @@
 * [Upgrade and Compatibility](intro/compatibility.md)
 
 ## 👷 PHP Worker
-
-* [Dynamic Workers Scaling](php/scaling.md)
-* [Developer mode](php/developer.md)
-* [Environment](php/environment.md)
-* [Debugging](php/debugging.md)
 * [Worker](php/worker.md)
 * [Workers pool](php/pool.md)
+* [Developer mode](php/developer.md)
+* [Debugging](php/debugging.md)
+* [Environment](php/environment.md)
+* [Dynamic scaling](php/scaling.md)
 * [RPC](php/rpc.md)
 
 ## 🚀 Customization
@@ -53,7 +52,7 @@
 * [Intro into KV](kv/overview-kv.md)
 * [Memcached](kv/memcached.md)
 * [In-Memory](kv/memory.md)
-* [BoltDG](kv/boltdb.md)
+* [BoltDB](kv/boltdb.md)
 * [Redis](kv/redis.md)
 
 ## 📦 Queues and Jobs
