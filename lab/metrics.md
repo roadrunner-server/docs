@@ -168,7 +168,7 @@ you to use the available class methods.
 use Spiral\RoadRunner\Metrics\Metrics;
 use Spiral\Goridge\RPC\RPC;
 
-$metrics = new Metrics(RPC::create('127.0.0.1:6001'));
+$metrics = new Metrics(RPC::create('tcp://127.0.0.1:6001'));
 
 $metrics->add('registered_users', 1);
 ```
