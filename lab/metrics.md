@@ -68,6 +68,7 @@ The HTTP metrics provided by the metrics plugin include:
 - `rr_http_request_duration_seconds` - HTTP request duration.
 - `rr_http_requests_queue` - Total number of queued requests waiting for a worker.
 - `rr_http_uptime_seconds` - Plugin uptime in seconds.
+- `rr_http_no_free_workers_total` - Total number of NoFreeWorkers errors.
 
 ### gRPC Metrics
 
