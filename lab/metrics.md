@@ -31,10 +31,12 @@ supported plugin.
 The general metrics provided by the metrics plugin include:
 
 - `{{plugin}}_total_workers` - Total number of workers used by the plugin.
-- `{{plugin}}_worker_memory_bytes` - Worker's current memory usage.
+- `{{plugin}}_worker_memory_bytes` - Single worker's memory usage.
+- `{{plugin}}_workers_memory_bytes` - Total worker's memory usage.
 - `{{plugin}}_worker_state` - Worker's current state.
-- `{{plugin}}_workers_invalid` - Number of workers currently in invalid, killing, destroyed, errored, inactive states.
 - `{{plugin}}_workers_ready` - Number of workers currently in ready state.
+- `{{plugin}}_workers_working` - Number of workers currently in working state.
+- `{{plugin}}_workers_invalid` - Number of workers currently in invalid, killing, destroyed, errored, inactive states.
 
 {% hint style="info" %}
 `{{plugin}}` is the concatenation of the rr + plugin name. For example, for the `jobs` plugin, the metric would
@@ -62,11 +64,11 @@ http:
 
 The HTTP metrics provided by the metrics plugin include:
 
+- `rr_http_request_total` - Total number of handled HTTP requests after server restart.
+- `rr_http_request_duration_seconds` - HTTP request duration.
 - `rr_http_requests_queue` - Total number of queued requests waiting for a worker.
 - `rr_http_uptime_seconds` - Plugin uptime in seconds.
 - `rr_http_no_free_workers_total` - Total number of NoFreeWorkers errors.
-- `rr_http_request_total` - Total number of handled HTTP requests after server restart.
-- `rr_http_request_duration_seconds` - HTTP request duration.
 
 ### gRPC Metrics
 

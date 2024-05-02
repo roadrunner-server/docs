@@ -105,4 +105,4 @@ In this example, the following options are used:
 
 1. [Server Commands](../app-server/cli.md) - learn how to start the server.
 2. [PHP Workers — Environment variables](../php/environment.md) - learn how to configure PHP workers environment.
-e. [Config plugin](../plugins/config.md) - learn more about the Config plugin.
+3. [Config plugin](../plugins/config.md) - learn more about the Config plugin.

@@ -68,7 +68,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
       # Default: 1s
       watch_tick: 1s
 
-      # Maximum time worker is allowed to live (soft limit). Zero means no limit.
+      # How long worker can live (soft limit). Zero means no limit.
       #
       # Default: 0s
       ttl: 0s
