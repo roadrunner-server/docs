@@ -145,6 +145,7 @@ The callIgnoreResponse method can be used to invoke RPC methods without waiting 
 
 {% code %}
 
+```php
 use Spiral\Goridge\RPC\AsyncRPCInterface;
 use Spiral\Goridge\RPC\Exception\ServiceException;
 use Spiral\RoadRunner\Metrics\Exception\MetricsException;
@@ -193,6 +194,7 @@ final class MetricsIgnoreResponse implements MetricsInterface
         $this->rpc->call('metrics.Unregister', $name);
     }
 }
+```
 
 {% endcode %}
 
@@ -204,6 +206,7 @@ Using this method, we can implement, for example, sending data to a cache and re
 
 {% code %}
 
+```php
 use RoadRunner\KV\DTO\V1\Request;
 use RoadRunner\KV\DTO\V1\Response;
 use Spiral\Goridge\RPC\AsyncRPCInterface;
@@ -275,15 +278,19 @@ final class AsyncCache
     }
 }
 
+```
+
 {% endcode %}
 
 {% code %}
 
+```php
 $cache = new AsyncCache($rpc);
 
 $cache->setAsync('key', ['foo' => 'bar']);
 $cache->setAsync('second', ['key' => 'value']);
 $cache->setAsync('third', 'data');
+```
 
 {% endcode %}
 
