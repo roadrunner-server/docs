@@ -480,11 +480,42 @@ grpc:
 
 {% endcode %}
 
-## Minimal dependencies
 
-1. `Server` plugin for the worker pool.
-2. `Logger` plugin to show log messages.
-3. `Config` plugin to read and populate plugin's configuration.
+## OTLP support in the `gRPC` plugin: `[>=2023.3.8]`
+
+In the `v2023.3.8` we added experimental support for the `OTLP` protocol in the `gRPC` plugin. Stable since `v2024.1.1`. To enable it, you need to activate `otel` plugin by adding the following lines to the `.rr.yaml` file:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+otel: # <- activate otel plugin
+  resource:
+    service_name: "rr_test_grpc"
+    service_version: "1.0.0"
+    service_namespace: "RR-gRPC"
+    service_instance_id: "UUID-super-long-unique-id"
+  insecure: false
+  exporter: stderr
+```
+
+{% endcode %}
+
+Trace keys passed to the PHP workers are:
+
+1. `Traceparent`
+2. `Uber-Trace-Id`
+
+Example:
+
+{% code %}
+
+```log
+"Traceparent":["00-2678b910f57fe3320587f4126a390868-6b87f1600005b643-01"],"Uber-Trace-Id":["2678b910f57fe3320587f4126a390868:6b87f1600005b643:0:1"]
+```
+
+{% endcode %}
+
+More about `OTLP` plugin you may read [here](../lab/otel.md).
 
 ## Common issues
 
