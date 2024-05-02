@@ -282,6 +282,8 @@ final class AsyncCache
 
 {% endcode %}
 
+Usage:
+
 {% code %}
 
 ```php
@@ -290,11 +292,11 @@ $cache = new AsyncCache($rpc);
 $cache->setAsync('key', ['foo' => 'bar']);
 $cache->setAsync('second', ['key' => 'value']);
 $cache->setAsync('third', 'data');
+
+$result = $cache->commitAsync();
 ```
 
 {% endcode %}
-
-$result = $cache->commitAsync();
 
 ## What's Next?
 
