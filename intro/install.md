@@ -85,6 +85,11 @@ Don't forget to replace `2024.X.X` with a desired version of RoadRunner.
 brew install roadrunner
 ```
 
+## Windows using [Chocolatey](https://community.chocolatey.org/):
+```bash
+choco install roadrunner
+```
+
 ## CURL
 
 You can also install RoadRunner using curl and the download-latest.sh script from the RoadRunner GitHub repository.
