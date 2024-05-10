@@ -48,3 +48,8 @@ our [Discord channel](https://discord.gg/spiralphp) or [contribute](intro/contri
 
 With the support of the community, RoadRunner will continue to grow and evolve to meet the needs of modern web
 development.
+
+## Useful articles
+- [Scaling PHP applications with RoadRunner](https://betterstack.com/community/guides/scaling-php/php-roadrunner)
+- [RoadRunner for PHP applications](https://butschster.medium.com/roadrunner-an-underrated-powerhouse-for-php-applications-46410b0abc)
+- [Turbo charge for your PHP applications](https://davegebler.com/post/php/turbo-charge-your-php-applications-with-roadrunner)
