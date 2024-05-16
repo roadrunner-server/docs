@@ -112,5 +112,6 @@
 
 ## 📚 Releases
 
+* [v2024.1.2](releases/v2024-1-2.md)
 * [v2024.1.1](releases/v2024-1-1.md)
 * [v2024.1.0](releases/v2024-1-0.md)
