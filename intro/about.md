@@ -16,7 +16,7 @@ various plugins to these workers. This communication is done through
 the [goridge](https://github.com/roadrunner-server/goridge) protocol, enabling your PHP application to handle requests
 and send responses back to clients.
 
-![Base Diagram](https://user-images.githubusercontent.com/796136/65347341-79dd8600-dbe7-11e9-9621-1c5f2ef929e6.png)
+<img width="987" alt="image" src="https://github.com/roadrunner-server/docs/assets/8040338/c96273e3-7a1e-4084-9253-82c1f09492cd">
 
 The following plugins are designed to run workers and handle specific types of requests:
 
