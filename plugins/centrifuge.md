@@ -1,7 +1,7 @@
 # Centrifuge
 
 The RoadRunner Centrifuge plugin provides seamless integration with [Centrifugo](https://centrifugal.dev/), a powerful
-websocket server. This plugin allows you to proxy events from Websocket serer to PHP workers running on RoadRunner and
+websocket server. This plugin allows you to proxy events from Websocket server to PHP workers running on RoadRunner and
 send data back to the websocket client, enabling real-time communication between the server and the client.
 
 The plugin provides the following features:
