@@ -44,7 +44,7 @@ otel:
   insecure: true
   compress: false
   exporter: otlp
-  endpoint: 127.0.0.1:4317
+  endpoint: 127.0.0.1:4318
 ```
 
 {% endcode %}

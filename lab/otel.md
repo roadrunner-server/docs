@@ -38,7 +38,7 @@ otel:
   insecure: true
   compress: false
   exporter: otlp
-  endpoint: 127.0.0.1:4317
+  endpoint: 127.0.0.1:4318
 ```
 {% endcode %}
 
@@ -56,7 +56,7 @@ otel:
     service_version: "${OTEL_SERVICE_VERSION:-1.0.0}"
   insecure: "${OTEL_EXPORTER_OTLP_INSECURE:-true}"
   exporter: "${OTEL_TRACES_EXPORTER:-otlp}"
-  endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-127.0.0.1:4317}"
+  endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-127.0.0.1:4318}"
 
 ```
 {% endcode %}
