@@ -10,7 +10,7 @@ prevention of memory leaks through advanced techniques.**
 
 RoadRunner is seamlessly integrated with Spiral to enhance the overall performance and scalability of applications. It 
 enables the handling of various request types, including HTTP, gRPC, TCP, Websocket, Queue Job consuming, and Temporal 
-via [spiral/roadrunner-bridge](hhttps://github.com/spiral/roadrunner-bridge) package. The integration unlocks a wide 
+via [spiral/roadrunner-bridge](https://github.com/spiral/roadrunner-bridge) package. The integration unlocks a wide 
 range of capabilities for building robust and high-performance applications. 
 
 **Here is a list of features that are available:**
