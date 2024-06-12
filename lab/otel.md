@@ -93,6 +93,10 @@ http:
 | **headers**         | a key-value map that contains user-defined headers. The `api-key` for New Relic should be here.                                                                                                     |
 | **resource**        | a key-value map that contains OTEL resource (https://github.com/open-telemetry/opentelemetry-specification/blob/v1.25.0/specification/resource/semantic_conventions/README.md)                      |
 
+{% hint style="warn" %}
+The OpenTelementy OTLP endpoint can be used with 2 different ports: `4318` and `4317`, [docs](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/). In general, port `4317` is used for the `gRPC` traces (with the `gRPC` OTLP client). While port `4318` is used for the `http` OTLP client. Keep in mind that having a `gRPC` collector with an `http`  endpoint will cause a send error. 
+{% endhint %}
+
 ## Collector
 
 The OpenTelemetry Collector offers a vendor-agnostic implementation of how to receive, process and export telemetry
