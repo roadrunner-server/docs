@@ -112,6 +112,7 @@
 
 ## 📚 Releases
 
+* [v2024.1.4](releases/v2024-1-4.md)
 * [v2024.1.3](releases/v2024-1-3.md)
 * [v2024.1.2](releases/v2024-1-2.md)
 * [v2024.1.1](releases/v2024-1-1.md)
