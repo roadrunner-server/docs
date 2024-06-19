@@ -28,7 +28,7 @@ Or:
 
 ## List of experimental features
 
-### Support for the nested configurations: `[>=2023.3.4]`
+### Support for the nested configurations: `[>=2023.3.4]`, [issue](https://github.com/roadrunner-server/roadrunner/issues/935)
 
 Using the following syntax, you may include other configuration files into the main one:
 
