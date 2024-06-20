@@ -48,7 +48,12 @@ reload:
 
 {% endcode %}
 
-Where `.rr.include1-sub1.yaml` and `.rr.include1-sub2.yaml` are the configuration files that are located in the same directory as the main configuration file.
+Before `v2024.1.5`, `.rr.include1-sub1.yaml` and `.rr.include1-sub2.yaml` should be located in the same directory as the main configuration file.
+
+{% hint style="warning" %}
+Starting from the version `v2024.1.5`, the configuration includes don't have restrictions on where to put the included config. Keep in mind that the path for the included configurations is calculated from the working directory of the RoadRunner process.
+{% endhint %}
+
 Includes override the main configuration file. For example, if you have the following nested configuration:
 
 {% code title=".rr.include1-sub1.yaml" %}
