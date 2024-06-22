@@ -8,8 +8,8 @@ It consists of two main parts:
    service definition file (`.proto`). It generates PHP classes that correspond to the service definition and message
    types. These classes provide an interface for handling incoming gRPC requests and sending responses back to the
    client.
-2. **gRPC server:** This is a server that starts PHP workers and listens for incoming gRPC requests. It receives 
-   requests from gRPC clients, proxies them to the PHP workers, and sends the responses back to the client. The server 
+2. **gRPC server:** This is a server that starts PHP workers and listens for incoming gRPC requests. It receives
+   requests from gRPC clients, proxies them to the PHP workers, and sends the responses back to the client. The server
    is responsible for managing the lifecycle of the PHP workers and ensuring that they are available to handle requests.
 
 ## Protoc-plugin
@@ -146,8 +146,74 @@ By doing this, you can easily use the generated PHP classes in your application.
 
 ### Using BUF plugin
 
-You can also use the [BUF](https://buf.build/community/roadrunner-server-php-grpc) plugin
-to generate PHP code from the `.proto` file.
+You can also use the [BUF](https://buf.build/community/roadrunner-server-php-grpc) RoadRunner gRPC plugin to generate PHP code from the `.proto` file instead of using the `protoc` compiler.
+
+To use BUF to generate PHP gRPC services, you'll need to create two files: `buf.yaml` and `buf.gen.yaml`.
+
+Here's an example of a `buf.yaml` file:
+
+{% code title="buf.yaml" %}
+
+```yaml
+version: v2
+deps:
+    - buf.build/googleapis/googleapis:fb98f92554c17ec159a0b35ea8ffca71bac14385
+
+name: buf.build/<your_org_name>/<you_project_name>
+lint:
+  use:
+    - DEFAULT
+  except:
+    - FIELD_NOT_REQUIRED
+    - PACKAGE_NO_IMPORT_CYCLE
+breaking:
+  use:
+    - FILE
+  except:
+    - EXTENSION_NO_DELETE
+    - FIELD_SAME_DEFAULT
+```
+
+{% endcode %}
+
+Note that you need to optionally replace `<your_org_name>` and `<your_project_name>` with your organization and project names created on the [BUF](https://login.buf.build/u/signup) website.
+
+In the `deps` section, you can specify the dependencies that your `.proto` file relies on. In this example, we're using a dependency from the Google APIs repository.
+
+Also, you may configure the linting and breaking changes rules.
+
+Here's an example of a `buf.gen.yaml` file:
+
+{% code title="buf.gen.yaml" %}
+
+```yaml
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/php:v26.1
+    out: gen/php
+  - remote: buf.build/community/roadrunner-server-php-grpc:v4.8.0
+    out: gen/php
+  - remote: buf.build/protocolbuffers/go:v1.32.0
+    out: gen/go
+    opt: paths=source_relative
+  - remote: buf.build/grpc/go:v1.3.0
+    out: gen/go
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+  - remote: buf.build/grpc/python:v1.63.0
+    out: gen/python
+  - remote: buf.build/protocolbuffers/python
+    out: gen/python
+  - remote: buf.build/protocolbuffers/pyi
+    out: gen/python
+```
+
+{% endcode %}
+
+As you can see, the `buf.gen.yaml` file specifies the plugins that will be used to generate the code. In this example, we're using the `buf.build/community/roadrunner-server-php-grpc` plugin to generate PHP gRPC services.
+
+Also, you may generate code for other languages like Go and Python.
 
 ## PHP Client
 
@@ -187,11 +253,11 @@ final class Pinger implements PingerInterface
         private readonly HttpClientInterface $httpClient
     ) {
     }
-    
+
     public function ping(GRPC\ContextInterface $ctx, PingRequest $in): PingResponse
     {
         $statusCode = $this->httpClient->get($in->getUrl())->getStatusCode();
-    
+
         return new PingResponse([
             'status_code' => $statusCode
         ]);
@@ -306,7 +372,7 @@ client library in any language that supports gRPC to call the `ping` method.
 
 ## Metrics
 
-RoadRunner has a [metrics plugin](../lab/metrics.md) that provides metrics for the gRPC server, which can be used with 
+RoadRunner has a [metrics plugin](../lab/metrics.md) that provides metrics for the gRPC server, which can be used with
 Prometheus and a preconfigured [Grafana dashboard](../lab/dashboards/grpc.md)
 
 ![grpc-metrics](https://user-images.githubusercontent.com/773481/235685443-05cf8af0-9e43-4aed-8801-da6595ca7d19.png)
