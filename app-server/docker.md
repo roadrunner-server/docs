@@ -10,14 +10,19 @@ Following Docker images are available:
 
 Here is an example of a `Dockerfile` that can be used to build a Docker image with RoadRunner for a PHP application:
 
+{% hint style="warning" %} 
+Note that this example utilizes a folder named `app` for your application. If your application is located in a different folder, feel free to customize this Dockerfile to suit your needs.
+{% endhint %}
+
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM php:8.3-cli-alpine3 as backend
+FROM ghcr.io/roadrunner-server/roadrunner:2024 as roadrunner
 
-FROM spiralscout/roadrunner:2024.1 as roadrunner
+FROM php:8.3-alpine
 
 # https://github.com/mlocati/docker-php-extension-installer
+# https://github.com/docker-library/docs/tree/0fbef0e8b8c403f581b794030f9180a68935af9d/php#how-to-install-more-php-extensions
 RUN --mount=type=bind,from=mlocati/php-extension-installer:2,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
      install-php-extensions @composer-2 opcache zip intl sockets && \
      apk del --no-cache ${PHPIZE_DEPS} ${BUILD_DEPENDS}
@@ -26,7 +31,7 @@ EXPOSE 8080/tcp
 
 WORKDIR /app
 
-COPY --from=roadrunner /usr/bin/rr ./
+COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
