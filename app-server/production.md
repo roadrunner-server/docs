@@ -12,7 +12,7 @@ descriptors and avoiding state pollution to prevent memory leaks and ensure appl
 **Here are some tips to keep in mind:**
 
 - Make sure you close all descriptors (especially on fatal exceptions).
-- Watch out for memory leaks - you need to be more selective about the components you use. Workers will be restarted in
+- Watch out for memory leaks—you need to be more selective about the components you use. Workers will be restarted in
   case of a memory leak, but it should not be difficult to avoid this problem altogether by designing your application
   properly.
 - Avoid state pollution (i.e., caching globals or user data in memory).
@@ -44,4 +44,4 @@ your application a bit).
 - For CPU bound operation, see an average CPU load and choose the number of workers to consume **90-95%** CPU. Leave a
   few percent for the GC of the GO (not necessary btw).
 - If you have `~const` workers latency, you can calculate the number of workers needed to handle the
-  target [load](https://github.com/spiral/roadrunner/discussions/799#discussioncomment-1332646).
+  target [load](https://github.com/orgs/roadrunner-server/discussions/799#discussioncomment-1332646).

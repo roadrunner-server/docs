@@ -101,6 +101,85 @@ In this example, the following options are used:
 | **/var/www/config/.env** | File that contains the required environment variables.                                                                               |
 | **${RR_NUM_WORKERS:-8}** | Sets the number of workers to `RR_NUM_WORKERS` from the `.env` file or uses the default value of `8` if the variable is not present. |
 
+## Support for the nested configurations: `[>=2024.2.0]`, [issue](https://github.com/roadrunner-server/roadrunner/issues/935)
+
+Using the following syntax, you may include other configuration files into the main one:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+include:
+  - .rr.include1-sub1.yaml
+  - ../foo/bar/rr.include1-sub2.yaml
+
+reload:
+  interval: 1s
+  patterns: [".php"]
+```
+
+{% endcode %}
+
+{% hint style="warning" %}
+
+Starting from version `v2024.2.0`, the `includes` configuration option no longer has restrictions on where the included config can be placed. However, please note that the path for the included configurations is calculated based on the working directory of the RoadRunner process.
+
+{% endhint %}
+
+Includes override the main configuration file. For example, if you have the following nested configuration:
+
+{% code title=".rr.include1-sub1.yaml" %}
+
+```yaml
+version: "3"
+
+server:
+  command: "php php_test_files/psr-worker-bench.php"
+  relay: pipes
+
+http:
+  address: 127.0.0.1:15389
+  middleware:
+    - "sendfile"
+  pool:
+    allocate_timeout: 10s
+    num_workers: 2
+```
+
+{% endcode %}
+
+It will override the `server` and `http` sections of the main configuration file.
+You may use env variables in the included configuration files, but you can't use overrides for the nested configuration. For example:
+
+{% hint style="info" %}
+
+The next 'include' will override values set by the previous 'include'. Values in the root `.rr.yaml` will also be overwritten by the includes. Feel free to send us feedback on this feature.
+
+{% endhint %}
+
+{% code title=".rr.include1-sub1.yaml" %}
+
+```yaml
+version: "3"
+
+server:
+  command: "${PHP_COMMAND:-php_test_files/psr-worker-bench.php}"
+  relay: pipes
+```
+
+{% endcode %}
+
+You may use any number of the included configuration files via CLI command, in quotas and separated by whitespace. For example:
+
+{% code %}
+
+```bash
+./rr serve -e -c .rr.yaml -o include=".rr.yaml .rr2.yaml"
+```
+
+{% endcode %}
+
 ## What's Next?
 
 1. [Server Commands](../app-server/cli.md) - learn how to start the server.
