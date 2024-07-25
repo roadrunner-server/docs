@@ -11,9 +11,11 @@
 * [Upgrade and Compatibility](intro/compatibility.md)
 
 ## 👷 PHP Worker
+
 * [Worker](php/worker.md)
 * [Workers pool](php/pool.md)
 * [Developer mode](php/developer.md)
+* [Code Coverage](php/codecoverage.md)
 * [Debugging](php/debugging.md)
 * [Environment](php/environment.md)
 * [Dynamic scaling](php/scaling.md)
@@ -24,6 +26,7 @@
 * [Building RR with a custom plugin](customization/build.md)
 * [Integrating with Golang Apps](customization/embedding.md)
 * [Writing a Middleware](customization/middleware.md)
+* [Writing a Jobs Driver](customization/jobs-driver.md)
 * [Writing a Plugin](customization/plugin.md)
 * [Events Bus](customization/events-bus.md)
 
@@ -37,6 +40,13 @@
 * [Locks](plugins/locks.md)
 * [gRPC](plugins/grpc.md)
 * [TCP](plugins/tcp.md)
+
+## 🌐 Community Plugins
+
+* [Intro into Community Plugins](community-plugins/intro.md)
+* [Circuit Breaker](community-plugins/circuit-breaker.md)
+* [SendRemoteFile](community-plugins/sendremotefile.md)
+* [RFC 7234 Cache](community-plugins/cache.md)
 
 ## 📡 App Server
 
@@ -58,6 +68,7 @@
 ## 📦 Queues and Jobs
 
 * [Intro into Jobs](queues/overview-queues.md)
+* [Google Pub/Sub](queues/google-pub-sub.md)
 * [Beanstalk](queues/beanstalk.md)
 * [In-Memory](queues/memory.md)
 * [RabbitMQ](queues/amqp.md)
@@ -71,7 +82,6 @@
 * [Intro into HTTP](http/http.md)
 * [Headers and CORS](http/headers.md)
 * [Proxy IP parser](http/proxy.md)
-* [RFC 7234 cache](http/cache.md)
 * [Static files](http/static.md)
 * [X-Sendfile](http/sendfile.md)
 * [Streaming](http/resp-streaming.md)
@@ -112,6 +122,7 @@
 
 ## 📚 Releases
 
+* [v2024.2.0](releases/v2024-2-0.md)
 * [v2024.1.5](releases/v2024-1-5.md)
 * [v2024.1.4](releases/v2024-1-4.md)
 * [v2024.1.3](releases/v2024-1-3.md)

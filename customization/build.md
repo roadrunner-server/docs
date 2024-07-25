@@ -5,9 +5,9 @@ for their particular project.
 
 **This can include:**
 
-- adding custom plugins,
-- forking existing ones to make changes,
-- or building a lightweight server with only the necessary plugins.
+- Adding custom plugins.
+- Forking existing ones to make changes.
+- Building a lightweight server with only the necessary plugins.
 
 We created a tool called **Velox** that lets developers build a RoadRunner server binary. It uses a configuration file
 to determine which plugins and repositories are required for building a RoadRunner server binary.
@@ -27,18 +27,15 @@ page.
 
 **Here is an example of a configuration file:**
 
-{% code title="velox_rr_2024.toml" %}
+{% code title="velox.toml" %}
 
 ```toml
-[velox]
-build_args = [
-    '-trimpath',
-    '-ldflags',
-    '-s -X github.com/roadrunner-server/roadrunner/v2024/internal/meta.version=${VERSION} -X github.com/roadrunner-server/roadrunner/v2024/internal/meta.buildTime=${TIME}'
-]
-
 [roadrunner]
-ref = "v2024.1.3"
+ref = "v2024.2.0"
+
+# build with the -race enabled and debug symbols
+[debug]
+enabled = false
 
 [github]
     [github.token]
@@ -128,14 +125,14 @@ mode = "development"
 
 {% hint style="info" %}
 You can find the latest version of the example configuration file in
-the [official repository](https://github.com/roadrunner-server/velox/blob/master/velox_rr_v2023.toml).
+the [official repository](https://github.com/roadrunner-server/velox/blob/master/velox.toml).
 {% endhint %}
 
 {% hint style="warning" %}
 When using official plugins for RoadRunner, it is recommended avoid using the `master` branch as it may contain
 unstable code. Instead, use tags with the same major version (e.g., `logger:v4.x.x` + `amqp:v4.x.x`, but
-not `logger:v4.0.0` + `amqp:v3.0.5`). Please note that the currently supported plugin version is `v4.x.x`, and the
-supported RoadRunner version is `v2024.x.x`.
+not `logger:v4.0.0` + `amqp:v3.0.5`). Please note that the currently supported plugin version is `v5.x.x`, and the
+supported RoadRunner version is `>=v2024.2.x`.
 
 Failure to follow these guidelines may result in compatibility issues and
 other problems. Please pay close attention to your configuration file to ensure proper use of plugins.
@@ -144,7 +141,7 @@ other problems. Please pay close attention to your configuration file to ensure 
 You can use environment variables in the configuration file. This is useful when you want to keep the configuration file
 in the repository, but you don't want to expose your tokens or just want to pass them as arguments to the `vx` command.
 
-Here are the list of environment variables from the example above:
+Here is the list of environment variables from the example above:
 
 | Variable      | Description                                                                |
 |---------------|----------------------------------------------------------------------------|
@@ -177,8 +174,8 @@ variable to write the build time in the output binary.
 {% code %}
 
 ```bash
-go env -w GOPRIVATE="gitlab/github.com/<company_name>/*"
-go env -w GONOSUMDB="gitlab/github.com/<company_name>/*"
+go env -w GOPRIVATE="github.com/<company_name>/*,gitlab.com/<company_name>/*"
+go env -w GONOSUMDB="github.com/<company_name>/*,gitlab.com/<company_name>/*"
 ```
 
 {% endcode %}
@@ -208,13 +205,13 @@ ARG APP_VERSION="undefined"
 ARG BUILD_TIME="undefined"
 
 # copy your configuration into the docker
-COPY velox_rr_2024.toml .
+COPY velox.toml .
 
 # we don't need CGO
 ENV CGO_ENABLED=0
 
 # RUN build
-RUN vx build -c velox_rr_2024.toml -o /usr/bin/
+RUN vx build -c velox.toml -o /usr/bin/
 
 FROM --platform=${TARGETPLATFORM:-linux/amd64} php:8.3-cli
 
@@ -250,7 +247,7 @@ After the binary has been downloaded, you can build the application server:
 {% code title="vx build" %}
 
 ```bash
-vx build -c velox_rr_2024.toml -o ~/Downloads
+vx build -c velox.toml -o ~/Downloads
 ```
 
 {% endcode %}
@@ -276,7 +273,7 @@ After the binary has been downloaded, you can build the application server:
 {% code title="vx build" %}
 
 ```bash
-vx build -c velox_rr_2024.toml -o ~/Downloads
+vx build -c velox.toml -o ~/Downloads
 ```
 
 {% endcode %}

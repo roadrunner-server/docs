@@ -2,10 +2,20 @@
 
 In some cases, it can be useful to embed a RoadRunner server inside another GO program. This is often the case in
 microservice architectures where you may have a mandated GO framework for all the apps. In such cases it might not be
-possible to run a stock roadrunner instance and the only choice is to run roadrunner inside the main app framework /
+possible to run a stock roadrunner instance, and the only choice is to run roadrunner inside the main app framework /
 program.
 
 Here's an example of how to embed RoadRunner into a Go program with an HTTP handler:
+
+Import RoadRunner library via `go get` command into your Go project:
+
+{% code title="main.go" %}
+
+```Bash
+go get -u github.com/roadrunner-server/roadrunner/v2024.2.0/lib
+```
+
+{% endcode %}
 
 {% code title="main.go" %}
 
@@ -22,9 +32,14 @@ func handleRequest(w http.ResponseWriter, request *http.Request) {
 {% code title="main.go" %}
 
 ```go
+
+import (
+	"github.com/roadrunner-server/roadrunner/v2024/lib"
+)
+
 overrides := []string{} // List of configuration overrides
-plugins := roadrunner.DefaultPluginsList() // List of RR plugins to enable
-rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
+plugins := lib.DefaultPluginsList() // List of RR plugins to enable
+rr, err := lib.NewRR(".rr.yaml", overrides, plugins)
 ```
 
 {% endcode %}
@@ -32,7 +47,7 @@ rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
 Here we use the default list of plugins. The same list of plugin you would get if you were to run `rr serve` with a
 stock roadrunner binary.
 
-You can however choose only the plugins you want and add your own private plugins as well:
+You can, however, choose only the plugins you want and add your own private plugins as well:
 
 {% code title="main.go" %}
 

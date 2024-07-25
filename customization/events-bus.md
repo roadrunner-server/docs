@@ -25,7 +25,7 @@ Here's an example of a simple event subscription:
 package foo
 
 import (
-    "github.com/spiral/roadrunner/v2024/events"
+    "github.com/roadrunner-server/events"
 )
 
 func foo() {
@@ -95,7 +95,7 @@ Here's an example of a wildcard subscription:
 package foo
 
 import (
-    "github.com/spiral/roadrunner/v2024/events"
+    "github.com/roadrunner-server/events"
 )
 
 func foo() {
@@ -208,7 +208,7 @@ application like this:
 package foo
 
 import (
-    "github.com/spiral/roadrunner/v2024/events"
+    "github.com/roadrunner-server/events"
 )
 
 func foo() {
@@ -221,9 +221,11 @@ func foo() {
         panic(err)
     }
 
-	// first arg of the NewEvent method is fmt.Stringer
+    // first arg of the NewEvent method is fmt.Stringer
     eh.Send(events.NewEvent(EventHTTPError, "http", "foo"))
     evt := <-ch
+
+    // Output would be as follows:
     // evt.Message() -> "foo"
     // evt.Plugin() -> "http"
     // evt.Type().String() -> "EventHTTPError"

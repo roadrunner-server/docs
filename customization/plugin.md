@@ -265,7 +265,7 @@ context from the `Stop` method to let RR force your plugin to stop after a speci
 {% code title=".rr.yaml" %}
 
 ```yaml
-## RoadRunner internal container configuration (docs: https://github.com/spiral/endure).
+## RoadRunner internal container configuration (docs: https://github.com/roadrunner-server/endure).
 endure:
   # How long to wait for stopping.
   #
