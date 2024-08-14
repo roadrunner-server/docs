@@ -167,6 +167,32 @@ variable to write the build time in the output binary.
 | **folder**     | If the plugin is in some folder in your repository, you may specify it via this configuration option. <br/>For example: `cache = { ref = "v1.6.18", owner = "darkweak", repository = "souin", folder="plugins/roadrunner" }` |
 | **replace**    | Go.mod [replace directive](https://go.dev/ref/mod#go-mod-file-replace).                                                                                                                                                      |
 
+{% hint style="info" %}
+
+To replace the module with the local copy or some remote module, use the following `velox.toml` configuration:
+
+{% code title="velox.toml" %}
+
+```ini
+your_module = { ref = "master", owner = "owner", repository = "repo", replace="github.com/owner2/repo2" }
+```
+
+{% endcode %}
+
+
+Or with your local copy:
+
+{% code title="velox.toml" %}
+
+```ini
+your_module = { ref = "master", owner = "owner", repository = "repo", replace="../path/to/a/local/dir" }
+```
+
+{% endcode %}
+
+{% endhint %}
+
+
 ### Private repositories
 
 - Make sure the `ssh-agent` is running and the ssh key has been
