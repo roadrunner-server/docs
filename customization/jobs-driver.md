@@ -8,6 +8,8 @@ While initializing, JOBS plugin searches for the registered drivers by the `Cons
 
 Constructor interface:
 
+{% code title="constructor.go" %}
+
 ```go
 // Constructor constructs Consumer interface. Endure abstraction.
 type Constructor interface {
@@ -20,7 +22,11 @@ type Constructor interface {
 }
 ```
 
+{% endcode %}
+
 Driver interface:
+
+{% code title="driver.go" %}
 
 ```go
 // Driver represents the interface for a single jobs driver
@@ -39,6 +45,8 @@ type Driver interface {
  State(ctx context.Context) (*State, error)
 }
 ```
+
+{% endcode %}
 
 So every driver should implement the `Constructor` interface to be found by the JOBS plugin. Let's have at the methods included in the `Constructor` interface:
 
@@ -62,7 +70,10 @@ If it is required, you may use `Configurer` plugin to unmarshal global driver co
 All code from the tutorial is here: [link](https://github.com/roadrunner-server/samples/blob/master/plugins/jobs_driver/)
 
 To create a driver for jobs, you need to create a plugin instance:
-```Go
+
+{% code title="driver.go" %}
+
+```go
 package jobs_driver //nolint:revive,stylecheck
 
 import (
@@ -113,6 +124,8 @@ func (p *Plugin) DriverFromPipeline(pipe jobs.Pipeline, pq jobs.Queue) (jobs.Dri
 } 
 ```
 
+{% endcode %}
+
 This is a simple representation of the RR plugin. It is called driver because it is attached to another controlling plugin as a pluggable extender, aka: a driver.
 Keep in mind the plugin's name.
 
@@ -124,7 +137,9 @@ via `jobs.Declare` RPC method, all configuration options would be stored in the 
 
 Now, let's see the simplified `Driver` implementation:
 
-```Go
+{% code title="driver.go" %}
+
+```go
 package driver
 
 import (
@@ -180,6 +195,8 @@ func (d *Driver) Stop(ctx context.Context) error {
 }
 ```
 
+{% endcode %}
+
 Here you need to remember the following things:
 
 1. `FromConfig` and `FromPipeline` methods are used to initialize the driver, but not to start the message consumption.
@@ -190,7 +207,10 @@ Here you need to remember the following things:
 To push the job into priority queue, you need to slightly transform it to add `Ack`, `Nack`, etc. methods to it. 
 All interfaces are here [RR API repository](https://github.com/roadrunner-server/api/blob/master/plugins/v4/jobs/job.go), but let's have a look at the `Job` interface.
 
-```Go
+
+{% code title="job.go" %}
+
+```go
 // Job represents a binary heap item
 type Job interface {
 	pq.Item
@@ -211,11 +231,15 @@ type Job interface {
 }
 ```
 
+{% endcode %}
+
 Job interface also includes the `pq.Item` interface to satisfy a minimal priority queue requirement. 
 You may add this (`pq.Item`) interface to any interface and benefit from the RoadRunner's priority queue.
 So, our driver's `Push` method would be updated as follows:
 
-```Go
+{% code title="driver.go" %}
+
+```go
 func (d *Driver) Push(_ context.Context, job jobs.Message) error {
 	item := fromJob(job)
 	d.queue.Insert(item)
@@ -238,10 +262,14 @@ func fromJob(job jobs.Message) *Item {
 }
 ```
 
+{% endcode %}
+
 `fromJob` method needed to simply transform `jobs.Message` into the `Job`. See [link](https://github.com/roadrunner-server/samples/blob/master/plugins/jobs_driver/driver/message.go).
 The rest is to implement a driver specific `Ack`, `Nack`, etc. methods.
 
 Configuration for your `Jobs` driver:
+
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: '3'
@@ -278,5 +306,7 @@ jobs:
 
   consume: [ "test-1" ]
 ```
+
+{% endcode %}
 
 Examples of existing drivers: [AMQP](https://github.com/roadrunner-server/amqp), [Kafka](https://github.com/roadrunner-server/kafka), [In-Memory](https://github.com/roadrunner-server/memory), [Nats](https://github.com/roadrunner-server/nats), [SQS](https://github.com/roadrunner-server/sqs), [BoltDB](https://github.com/roadrunner-server/boltdb), [Google Pub-Sub](https://github.com/roadrunner-server/google-pub-sub)
