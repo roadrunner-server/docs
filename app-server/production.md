@@ -20,8 +20,9 @@ descriptors and avoiding state pollution to prevent memory leaks and ensure appl
   close all connections after every iteration. Note that this is not the most performant solution.
 
 {% hint style="warning" %}
-Consider calling `gc_collect_cycles` after every execution if you want to keep memory usage low (this will slow down
-your application a bit).
+
+Consider calling `gc_collect_cycles` after every execution if you want to keep memory usage low. **However, this will slow down execution a lot. Use with caution**.
+
 {% endhint %}
 
 ## Useful Tips
