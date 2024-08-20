@@ -4,6 +4,28 @@ Logger Plugin is responsible for collecting logs from server plugins and PHP app
 displaying them in the RoadRunner `STDERR`/`STDOUT`. It comes with a variety of options that allow you to customize the
 way your application logs are collected and displayed.
 
+{% hint style="info" %}
+PHP workers are internally, mapped to a logger with an INFO log level severity. Use `channels` to map the `server` plugin (responsible for PHP workers) log level to at least `info`:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+logs:
+  encoding: console # default value
+  level: error # mapped to all plugins
+  mode: "production" # mapped to all plugins
+  channels:
+    server: # mapped to only server plugin
+      mode: production
+      level: info
+```
+
+{% endcode %}
+
+{% endhint %}
+
 ## Configuration
 
 ### Modes
