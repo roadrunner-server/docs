@@ -24,14 +24,13 @@ FROM php:8.3-alpine
 # https://github.com/mlocati/docker-php-extension-installer
 # https://github.com/docker-library/docs/tree/0fbef0e8b8c403f581b794030f9180a68935af9d/php#how-to-install-more-php-extensions
 RUN --mount=type=bind,from=mlocati/php-extension-installer:2,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
-     install-php-extensions @composer-2 opcache zip intl sockets && \
-     apk del --no-cache ${PHPIZE_DEPS} ${BUILD_DEPENDS}
+     install-php-extensions @composer-2 opcache zip intl sockets profobuf
+
+COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
 
 EXPOSE 8080/tcp
 
 WORKDIR /app
-
-COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 

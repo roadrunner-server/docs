@@ -5,7 +5,7 @@
 Community plugins are plugins that are not officially supported by the RoadRunner team. They are maintained by the community and are not part of the RoadRunner distribution. They can be build using the tools called [Velox](https://github.com/roadrunner-server/velox).
 
 Not official does not mean that they are not good. In fact, some of the community plugins are very useful and can be used in production.
-Community plugin doesn't neesesary should be in the `roadrunner-server` organization. It can be in any other organization or even in the personal repository. The only requirement is that the plugin should have an `velox.toml` configuration file and can be build with the latest version of RoadRunner.
+Community plugin doesn't necessary should be in the `roadrunner-server` organization. It can be in any other organization or even in the personal repository. The only requirement is that the plugin should have an `velox.toml` configuration file and can be built with the latest version of RoadRunner.
 
 Community plugins has their own issues and PRs. If you have any questions or issues with the community plugin, you should create an issue/discussion in the repository of the plugin.
 

@@ -180,6 +180,12 @@ http:
     # Default: 0
     max_jobs: 0
 
+    # [2023.3.10] 
+    # Maximum size of the internal requests queue. After reaching the limit, all additional requests would be rejected with error.
+    #
+    # Default: 0 (no limit)
+    max_queue_size: 0
+
     # Timeout for worker allocation. Zero means 60s.
     #
     # Default: 60s
