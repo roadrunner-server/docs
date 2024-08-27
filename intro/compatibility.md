@@ -116,7 +116,7 @@ Additionally, encoded images or raw binary payloads will no longer be escaped
 
 #### Compatibility with RoadRunner PHP packages
 
-1. The `spiral/http and spiral/worker` packages should be upgraded to version **3.5**. Old RR versions up to `v2023.3.12` are also supported with the latest versions of the PHP packages.
+1. The `roadrunner-php/http` and `roadrunner-php/worker` packages should be upgraded to version **3.5**. Old RR versions up to `v2023.3.12` are also supported with the latest versions of the PHP packages.
 
 ### Upgrading to RoadRunner v2024.2.x
 
