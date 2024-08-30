@@ -156,7 +156,7 @@ In this example, we will demonstrate how to use RoadRunner with Nginx in a Docke
 {% code title="docker/app/Dockerfile" %}
 
 ```docker
-FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/roadrunner-server/roadrunner:2024 as roadrunner
+FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/roadrunner-server/roadrunner:latest as roadrunner
 FROM --platform=${TARGETPLATFORM:-linux/amd64} php:8.3-alpine
 
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
