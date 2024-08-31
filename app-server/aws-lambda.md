@@ -336,7 +336,6 @@ version: "3"
 server:
   command: "php handler.php"
   relay: pipes
-  relay_timeout: 60s
 
 logs:
   mode: production

@@ -252,7 +252,6 @@ rpc:
 server:
   command: "php your_php_worker.php"
   relay: "pipes"
-  relay_timeout: "20s"
 
 your_global_section:
   addr: "some_connection_string"
