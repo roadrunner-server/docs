@@ -177,6 +177,12 @@ ENTRYPOINT ["rr"]
 
 {% endcode %}
 
+{% hint style="warning" %}
+
+Consider using the direct version in production. The `latest` image tag might be used in development environments only.
+
+{% endhint %}
+
 ### RoadRunner configuration
 
 Create a `.rr.yaml` configuration file to specify how RoadRunner should interact with your PHP application
