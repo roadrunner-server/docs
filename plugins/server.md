@@ -60,11 +60,6 @@ server:
     - SOME_KEY2: "SOME_VALUE2"
 
   relay: pipes
-
-  # Timeout for relay connection establishing (only for socket and TCP port relay).
-  #
-  # Default: 60s
-  relay_timeout: 60s
 ```
 
 {% endcode %}

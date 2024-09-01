@@ -132,7 +132,7 @@ the RPC Go definitions for these plugins in the following repositories:
 
 ### Async PHP RPC interface
 
-You can use `Spiral\Goridge\RPC\AsyncRPCInterface` and implementation with multiple relays to effectively offer non-blocking IO in regards to the Roadrunner communication.
+You can use `Spiral\Goridge\RPC\AsyncRPCInterface` and implementation with multiple relays to effectively offer non-blocking IO in regard to the Roadrunner communication.
 
 The interface provides the following new methods:
  - `callIgnoreResponse(string $method, mixed $payload): void` - Invoke the remote RoadRunner service method using the given payload (free form) non-blocking and ignore the response.

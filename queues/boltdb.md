@@ -14,9 +14,6 @@ the same file.
 ```yaml .rr.yaml
 version: "3"
 
-boltdb:
-  permissions: 0777
-
 jobs:
   pipelines:
     # User defined name of the queue.

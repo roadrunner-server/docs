@@ -127,7 +127,7 @@ version: "3"
 logs:
   encoding: console # default value
   level: info
-  mode: none # disable server logging. Also `off` can be used.
+  mode: none # disable server logging. Also, `off` can be used.
   channels:
     http:
       mode: production

@@ -52,4 +52,4 @@ development.
 ## Useful articles
 - [Scaling PHP applications with RoadRunner](https://betterstack.com/community/guides/scaling-php/php-roadrunner)
 - [RoadRunner for PHP applications](https://butschster.medium.com/roadrunner-an-underrated-powerhouse-for-php-applications-46410b0abc)
-- [Turbo charge for your PHP applications](https://davegebler.com/post/php/turbo-charge-your-php-applications-with-roadrunner)
+- [Turbocharge for your PHP applications](https://davegebler.com/post/php/turbo-charge-your-php-applications-with-roadrunner)
