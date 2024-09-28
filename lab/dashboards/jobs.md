@@ -47,7 +47,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -94,7 +94,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": false,
                     "expr": "rr_http_uptime_seconds",
@@ -110,7 +110,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -200,7 +200,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": true,
                     "expr": "go_memstats_heap_inuse_bytes",
@@ -215,7 +215,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -311,7 +311,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": true,
                     "expr": "go_goroutines",
@@ -327,7 +327,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -428,7 +428,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": false,
                     "expr": "rr_jobs_total_workers",
@@ -441,7 +441,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": false,
                     "expr": "rr_jobs_workers_ready",
@@ -453,7 +453,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": false,
                     "expr": "rr_jobs_workers_working",
@@ -466,7 +466,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": false,
                     "expr": "rr_jobs_workers_invalid",
@@ -483,7 +483,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -577,7 +577,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": true,
                     "expr": "(rr_jobs_workers_memory_bytes/1024000)",
@@ -593,7 +593,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -640,7 +640,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": false,
                     "expr": "rr_jobs_worker_memory_bytes",
@@ -656,7 +656,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -732,7 +732,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": true,
                     "expr": "rate(rr_jobs_jobs_ok[5m])",
@@ -747,7 +747,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -835,7 +835,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "exemplar": true,
                     "expr": "rate(rr_jobs_jobs_err[5m])",
@@ -850,7 +850,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "description": "",
             "fieldConfig": {
@@ -927,7 +927,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "editorMode": "builder",
                     "exemplar": false,
@@ -944,7 +944,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "jd0Bh6aVz"
+                "uid": "${DS_PROMETHEUS}"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1020,7 +1020,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "jd0Bh6aVz"
+                        "uid": "${DS_PROMETHEUS}"
                     },
                     "editorMode": "builder",
                     "expr": "rr_jobs_requests_total",
