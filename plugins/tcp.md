@@ -60,6 +60,11 @@ tcp:
     max_jobs: 0
     allocate_timeout: 60s
     destroy_timeout: 60s
+
+  # The size of the read buffer in MB. Can be increased to reduce the number of read syscalls.
+  # Consider using a larger buffer size if you expect to receive large payloads on the TCP server.
+  # Optional; example.
+  read_buf_size: 20
 ```
 
 {% endcode %}
@@ -110,15 +115,9 @@ tcp:
     - `addr`: The server address and port, specified in the format `tcp://<IP_ADDRESS>:<PORT>`.
     - `delimiter`: (Optional) The data packet delimiter. By default, it is set to `\r\n`. Each data packet should end
       either with an `EOF` or the specified delimiter.
-    - `read_buf_size`: (Optional) The size of the read buffer in MB. To reduce the number of read syscalls, consider
-      using a larger buffer size if you expect to receive large payloads on the TCP server.
 
-- `pool`: Configuration for the PHP worker pool.
-    - `num_workers`: The number of PHP workers to allocate.
-    - `max_jobs`: The maximum number of jobs each worker can handle. Set to 0 for no limit.
-    - `allocate_timeout`: The timeout for worker allocation, specified in the format `<VALUE>s` (e.g., `60s` for 60
-      seconds).
-    - `destroy_timeout`: The timeout for worker destruction, specified in the same format as allocate_timeout.
+- `pool`: Configuration for the PHP worker pool for the TCP servers. See
+https://docs.roadrunner.dev/docs/php-worker/pool for available parameters.
 
 ## PHP client
 

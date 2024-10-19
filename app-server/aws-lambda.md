@@ -341,7 +341,7 @@ logs:
   mode: production
   level: error
   encoding: json
-  output: stderr
+  output: [ stderr ]
 
 endure:
   grace_period: 1s

@@ -95,7 +95,7 @@ the output key.
 
 ```yaml
 logs:
-  output: stdout
+  output: [ stdout ]
 ```
 
 {% endcode %}
@@ -131,7 +131,7 @@ logs:
   channels:
     http:
       mode: production
-      output: http.log
+      output: [ http.log ]
 ```
 
 {% endcode %}
