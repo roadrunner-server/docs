@@ -223,7 +223,6 @@ final class HttpDispatcher implements DispatcherInterface
                 $worker->respond(new Response(200, [], 'Hello RoadRunner!'));
             } catch (\Throwable $e) {
                 $worker->respond(new Response(500, [], 'Something Went Wrong!'));
-                $worker->getWorker()->error((string)$e);
             }
         }
     }
