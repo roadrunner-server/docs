@@ -132,10 +132,6 @@ jobs:
         # Default: 10
         prefetch: 10
 
-        # Consume any payload type (not only Jobs structured)
-        # Default: false
-        consume_all: false
-
         # Get queue URL only
         # Default: false
         skip_queue_declaration: false
@@ -203,8 +199,8 @@ Default: `0`
 
 `retain_failed_jobs` - If enabled, jobs will not be deleted and requeued if they fail. Instead, RoadRunner will
 simply let them be processed again after `visibility_timeout` has passed. If you set `error_visibility_timeout` and
-enable this feature, RoadRunner will change the timeout to the value of `error_visibility_timeout`. This lets you
-customize the timeout for errors specifically. If you enable this feature, you can configure SQS to automatically
+enable this feature, RoadRunner will change the timeout of the job to the value of `error_visibility_timeout`. This lets
+you customize the timeout for errors specifically. If you enable this feature, you can configure SQS to automatically
 move jobs that fail multiple times to a
 [dead-letter queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html).
 
@@ -214,12 +210,22 @@ Default: `false`
 
 `wait_time_seconds` - The duration (in seconds) for which the call waits for a message to arrive in the queue before
 returning. If a message is available, the call returns sooner than `wait_time_seconds`. If no messages are available and
-the wait time expires, the call returns successfully with an empty list of messages. If you do not provide a value for
-this parameter or set it to 0, the `ReceiveMessageWaitTimeSeconds` attribute of the queue is used, which defaults to 0,
-in which case you will be using short polling. See the documentation on the differences between
-[short and long polling](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html).
+the wait time expires, the call returns successfully with an empty list of messages. Please note that this parameter
+cannot be explicitly configured to use zero, as zero will apply the queue defaults.
 
 Default: `0`
+
+{% hint style="warning" %}
+### Shor vs. Long Polling
+
+By default, SQS and RoadRunner is configured to use **short polling**. Please review the documentation on the
+differences between
+[short and long polling](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html)
+and make sure that your queue and RoadRunner is configured correctly. Long polling will *usually* be a cost-saving
+feature with no practical impact on performance or functionality. Remember that not providing a value (or zero) for
+`wait_time_seconds` will cause your queue polling to be based on the `ReceiveMessageWaitTimeSeconds` attribute
+configured on the queue.
+{% endhint %}
 
 ### Queue
 
@@ -227,6 +233,11 @@ Default: `0`
 this will form the last part of the queue URL, i.e. `https://sqs.<region>.amazonaws.com/<account id>/<queue>`.
 
 Default: `default`
+
+{% hint style="info" %}
+Please note that [FIFO](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-fifo-queues.html)
+queue names **must** end with `.fifo`.
+{% endhint %}
 
 ### Message Group ID
 
@@ -236,7 +247,7 @@ More info:
 [link](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html#SQS-SendMessage-request-MessageGroupId)
 
 ### Skip Queue Declaration
-
+"https://sqs.eu-central-1.amazonaws.com"
 `skip_queue_declaration` - By default, RR tries to create the queue (using the `queue` name) if it does not exist. Set
 this option to `true` if the queue already exists.
 
@@ -248,18 +259,11 @@ For queue creation to work, the credentials or the IAM role used must have the
 such as `sqs:CreateQueue` and `sqs:SetQueueAttributes`.
 {% endhint %}
 
-### Consume All
-
-`consume_all` - By default, RR consumes only messages in the queue with the `Jobs` structure. Set this option to `true`
-if you want to consume all messages in the queue.
-
-Default: `false`
-
 ### Attributes
 
 `attributes` - A list of
 [AWS SQS attributes](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SetQueueAttributes.html)
-to configure for the queue. Attributes are only set if RR creates the queue. Existing queues are not modified.
+to configure for the queue. 
 
 {% code title=".rr.yaml" %}
 
@@ -273,6 +277,10 @@ attributes:
 ```
 
 {% endcode %}
+
+{% hint style="info" %}
+Attributes are only set if RoadRunner creates the queue. Attributes of existing queues are **not modified**.
+{% endhint %}
 
 ### Tags
 

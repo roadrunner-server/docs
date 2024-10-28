@@ -46,10 +46,6 @@ jobs:
         # Default: 10
         priority: 10
 
-        # Consume any payload type (not only Jobs structured)
-        # Default: false
-        consume_all: false
-
         # Optional section.
         # Default: 1
         tube_priority: 1
@@ -82,8 +78,3 @@ value should not exceed `int32` size.
 ### Tube
 
 `tube` - The name of the inner "tube" specific to the Beanstalk driver.
-
-### Consume all
-
-`consume_all` - By default, RR supports only `Jobs` structures from the queue. Set this option to true if you want to
-also consume the raw payloads.

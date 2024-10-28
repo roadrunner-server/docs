@@ -117,11 +117,6 @@ jobs:
         # If the job has priority set to 0, it will inherit the pipeline's priority. Default: 10.
         priority: 1
 
-        # Consume any payload type (not only Jobs structured)
-        #
-        # Default: false
-        consume_all: false
-
         # Redial timeout (in seconds). How long to try to reconnect to the AMQP server.
         #
         # Default: 60
@@ -220,11 +215,6 @@ from `pipe1` have been processed.
 ### Queue
 
 `queue` - required, AMQP internal (inside the driver) queue name.
-
-### Consume all
-
-`consume_all` - by default, RoadRunner only supports `Jobs` structures from the queue. Enable this option by setting it
-to true if you wish to consume raw payloads as well.
 
 ### Exchange
 
