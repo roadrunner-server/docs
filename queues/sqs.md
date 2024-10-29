@@ -169,9 +169,10 @@ configuration is required.
 
 1. You should set `retain_failed_jobs` to `true` on the pipeline, so a failed job does not get re-queued at the back of
 the queue. This would break the FIFO order.
-2. You must have either `num_workers` set to `1` for the worker pool **or** `prefetch` set to `1` for the pipeline. If
-you have multiple workers and fetch multiple messages at a time (`prefetch > 1`), RoadRunner may not process the jobs in
-correct order.
+2. You should have `prefetch` set to `1` for the pipeline. If you fetch multiple messages at a time, RoadRunner may not 
+process the jobs in correct order.
+3. You should make sure to either use an explicit non-zero `visibility_timeout` **or** make sure that the default
+visibility configuration attribute on your queue (`VisibilityTimeout`) is non-zero.
 
 ## Configuration Options
 
