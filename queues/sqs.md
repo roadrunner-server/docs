@@ -27,10 +27,6 @@ sqs:
   # Default: empty
   region: us-west-1
 
-  # AWS session token.
-  # Default: empty (optional; local testing only)
-  session_token: test
-
   # AWS SQS endpoint.
   # This parameter *is only required* if your SQS endpoint is *not* hosted on the AWS infrastructure.
   # Always leave this empty if your queue is on AWS SQS.
@@ -90,7 +86,6 @@ You may also use this option if your service *does* support dynamic IAM, but you
 sqs:
   key: ASIAIOSFODNN7EXAMPLE
   secret: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-  session_token: AQoDYXdzEJr... # optional; usually not required
   # If in a different region *or* if outside AWS, provide the correct region.
   region: eu-west-1 
 ```
@@ -166,13 +161,29 @@ jobs:
 
 {% endcode %}
 
+## FIFO Queues
+
+AWS supports [FIFO](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-fifo-queues.html)
+queues, which guarantee order of delivery. In order for RoadRunner to correctly handle this scenario, some
+configuration is required.
+
+1. You should set `retain_failed_jobs` to `true` on the pipeline, so a failed job does not get re-queued at the back of
+the queue. This would break the FIFO order.
+2. You must have either `num_workers` set to `1` for the worker pool **or** `prefetch` set to `1` for the pipeline. If
+you have multiple workers and fetch multiple messages at a time (`prefetch > 1`), RoadRunner may not process the jobs in
+correct order.
+
 ## Configuration Options
 
 ### Prefetch
 
-`prefetch` - Number of jobs to prefetch from the queue until ACK/NACK.
+`prefetch` - The number of jobs to request from SQS at a time. This sets the `MaxNumberOfMessages` parameter on the
+[`ReceiveMessage`](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_ReceiveMessage.html) call
+to the queue. Additionally, it limits the number of queues that may be retained on the priority queue in RoadRunner for
+the pipeline. If you set this to zero or omit it, the default value of 1 will be used.
 
-Default: `10`
+Default: `1`
+Maximum: `10`
 
 ### Visibility Timeout
 
@@ -182,8 +193,8 @@ job may run multiple times. If you do not provide a value for this parameter or 
 attribute of the queue is used, which defaults to 30 seconds. For more information, see the documentation on
 [visibility timeouts](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html).
 
-Max value is `43200` seconds (12 hours).
 Default: `0`
+Maximum: `43200` (12 hours)
 
 ### Error Visibility Timeout
 
@@ -192,17 +203,18 @@ failed) jobs will have their visibility timeout changed to. Note that you cannot
 more than the maximum value in cases where it fails multiple times, so setting this value to the maximum is error-prone.
 This parameter is ignored if `retain_failed_jobs` is `false`, and it must be larger than zero to apply.
 
-Max value is `43200` seconds (12 hours).
 Default: `0`
+Maximum: `43200` (12 hours)
 
 ### Retain Failed Jobs
 
-`retain_failed_jobs` - If enabled, jobs will not be deleted and requeued if they fail. Instead, RoadRunner will
+`retain_failed_jobs` - If enabled, jobs will **not** be deleted and re-queued if they fail. Instead, RoadRunner will
 simply let them be processed again after `visibility_timeout` has passed. If you set `error_visibility_timeout` and
 enable this feature, RoadRunner will change the timeout of the job to the value of `error_visibility_timeout`. This lets
 you customize the timeout for errors specifically. If you enable this feature, you can configure SQS to automatically
 move jobs that fail multiple times to a
 [dead-letter queue](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html).
+Always enable this feature if you consume from a FIFO queue.
 
 Default: `false`
 
@@ -211,20 +223,22 @@ Default: `false`
 `wait_time_seconds` - The duration (in seconds) for which the call waits for a message to arrive in the queue before
 returning. If a message is available, the call returns sooner than `wait_time_seconds`. If no messages are available and
 the wait time expires, the call returns successfully with an empty list of messages. Please note that this parameter
-cannot be explicitly configured to use zero, as zero will apply the queue defaults.
+cannot be explicitly configured to use zero, as zero will apply the queue defaults. In most cases, you should set this
+to a non-zero value.
 
 Default: `0`
+Maximum: `20`
 
 {% hint style="warning" %}
-### Shor vs. Long Polling
+### Short vs. Long Polling
 
 By default, SQS and RoadRunner is configured to use **short polling**. Please review the documentation on the
 differences between
 [short and long polling](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html)
 and make sure that your queue and RoadRunner is configured correctly. Long polling will *usually* be a cost-saving
 feature with no practical impact on performance or functionality. Remember that not providing a value (or zero) for
-`wait_time_seconds` will cause your queue polling to be based on the `ReceiveMessageWaitTimeSeconds` attribute
-configured on the queue.
+`wait_time_seconds` will cause your queue wait time to be based on the `ReceiveMessageWaitTimeSeconds` attribute
+configured on the queue, which also defaults to zero.
 {% endhint %}
 
 ### Queue
@@ -247,7 +261,7 @@ More info:
 [link](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html#SQS-SendMessage-request-MessageGroupId)
 
 ### Skip Queue Declaration
-"https://sqs.eu-central-1.amazonaws.com"
+
 `skip_queue_declaration` - By default, RR tries to create the queue (using the `queue` name) if it does not exist. Set
 this option to `true` if the queue already exists.
 
@@ -284,8 +298,8 @@ Attributes are only set if RoadRunner creates the queue. Attributes of existing 
 
 ### Tags
 
-`tags` - Tags don't have any semantic meaning. Amazon SQS interprets tags as character. Tags are only set if RR creates
-the queue. Existing queues are not modified.
+`tags` - Tags don't have any semantic meaning. Amazon SQS interprets tags as character. Tags are only set if RoadRunner
+creates the queue. Existing queues are **not** modified.
 
 {% hint style="info" %}
 This functionality is rarely used and slows down queues. Please see
