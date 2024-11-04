@@ -49,8 +49,8 @@ otel:
 
 {% endcode %}
 
-After that, you can see traces in your [Jaeger](https://www.jaegertracing.io/), [Uptrace](https://uptrace.dev/), [Zipkin](https://zipkin.io/) or any 
-other opentelemetry compatible tracing system.
+After that, you can see traces in your [Dash0](https://www.dash0.com/), [Jaeger](https://www.jaegertracing.io/), [Uptrace](https://uptrace.dev/), 
+[Zipkin](https://zipkin.io/) or any other opentelemetry compatible tracing system.
 
 
 ## Configuration
