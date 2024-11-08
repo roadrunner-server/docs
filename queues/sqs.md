@@ -94,12 +94,15 @@ sqs:
 
 #### Self-hosted (ElasticMQ)
 
-If you self-host your SQS-compatible queue, only the endpoint is required.
+If you self-host your SQS-compatible queue, only the endpoint is required. You may be required to provide a set key of
+and secret in order to satisfy parameters of the AWS SQS SDK, which RoadRunner uses under the hood.
 
 {% code title=".rr.yaml" %}
 
 ```yaml
 sqs:
+  key: foo
+  secret: bar
   endpoint: http://127.0.0.1:9324
 ```
 
@@ -299,8 +302,8 @@ Attributes are only set if RoadRunner creates the queue. Attributes of existing 
 
 ### Tags
 
-`tags` - Tags don't have any semantic meaning. Amazon SQS interprets tags as character. Tags are only set if RoadRunner
-creates the queue. Existing queues are **not** modified.
+`tags` - Tags don't have any semantic meaning. Amazon SQS interprets tags as character strings. Tags are only set if
+RoadRunner creates the queue. Existing queues are **not** modified.
 
 {% hint style="info" %}
 This functionality is rarely used and slows down queues. Please see
