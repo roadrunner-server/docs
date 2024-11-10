@@ -53,7 +53,7 @@ queue is in the same region.
 ```yaml
 sqs:
 # No parameters are required. Normally, if your IAM role has the required permissions and your service endpoint
-# is in the same region, the environment variables associated with your instance/task will resolve all the 
+# is in the same region, the environment variables associated with your instance/task will resolve all the
 # configuration for you. You must provide the parent sqs key to enable SQS, even if you want to use the defaults.
 ```
 
@@ -87,7 +87,7 @@ sqs:
   key: ASIAIOSFODNN7EXAMPLE
   secret: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
   # If in a different region *or* if outside AWS, provide the correct region.
-  region: eu-west-1 
+  region: eu-west-1
 ```
 
 {% endcode %}
@@ -134,6 +134,10 @@ jobs:
         # Default: false
         skip_queue_declaration: false
 
+        # Maximum number of messages that can be in-flight at any given time. This is useful to limit the number of messages that are being processed concurrently.
+        # Default: the same value as prefetch
+        max_messages_in_flight_limit: 10
+
         # Optional section.
         # Default: 0
         visibility_timeout: 0
@@ -172,7 +176,7 @@ configuration is required.
 
 1. You should set `retain_failed_jobs` to `true` on the pipeline, so a failed job does not get re-queued at the back of
 the queue. This would break the FIFO order.
-2. You should have `prefetch` set to `1` for the pipeline. If you fetch multiple messages at a time, RoadRunner may not 
+2. You should have `prefetch` set to `1` for the pipeline. If you fetch multiple messages at a time, RoadRunner may not
 process the jobs in correct order.
 3. You should make sure to either use an explicit non-zero `visibility_timeout` **or** make sure that the default
 visibility configuration attribute on your queue (`VisibilityTimeout`) is non-zero.
@@ -281,7 +285,7 @@ such as `sqs:CreateQueue` and `sqs:SetQueueAttributes`.
 
 `attributes` - A list of
 [AWS SQS attributes](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SetQueueAttributes.html)
-to configure for the queue. 
+to configure for the queue.
 
 {% code title=".rr.yaml" %}
 
