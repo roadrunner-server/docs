@@ -13,6 +13,11 @@ implementations is not guaranteed.
 To install and configure the RabbitMQ, use the
 corresponding [documentation page](https://www.rabbitmq.com/download.html).
 
+{% hint style="info" %}
+Every messages pushed to the RabbitMQ server uses the publiser confirms. This means that the message is only considered as sent when the server confirms it. This is a reliable way to ensure that the message is delivered to the server.
+{% endhint %}
+
+
 After that, you should configure the connection to the server in the `amqp` section. This configuration section
 contains exactly one `addr` key with a [connection DSN](https://www.rabbitmq.com/uri-spec.html). The `TLS` configuration sits in the `amqp.tls` section and consists of the following options:
 
@@ -67,7 +72,7 @@ the queue settings, including those specific to AMQP.
 version: "3"
 
 amqp:
-  addr: amqp://guest:guest@127.0.0.1:5672 
+  addr: amqp://guest:guest@127.0.0.1:5672
 
   # AMQPS TLS configuration
   #
@@ -210,7 +215,7 @@ from `pipe1` have been processed.
 
 ### Prefetch
 
-`prefetch` - rabbitMQ QoS prefetch. See also ["prefetch-size"](https://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.qos.prefetch-size). Note that if you use a large number of workers and a small `prefetch` number, some of the workers may not be loaded with messages (jobs) due to the blocking nature of the prefetch. This would result in poor RoadRunner performance and waste of resources. 
+`prefetch` - rabbitMQ QoS prefetch. See also ["prefetch-size"](https://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.qos.prefetch-size). Note that if you use a large number of workers and a small `prefetch` number, some of the workers may not be loaded with messages (jobs) due to the blocking nature of the prefetch. This would result in poor RoadRunner performance and waste of resources.
 
 ### Queue
 
@@ -257,13 +262,13 @@ Read more about Nack in RabbitMQ official docs: https://www.rabbitmq.com/confirm
 
 ### Durable
 
-`durable` - create a durable queue. 
+`durable` - create a durable queue.
 
 Default: `false`
 
 ### Delete queue on stop
 
-`delete_queue_on_stop` - delete the queue when the pipeline is stopped. 
+`delete_queue_on_stop` - delete the queue when the pipeline is stopped.
 
 Default: `false`
 
@@ -274,20 +279,20 @@ Default: `false`
 ### Exchange durable
 
 `exchange_durable` - Durable
-exchange ([rabbitmq option](https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges)). 
+exchange ([rabbitmq option](https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges)).
 
 Default: `false`
 
 ### Exchange auto delete
 
-`exchange_auto_delete` - Auto-delete (exchange is deleted when last queue is unbound from it): [link](https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges). 
+`exchange_auto_delete` - Auto-delete (exchange is deleted when last queue is unbound from it): [link](https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges).
 
 Default: `false`
 
 ### Queue auto delete
 
 `queue_auto_delete` - Auto-delete (queue that has had at least one consumer is deleted when last consumer
-unsubscribes): [link](https://www.rabbitmq.com/queues.html#properties). 
+unsubscribes): [link](https://www.rabbitmq.com/queues.html#properties).
 
 Default: `false`
 
