@@ -86,10 +86,11 @@ while (true) {
         //
         // Reply by the 500 Internal Server Error response
         $psr7->respond(new Response(500, [], 'Something Went Wrong!'));
-        
+
         // Additionally, we can inform the RoadRunner that the processing 
-        // of the request failed.
-        $psr7->getWorker()->error((string)$e);
+        // of the request failed. Use error instead of response to indicate
+        // worker error, do not use both.
+        // $psr7->getWorker()->error((string)$e);
     }
 }
 ```
@@ -222,7 +223,6 @@ final class HttpDispatcher implements DispatcherInterface
                 $worker->respond(new Response(200, [], 'Hello RoadRunner!'));
             } catch (\Throwable $e) {
                 $worker->respond(new Response(500, [], 'Something Went Wrong!'));
-                $worker->getWorker()->error((string)$e);
             }
         }
     }

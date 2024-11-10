@@ -33,10 +33,6 @@ jobs:
         # Messages to read into the channel
         prefetch: 100
 
-        # Consume any payload type (not only Jobs structured)
-        # Default: false
-        consume_all: false
-
         # NATS subject
         # Default: default
         subject: default
@@ -91,8 +87,3 @@ jobs:
 ### Delete after ack
 
 `delete_after_ack` - delete message after it successfully acknowledged.
-
-### Consume all
-
-`consume_all` - By default, RR supports only `Jobs` structures from the queue. Set this option to true if you want to
-also consume the raw payloads.

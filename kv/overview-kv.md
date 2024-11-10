@@ -49,8 +49,8 @@ otel:
 
 {% endcode %}
 
-After that, you can see traces in your [Jaeger](https://www.jaegertracing.io/), [Uptrace](https://uptrace.dev/), [Zipkin](https://zipkin.io/) or any 
-other opentelemetry compatible tracing system.
+After that, you can see traces in your [Dash0](https://www.dash0.com/), [Jaeger](https://www.jaegertracing.io/), [Uptrace](https://uptrace.dev/), 
+[Zipkin](https://zipkin.io/) or any other opentelemetry compatible tracing system.
 
 
 ## Configuration
@@ -356,7 +356,7 @@ To make it easy to use the KV proto API in PHP, we provide
 a [GitHub repository](https://github.com/roadrunner-php/roadrunner-api-dto), that contains all the generated PHP DTO
 classes proto files, making it easy to work with these files in your PHP application.
 
-- [API](https://github.com/roadrunner-server/api/blob/master/kv/v1/kv.proto)
+- [API](https://github.com/roadrunner-server/api/blob/master/proto/kv/v1/kv.proto)
 
 ### RPC API
 
