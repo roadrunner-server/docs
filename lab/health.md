@@ -24,17 +24,29 @@ status:
 The above configuration sets the address to `127.0.0.1:2114`. This is the address that the plugin will listen to. You
 can change the address to any IP address and port number of your choice.
 
-To access the health check, you need to use the following URL: http://127.0.0.1:2114/health?plugin=http. This URL will
-return the health status of the http plugin.
+To access the health check, use the following URL: `http://127.0.0.1:2114/health`. This URL will return the health status of all plugins that are enabled and support health probes. To specify a particular plugin, you need to use the `plugin` query parameter: `http://127.0.0.1:2114/health?plugin=http`. In that case, the health status of the `http` plugin will be returned.
 
 {% hint style="info" %}
 You can specify multiple plugins by separating them with a comma. For example, to check the health status of both the
 http and grpc plugins, you can use the following URL: http://127.0.0.1:2114/health?plugin=http&plugin=grpc.
 {% endhint %}
 
-The health check endpoint will return `HTTP 200` if there is at least one worker ready to serve requests. If there are
-no workers ready to service requests, the endpoint will return `HTTP 500`. If there are any other errors, the endpoint
-will also return `HTTP 500`.
+The health check endpoint will return `HTTP 200` if there is at least one worker ready to serve requests. If there are no workers ready to service requests, the endpoint will return `HTTP 503` (or your unavailable status code, which can be set via configuration of the plugin). If there are any other errors, the endpoint will also return `HTTP 503` (or your unavailable status code). The `status` plugin also returns a payload with a list of checked plugins and errors, if any, in the following format:
+
+```json
+[
+    {
+        "plugin_name": "http",
+        "error_message": "",
+        "status_code": 200
+    },
+    {
+        "plugin_name": "grpc",
+        "error_message": "some error message",
+        "status_code": 404
+    }
+]
+```
 
 The readiness check endpoint will return `HTTP 200` if there is at least one worker ready to take the request (i.e., not
 currently busy with another request). If there is no worker ready or all workers are busy, the endpoint will return
