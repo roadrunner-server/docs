@@ -136,7 +136,7 @@ jobs:
 
         # Maximum number of messages that can be in-flight at any given time. This is useful to limit the number of messages that are being processed concurrently.
         # Default: the same value as prefetch
-        max_messages_in_flight_limit: 10
+        max_messages_in_flight: 10
 
         # Optional section.
         # Default: 0

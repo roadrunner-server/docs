@@ -90,14 +90,14 @@ Once you have created `$rpc` instance, you can use it to call embedded RPC servi
 {% code title="worker.php" %}
 
 ```php
-$result = $rpc->call('informer.Workers', 'http');
+$result = $rpc->call('informer.AddWorker', 'http');
 
 var_dump($result);
 ```
 
 {% endcode %}
 
-{% hint style="warning" %}  
+{% hint style="warning" %}
 In the case of running workers in debug mode `http: { pool.debug: true }` the number of http workers will be zero
 (i.e. an empty array `[]` will be returned).
 
@@ -165,19 +165,19 @@ final class MetricsIgnoreResponse implements MetricsInterface
 
     public function sub(string $name, float $value, array $labels = []): void
     {
- 
+
         $this->rpc->callIgnoreResponse('metrics.Sub', compact('name', 'value', 'labels'));
     }
 
     public function observe(string $name, float $value, array $labels = []): void
     {
-        
+
         $this->rpc->callIgnoreResponse('metrics.Observe', compact('name', 'value', 'labels'));
     }
 
     public function set(string $name, float $value, array $labels = []): void
     {
-     
+
         $this->rpc->callIgnoreResponse('metrics.Set', compact('name', 'value', 'labels'));
     }
 
