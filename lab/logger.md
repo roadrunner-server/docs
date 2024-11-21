@@ -113,6 +113,45 @@ logs:
 
 {% endcode %}
 
+### Use Local Time
+
+RoadRunner uses UTC time in logs by default. However, you can configure it to use local time format if your application operates within a single timezone or when local time is more appropriate for your use case.
+
+{% code title=".rr.yaml" %}
+
+```yaml
+logs:
+  mode: development
+  use_local_time: true  # Use local time instead of UTC
+```
+
+{% endcode %}
+
+Example output with local time:
+
+```
+2024-01-10 15:04:05.123 INFO    Server started
+```
+
+### Show Caller Information
+
+You can enable the caller information in log messages, which shows the source file and line number where the log was generated. This is particularly useful for custom plugin development.
+
+{% code title=".rr.yaml" %}
+
+```yml
+logs:
+  mode: development
+  show_caller: true  # Enable caller information in logs
+```
+
+{% endcode %}
+
+When enabled, log messages will include the caller information:
+
+- In console mode: The caller path will be displayed with color and proper alignment
+- In JSON mode: The caller information will be included in the "caller" field
+
 ### Channels
 
 In addition, you can configure each plugin log messages individually using the `channels` section. It allows you to
