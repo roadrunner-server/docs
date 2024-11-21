@@ -94,6 +94,20 @@ kv:
       # Optional section.
       # Default: false
       read_only: false
+
+      # Optional section.
+      tls:
+        # Optional section.
+        # Default: ""
+        cert: ""
+
+        # Optional section.
+        # Default: ""
+        key: ""
+
+        # Optional section.
+        # Default: ""
+        root_ca: ""
 ```
 
 {% endcode %}
@@ -175,6 +189,21 @@ suffix". A value of `0` is equivalent to a timeout of 512 milliseconds (`512ms`)
 `pool_size`: Maximum number of RoadRunner socket connections. A value of `0` is equivalent to a `10` connections per
 every CPU. Please note that specifying the value corresponds to the number of connections **per core**, so if you have 8
 cores in your system, then setting the option to 2 you will get 16 connections.
+
+### TLS Configuration
+
+The `tls` section allows you to configure Transport Layer Security (TLS) for secure communication with the Redis server. 
+If no options are defined in this section, the connection will default to non-TLS. 
+
+`cert`: Path to a file containing the client certificate. This certificate is used to authenticate the client 
+when communicating with the server.
+
+`key`: Path to a file containing the client private key. This key is used in conjunction with the client 
+certificate for mutual authentication.
+
+`root_ca`: Path to a file containing the Certificate Authority (CA) certificates used to verify the server's certificate.  
+**Note**: This option can be used independently of the `cert` and `key` options. In cases where the server does not 
+require client certificate verification, you only need to provide the `root_ca` option.
 
 ### Other
 
