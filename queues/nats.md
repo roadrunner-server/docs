@@ -76,6 +76,8 @@ jobs:
 
 `stream` - stream name.
 
+> Notice: To avoid duplicate message consumption in NATS-driven pipelines, use unique streams for each pipeline. Sharing streams can lead to repeated processing of the same messages.
+
 ### Deliver new
 
 `deliver_new` - the consumer will only start receiving messages that were created after the consumer was created.
