@@ -373,7 +373,7 @@ http:
       # directory to store your certificate and key from the LE
       #
       # Default: rr_cache_dir
-      certs_dir: rr_le_certs
+      cache_dir: rr_le_certs
       # Your email
       #
       # Mandatory. Error on empty.
