@@ -74,7 +74,9 @@ jobs:
 
 ### Stream
 
-`stream` - stream name.
+`stream` - stream name. 
+
+> Notice: To avoid duplicate message consumption in NATS-driven pipelines, use unique streams for each pipeline. Sharing streams can lead to repeated processing of the same messages.
 
 ### Deliver new
 
