@@ -76,7 +76,7 @@ jobs:
 
 `stream` - stream name.
 
-{% hint style="warning" %}
+{% hint style="info" %}
 To prevent duplicate message consumption, ensure that each pipeline is configured with a unique NATS stream. Using the same stream for multiple pipelines will result in the same message being processed multiple times.
 {% endhint %}
 
