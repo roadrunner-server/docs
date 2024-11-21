@@ -76,7 +76,9 @@ jobs:
 
 `stream` - stream name.
 
-> Notice: To avoid duplicate message consumption in NATS-driven pipelines, use unique streams for each pipeline. Sharing streams can lead to repeated processing of the same messages.
+{% hint style="warning" %}
+To prevent duplicate message consumption, ensure that each pipeline is configured with a unique NATS stream. Using the same stream for multiple pipelines will result in the same message being processed multiple times.
+{% endhint %}
 
 ### Deliver new
 
