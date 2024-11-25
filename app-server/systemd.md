@@ -17,6 +17,7 @@ ExecStart=/usr/local/bin/rr serve -c /var/www/.rr.yaml
 
 Type=notify
 
+KillMode=mixed
 Restart=always
 RestartSec=30
 
