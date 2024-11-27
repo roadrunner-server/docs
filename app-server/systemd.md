@@ -17,6 +17,12 @@ ExecStart=/usr/local/bin/rr serve -c /var/www/.rr.yaml
 
 Type=notify
 
+# Prevent systemd from terminating the worker processes
+KillMode=mixed
+
+# Adjust this to the value in jobs.pool.destroy_timeout
+TimeoutStopSec=30
+
 Restart=always
 RestartSec=30
 
