@@ -106,7 +106,7 @@ func (p *Plugin) Init() error {
     return nil
 }
 
-func (p *Plugin) Interceptor() grpc.UnaryServerInterceptor {
+func (p *Plugin) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
         // Do something and return interceptor
 }
 
