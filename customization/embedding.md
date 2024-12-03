@@ -17,15 +17,6 @@ go get -u github.com/roadrunner-server/roadrunner/v2024/lib
 
 {% endcode %}
 
-{% code title="main.go" %}
-
-```go
-func handleRequest(w http.ResponseWriter, request *http.Request) {
-    // Find a way to pass that to RoadRunner so PHP handles the request
-}
-```
-
-{% endcode %}
 
 ## Create an RR instance
 
@@ -37,9 +28,12 @@ import (
 	"github.com/roadrunner-server/roadrunner/v2024/lib"
 )
 
-overrides := []string{} // List of configuration overrides
-plugins := lib.DefaultPluginsList() // List of RR plugins to enable
-rr, err := lib.NewRR(".rr.yaml", overrides, plugins)
+func main() {
+	overrides := []string{} // List of configuration overrides
+	plugins := lib.DefaultPluginsList() // List of RR plugins to enable
+	rr, err := lib.NewRR(".rr.yaml", overrides, plugins)
+}
+
 ```
 
 {% endcode %}
@@ -52,79 +46,35 @@ You can, however, choose only the plugins you want and add your own private plug
 {% code title="main.go" %}
 
 ```go
-overrides := []string{
-    "http.address=127.0.0.1:4444", // example override to set the http address
-    "http.pool.num_workers=4", // example override of how to set the number of php workers
-} // List of configuration overrides
-plugins := []interface{}{
-    &informer.Plugin{},
-    &resetter.Plugin{},
-    // ...
-    &httpPlugin.Plugin{},
-    // ...
-    &coolCompany.Plugin{},
-}
-rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
-```
+import (
+	"github.com/roadrunner-server/roadrunner/v2024/lib"
+	httpPlugin "github.com/roadrunner-server/http/v5"
+	"github.com/roadrunner-server/resetter/v5"
+	"github.com/roadrunner-server/informer/v5"
+	"github.com/yourCompay/yourCusomPlugin" // compillation error here, used only as an example.
+)
 
-{% endcode %}
+func main() {
+	overrides := []string{
+    		"http.address=127.0.0.1:4444", // example override to set the http address
+    		"http.pool.num_workers=4", // example override of how to set the number of php workers
+	} // List of configuration overrides
 
-## Passing requests to RoadRunner
-
-Roadrunner can respond to HTTP requests, but also gRPC ones or many more. Because this is all done via plugins that each
-listen to different types of requests, ports, etc...
-
-So when we talk about passing a request to roadrunner, we're actually talking about passing the request to roadrunner's
-HTTP plugin. To do this, we need to keep a handle on the http plugin.
-
-{% code title="main.go" %}
-
-```go
-overrides := []string{} // List of configuration overrides
-httpPlugin := &httpPlugin.Plugin{},
-plugins := []interface{}{
-    &informer.Plugin{},
-    &resetter.Plugin{},
-    // ...
-    httpPlugin,
-    // ...
-    &coolCompany.Plugin{},
-}
-rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
-```
-
-{% endcode %}
-
-The HTTP plugin is itself an `http.Handler` so it's now very easy to use it to let roadrunner and PHP handle the
-request:
-
-{% code title="main.go" %}
-
-```go
-overrides := []string{
-    // override the http plugin's address value for the current run of the program
-    "http.address=127.0.0.1:4444",
-} // List of configuration overrides
-httpPlugin := &httpPlugin.Plugin{},
-plugins := []interface{}{
-    &informer.Plugin{},
-    &resetter.Plugin{},
-    // ...
-    httpPlugin,
-    // ...
-    &coolCompany.Plugin{},
-}
-rr, err := roadrunner.NewRR(".rr.yaml", overrides, plugins)
-if err != nil {
-    return err
-}
-
-func handleRequest(w http.ResponseWriter, request *http.Request) {
-    return httpPlugin.ServeHTTP(w, request)
+	plugins := []interface{}{
+		&informer.Plugin{},
+    		&resetter.Plugin{},
+    		// ...
+    		&httpPlugin.Plugin{},
+    		// ...
+    		&yourCustomPlugin.Plugin{},
+	}
+	plugins := lib.DefaultPluginsList() // List of RR plugins to enable
+	rr, err := lib.NewRR(".rr.yaml", overrides, plugins)
 }
 ```
 
 {% endcode %}
+
 
 ## Starting & Stopping Embedded Roadrunner
 
@@ -143,36 +93,4 @@ go func() {
 
 `rr.Serve()` will block until it returns an error or `nil` if it was stopped gracefully.
 
-To gracefully stop the server, we simply call `rr.Stop()`
-
-## Roadrunner State
-
-When you run roadrunner, it goes through multiple phases of initialization, running, stopping etc...
-Sometimes it is useful to know about those, be it for debugging, to know if you're ready to accept requests, or if you
-can gracefully shutdown the main program.
-
-You can call `rr.CurrentState()` on your roadrunner instance to retrieve one of the following states:
-
-{% code title="main.go" %}
-
-```go
-package fsm
-// github.com/roadrunner-server/endure/pkg/fsm
-
-type State uint32
-
-const (
-    Uninitialized State = iota
-    Initializing
-    Initialized
-    Starting
-    Started
-    Stopping
-    Stopped
-    Error
-)
-```
-
-{% endcode %}
-
-Additionally, the actual status name can be obtained via `rr.CurrentState().String()`.
+To gracefully stop the server, simply call `rr.Stop()`
