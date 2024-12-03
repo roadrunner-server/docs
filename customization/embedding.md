@@ -12,7 +12,7 @@ Import RoadRunner library via `go get` command into your Go project:
 {% code title="main.go" %}
 
 ```Bash
-go get -u github.com/roadrunner-server/roadrunner/v2024.2.0/lib
+go get -u github.com/roadrunner-server/roadrunner/v2024/lib
 ```
 
 {% endcode %}
