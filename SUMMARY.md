@@ -18,7 +18,8 @@
 * [Code Coverage](php/codecoverage.md)
 * [Debugging](php/debugging.md)
 * [Environment](php/environment.md)
-* [Dynamic scaling](php/scaling.md)
+* [Manual workers scaling](php/manual-scaling.md)
+* [Auto workers scaling](php/auto-scaling.md)
 * [RPC](php/rpc.md)
 
 ## 🚀 Customization
