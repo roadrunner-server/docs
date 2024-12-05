@@ -92,6 +92,13 @@ number of messages consumed.
 This enables you to make changes to your codebase and reload it automatically.
 {% endhint %}
 
+
+## RoadRunner-Temporal Debug Mode
+
+{% hint style="warning" %}
+Note, that in the Temporal plugin, `pool` is actually called `activities`. All other `pool` options are the same. For example, `pool.num_workers` is `activities.num_workers`.
+{% endhint %}
+
 ## Stop Command
 
 In RoadRunner, you can send a `stop` command from the worker to the parent server to force process destruction. When

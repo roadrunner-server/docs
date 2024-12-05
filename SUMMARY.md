@@ -18,7 +18,8 @@
 * [Code Coverage](php/codecoverage.md)
 * [Debugging](php/debugging.md)
 * [Environment](php/environment.md)
-* [Dynamic scaling](php/scaling.md)
+* [Manual workers scaling](php/manual-scaling.md)
+* [Auto workers scaling](php/auto-scaling.md)
 * [RPC](php/rpc.md)
 
 ## 🚀 Customization
@@ -122,6 +123,7 @@
 
 ## 📚 Releases
 
+* [v2024.3.0](releases/v2024-3-0.md)
 * [v2024.2.1](releases/v2024-2-1.md)
 * [v2024.2.0](releases/v2024-2-0.md)
 * [v2024.1.5](releases/v2024-1-5.md)

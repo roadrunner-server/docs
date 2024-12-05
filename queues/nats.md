@@ -33,10 +33,6 @@ jobs:
         # Messages to read into the channel
         prefetch: 100
 
-        # Consume any payload type (not only Jobs structured)
-        # Default: false
-        consume_all: false
-
         # NATS subject
         # Default: default
         subject: default
@@ -76,6 +72,10 @@ jobs:
 
 `stream` - stream name.
 
+{% hint style="info" %}
+To prevent duplicate message consumption, ensure that each pipeline is configured with a unique NATS stream. Using the same stream for multiple pipelines will result in the same message being processed multiple times.
+{% endhint %}
+
 ### Deliver new
 
 `deliver_new` - the consumer will only start receiving messages that were created after the consumer was created.
@@ -91,8 +91,3 @@ jobs:
 ### Delete after ack
 
 `delete_after_ack` - delete message after it successfully acknowledged.
-
-### Consume all
-
-`consume_all` - By default, RR supports only `Jobs` structures from the queue. Set this option to true if you want to
-also consume the raw payloads.
