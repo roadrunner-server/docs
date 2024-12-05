@@ -59,6 +59,14 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     # Default: 60s
     destroy_timeout: 60s
 
+    # Dynamic allocator settings.
+    #
+    # Default: empty
+    dynamic_allocator:
+        max_workers: 25
+        spawn_rate: 10
+        idle_timeout: 10s
+
     # Supervisor is used to control http workers (previous name was "limit", video: https://www.youtube.com/watch?v=NdrlZhyFqyQ).
     # "Soft" limits will not interrupt current request processing. "Hard"
     # limit on the contrary - interrupts the execution of the request.
@@ -98,7 +106,7 @@ The worker pool has an internal queue that holds requests waiting for execution,
 {% endhint %}
 
 {% hint style="info" %}
-The Workers pool can be dynamically scaled: [link](scaling.md)
+Workers can be dynamically scaled: [link](auto-scaling.md)
 {% endhint %}
 
 {% hint style="info" %}
