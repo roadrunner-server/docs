@@ -1,4 +1,4 @@
-# Auto Workers Scaling
+# Auto Workers Scaling [BETA]
 
 ## Introduction
 
