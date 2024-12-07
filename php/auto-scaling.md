@@ -14,6 +14,9 @@ Users can now scale their RoadRunner workers automatically, up to 100 additional
 - This feature is not available when running RoadRunner in debug mode (`*.pool.debug=true`).
 - This feature does not scale Temporal Workerflow worker, only activity workers.
 
+### How it works
+RoadRunner uses the `pool.allocate_timeout` option to determine when to start spawning additional workers. If no workers are available at the end of the timeout to handle the request, RoadRunner begins dynamically allocating additional workers according to the `spawn_rate`.
+
 ### Usage
 
 Below is a configuration example demonstrating how to use this new feature:
