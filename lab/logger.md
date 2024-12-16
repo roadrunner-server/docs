@@ -194,6 +194,18 @@ logs:
    compression.
 6. `log_ending`: line ending to use in the logger. Default is new line - `\n`.
 
+### Startup logs
+
+{% code %}
+```log
+[INFO] RoadRunner server started; version: 2024.3.0, buildtime: 2024-12-05T18:39:32+0000
+[INFO] sdnotify: not notified
+```
+
+These logs are not controlled by the logs configuration section. They are emitted directly by the RoadRunner core and can be turned off using the `-s` or `--silent` CLI option.
+
+{% endcode %}
+
 ## ZapLogger
 
 Feel free to register your own [ZapLogger](https://github.com/uber-go/zap) extensions.
