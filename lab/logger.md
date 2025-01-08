@@ -197,14 +197,15 @@ logs:
 ### Startup logs
 
 {% code %}
+
 ```log
 [INFO] RoadRunner server started; version: 2024.3.0, buildtime: 2024-12-05T18:39:32+0000
 [INFO] sdnotify: not notified
 ```
 
-These logs are not controlled by the logs configuration section. They are emitted directly by the RoadRunner core and can be turned off using the `-s` or `--silent` CLI option.
-
 {% endcode %}
+
+These logs are not controlled by the logs configuration section. They are emitted directly by the RoadRunner core and can be turned off using the `-s` or `--silent` CLI option.
 
 ## ZapLogger
 
