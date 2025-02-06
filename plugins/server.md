@@ -37,6 +37,9 @@ server:
       - SOME_KEY: "SOME_VALUE"
       - SOME_KEY2: "SOME_VALUE2"
 
+    # Exit RR if the `on_init` command fails.
+    exit_on_error: false
+
   # Worker starting command, with any required arguments.
   #
   # This option is required.
@@ -84,6 +87,7 @@ this script.
 {% hint style="info" %}
 If the `on_init` command fails (i.e., returns a non-zero exit code), RoadRunner will log the error but continue
 execution. This ensures that a failure during initialization does not interrupt the application's operation.
+Use `on_init.exit_on_error: true` to stop RoadRunner if `on_init` command fails.
 {% endhint %}
 
 ### Worker starting command
