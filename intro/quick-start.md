@@ -17,6 +17,8 @@ Next, you need to create a simple configuration file for RR. Open a text editor 
 {% code title=".rr.yaml" %}
 
 ```yaml
+version: "3"
+
 server:
   command: "php psr-worker.php"
 
