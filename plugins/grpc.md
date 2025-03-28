@@ -375,6 +375,43 @@ After configuring the server, you can start it using the following command:
 This will start the gRPC server and make the `Greeter` service available for remote clients to call. You can use any gRPC
 client library in any language that supports gRPC to call the `SayHello` method.
 
+To quickly verify your code's correctness, you can install [grpc-client-cli](https://github.com/vadimi/grpc-client-cli) which
+provides an interactive CLI tool for talking to gRPC services.
+
+To access the `Greeter` service with `grpc-client-cli` run the following in a terminal:
+
+`grpc-client-cli --proto proto/helloworld.proto 127.0.0.1:9001`
+
+It will provide some interactive prompts asking you what service and method you want to call
+
+```shell
+? Choose a service:  [Use arrows to move, type to filter]
+→ helloworld.Greeter
+
+? Choose a method:  [Use arrows to move, type to filter]
+  [..]
+→ SayHello
+```
+
+You will then be prompted to manually form the JSON payload it expects and upon pressing enter, your `Greeter` service
+should respond in an amicable manner:
+
+```
+Message json (type ? to see defaults): {"name":"Roadrunner"}
+{
+  "message": "Hello Roadrunner!"
+}
+```
+
+On the PHP side, you should see that the successful request has been logged:
+
+```
+2025-03-28T10:04:06+0000        DEBUG   server          req-resp mode   {"pid": 81551}
+2025-03-28T10:04:06+0000        DEBUG   grpc            method was called successfully  {"method": "/helloworld.Greeter/SayHello", "start": "2025-03-28T10:04:06+0000", "elapsed": 0}
+```
+
+Congratulations on being able to communicate over gRPC to PHP using Roadrunner!
+
 ## Metrics
 
 RoadRunner has a [metrics plugin](../lab/metrics.md) that provides metrics for the gRPC server, which can be used with
