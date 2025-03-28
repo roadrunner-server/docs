@@ -20,33 +20,36 @@ handle.
 In our documentation, we will use the following example of a `.proto` file that is stored in the `<app>/proto`
 directory:
 
-{% code title="proto/pinger.proto" %}
+{% code title="proto/helloworld.proto" %}
 
 ```proto
 syntax = "proto3";
 
-option php_namespace = "GRPC\\Pinger";
+option php_namespace = "GRPC\\Greeter";
 option php_metadata_namespace = "GRPC\\GPBMetadata";
 
-package pinger;
+package helloworld;
 
-service Pinger {
-  rpc ping (PingRequest) returns (PingResponse) {}
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
 }
 
-message PingRequest {
-  string url = 1;
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
 }
 
-message PingResponse {
-  int32 status_code = 1;
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
 }
 ```
 
 {% endcode %}
 
-It defines a simple gRPC service called `Pinger` that takes a URL as input and returns the HTTP status code for that
-URL.
+It defines a simple gRPC service called `Greeter` that takes a name as input and returns a greeting.
 
 The `php_namespace` and `php_metadata_namespace` options allow you to specify the namespaces to use in the generated DTO
 and Service interface.
@@ -113,7 +116,7 @@ Once the plugin is installed, you can use the `protoc` command to compile the pr
 protoc --plugin=protoc-gen-php-grpc \
        --php_out=./generated \
        --php-grpc_out=./generated \
-       proto/pinger.proto
+       proto/helloworld.proto
 ```
 
 {% endcode %}
@@ -122,8 +125,8 @@ protoc --plugin=protoc-gen-php-grpc \
 Make sure that the `generated` directory exists and is writable.
 {% endhint %}
 
-After running the command, you can find the generated DTO and `PingerInterface` files in
-the `<app>/generated/GRPC/Pinger` directory.
+After running the command, you can find the generated DTO and `GreeterInterface` files in the
+`<app>/generated/GRPC/Greeter` directory.
 
 We recommend also registering the GRPC namespace in the `composer.json` file:
 
@@ -234,32 +237,27 @@ composer require spiral/roadrunner-grpc
 
 ### Implement Service
 
-Next, you will need to create a PHP class that implements the `Pinger` service defined in the `.proto` file. This class
-should implement the `GRPC/Pinger/PingerInterface`.
+Next, you will need to create a PHP class that implements the `Greeter` service defined in the `.proto` file. This class
+should implement the `GRPC/Greeter/GreeterInterface`.
 
 Here's an example:
 
-{% code title="pinger.php" %}
+{% code title="Greeter.php" %}
 
 ```php
 use Spiral\RoadRunner\GRPC;
-use GRPC\Pinger\PingerInterface;
-use GRPC\Pinger\PingRequest;
-use GRPC\Pinger\PingResponse;
+use GRPC\Greeter\GreeterInterface;
+use GRPC\Greeter\HelloRequest;
+use GRPC\Greeter\HelloReply;
 
-final class Pinger implements PingerInterface
+final class Greeter implements GreeterInterface
 {
-    public function __construct(
-        private readonly HttpClientInterface $httpClient
-    ) {
-    }
-
-    public function ping(GRPC\ContextInterface $ctx, PingRequest $in): PingResponse
+    public function SayHello(GRPC\ContextInterface $ctx, HelloRequest $in): HelloReply
     {
-        $statusCode = $this->httpClient->get($in->getUrl())->getStatusCode();
+        $greeting = "Hello " . $in->getName() . "!";
 
-        return new PingResponse([
-            'status_code' => $statusCode
+        return new HelloReply([
+            'message' => $greeting
         ]);
     }
 }
@@ -269,31 +267,32 @@ final class Pinger implements PingerInterface
 
 ### Usage
 
-To use the `Pinger` service, you can create a PHP worker that registers the service with the gRPC server.
+To use the `Greeter` service, you can create a PHP worker that registers the service with the gRPC server.
 
 Here's an example of how to do this:
 
 {% code title="grpc-worker.php" %}
 
 ```php
-use GRPC\Pinger\PingerInterface;
+use GRPC\Greeter\GreeterInterface;
+use Spiral\RoadRunner\GRPC\Invoker;
 use Spiral\RoadRunner\GRPC\Server;
 use Spiral\RoadRunner\Worker;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$server = new Server(null, [
+$server = new Server(new Invoker(), [
     'debug' => false, // optional (default: false)
 ]);
 
-$server->registerService(PingerInterface::class, new Pinger(new HttpClient()));
+$server->registerService(GreeterInterface::class, new Greeter());
 
 $server->serve(Worker::create());
 ```
 
 {% endcode %}
 
-After creating the worker, you need to configure RoadRunner to register the `proto/pinger.proto` service.
+After creating the worker, you need to configure RoadRunner to register the `proto/helloworld.proto` service.
 
 Here's an example configuration:
 
@@ -313,7 +312,7 @@ grpc:
   listen: "tcp://127.0.0.1:9001"
 
   proto:
-    - "proto/pinger.proto"
+    - "proto/helloworld.proto"
 ```
 
 {% endcode %}
@@ -344,7 +343,7 @@ grpc:
     command: "php grpc-worker.php"
 
   proto:
-    - "proto/pinger.proto"
+    - "proto/helloworld.proto"
 ```
 
 {% endcode %}
@@ -367,8 +366,8 @@ After configuring the server, you can start it using the following command:
 
 {% endcode %}
 
-This will start the gRPC server and make the `Pinger` service available for remote clients to call. You can use any gRPC
-client library in any language that supports gRPC to call the `ping` method.
+This will start the gRPC server and make the `Greeter` service available for remote clients to call. You can use any gRPC
+client library in any language that supports gRPC to call the `SayHello` method.
 
 ## Metrics
 
