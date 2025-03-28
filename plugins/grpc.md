@@ -285,6 +285,7 @@ use Spiral\RoadRunner\GRPC\Server;
 use Spiral\RoadRunner\Worker;
 
 require __DIR__ . '/vendor/autoload.php';
+require 'Greeter.php';
 
 $server = new Server(new Invoker(), [
     'debug' => false, // optional (default: false)
