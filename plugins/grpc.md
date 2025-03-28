@@ -25,6 +25,7 @@ directory:
 ```proto
 syntax = "proto3";
 
+option go_package = "proto/greeter";
 option php_namespace = "GRPC\\Greeter";
 option php_metadata_namespace = "GRPC\\GPBMetadata";
 
