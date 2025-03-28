@@ -246,6 +246,8 @@ Here's an example:
 {% code title="Greeter.php" %}
 
 ```php
+<?php
+
 use Spiral\RoadRunner\GRPC;
 use GRPC\Greeter\GreeterInterface;
 use GRPC\Greeter\HelloRequest;
@@ -275,6 +277,8 @@ Here's an example of how to do this:
 {% code title="grpc-worker.php" %}
 
 ```php
+<?php
+
 use GRPC\Greeter\GreeterInterface;
 use Spiral\RoadRunner\GRPC\Invoker;
 use Spiral\RoadRunner\GRPC\Server;
