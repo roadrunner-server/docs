@@ -194,23 +194,23 @@ Here's an example of a `buf.gen.yaml` file:
 version: v2
 plugins:
   - remote: buf.build/protocolbuffers/php:v26.1
-    out: gen/php
+    out: generated/php
   - remote: buf.build/community/roadrunner-server-php-grpc:v4.8.0
-    out: gen/php
+    out: generated/php
   - remote: buf.build/protocolbuffers/go:v1.32.0
-    out: gen/go
+    out: generated/go
     opt: paths=source_relative
   - remote: buf.build/grpc/go:v1.3.0
-    out: gen/go
+    out: generated/go
     opt:
       - paths=source_relative
       - require_unimplemented_servers=false
   - remote: buf.build/grpc/python:v1.63.0
-    out: gen/python
+    out: generated/python
   - remote: buf.build/protocolbuffers/python
-    out: gen/python
+    out: generated/python
   - remote: buf.build/protocolbuffers/pyi
-    out: gen/python
+    out: generated/python
 ```
 
 {% endcode %}
