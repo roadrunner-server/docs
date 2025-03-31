@@ -4,21 +4,14 @@ RoadRunner gRPC plugin enables PHP applications to communicate with gRPC clients
 
 It consists of two main parts:
 
-1. **protoc-plugin `protoc-gen-php-grpc`:** This is a plugin for the protoc compiler that generates PHP code from a gRPC
-   service definition file (`.proto`). It generates PHP classes that correspond to the service definition and message
-   types. These classes provide an interface for handling incoming gRPC requests and sending responses back to the
-   client.
-2. **gRPC server:** This is a server that starts PHP workers and listens for incoming gRPC requests. It receives
-   requests from gRPC clients, proxies them to the PHP workers, and sends the responses back to the client. The server
-   is responsible for managing the lifecycle of the PHP workers and ensuring that they are available to handle requests.
+1. **protoc-plugin `protoc-gen-php-grpc`:** This is a plugin for the protoc compiler that generates PHP code from a gRPC service definition file (`.proto`). It generates PHP classes that correspond to the service definition and message types. These classes provide an interface for handling incoming gRPC requests and sending responses back to the client.
+2. **gRPC server:** This is a server that starts PHP workers and listens for incoming gRPC requests. It receives requests from gRPC clients, proxies them to the PHP workers, and sends the responses back to the client. The server is responsible for managing the lifecycle of the PHP workers and ensuring that they are available to handle requests.
 
 ## Protoc-plugin
 
-The first step is to define a `.proto` file that describes the gRPC service and messages that your PHP application will
-handle.
+The first step is to define a `.proto` file that describes the gRPC service and messages that your PHP application will handle.
 
-In our documentation, we will use the following example of a `.proto` file that is stored in the `<app>/proto`
-directory:
+In our documentation, we will use the following example of a `.proto` file that is stored in the `<app>/proto` directory:
 
 {% code title="proto/helloworld.proto" %}
 
@@ -52,21 +45,17 @@ message HelloReply {
 
 It defines a simple gRPC service called `Greeter` that takes a name as input and returns a greeting.
 
-The `php_namespace` and `php_metadata_namespace` options allow you to specify the namespaces to use in the generated DTO
-and Service interface.
+The `php_namespace` and `php_metadata_namespace` options allow you to specify the namespaces to use in the generated DTO and Service interface.
 
 ### Generating PHP code
 
-After defining the proto file, you need to generate the PHP files using the `protoc` compiler and
-the `protoc-gen-php-grpc` plugin. You can install the plugin binary using Composer or download a pre-built binary from
-the GitHub releases page.
+After defining the proto file, you need to generate the PHP files using the `protoc` compiler and the `protoc-gen-php-grpc` plugin. You can install the plugin binary using Composer or download a pre-built binary from the GitHub releases page.
 
 {% tabs %}
 
 {% tab title="Prebuilt Binary" %}
 
-The simplest way to get the latest version of `protoc-gen-php-grpc` plugin is to download one of the pre-built release
-binaries on the GitHub [releases page](https://github.com/roadrunner-server/roadrunner/releases).
+The simplest way to get the latest version of `protoc-gen-php-grpc` plugin is to download one of the pre-built release binaries on the GitHub [releases page](https://github.com/roadrunner-server/roadrunner/releases).
 
 Just download the appropriate archive from the release page and extract it into your desired application directory.
 
@@ -74,8 +63,7 @@ Just download the appropriate archive from the release page and extract it into 
 
 {% tab title="Composer" %}
 
-If you use Composer to manage your PHP dependencies, you can install the `spiral/roadrunner-cli` package to download the
-latest version of `protoc-gen-php-grpc` plugin to your project's root directory.
+If you use Composer to manage your PHP dependencies, you can install the `spiral/roadrunner-cli` package to download the latest version of `protoc-gen-php-grpc` plugin to your project's root directory.
 
 **Install the package**
 
@@ -126,8 +114,7 @@ protoc --plugin=protoc-gen-php-grpc \
 Make sure that the `generated` directory exists and is writable.
 {% endhint %}
 
-After running the command, you can find the generated DTO and `GreeterInterface` files in the
-`<app>/generated/GRPC/Greeter` directory.
+After running the command, you can find the generated DTO and `GreeterInterface` files in the `<app>/generated/GRPC/Greeter` directory.
 
 We recommend also registering the GRPC namespace in the `composer.json` file:
 
@@ -221,8 +208,7 @@ Also, you may generate code for other languages like Go and Python.
 
 ## PHP Client
 
-The RoadRunner gRPC plugin comes with a convenient PHP package that simplifies the process of integrating the plugin
-with your PHP application.
+The RoadRunner gRPC plugin comes with a convenient PHP package that simplifies the process of integrating the plugin with your PHP application.
 
 ### Installation
 
@@ -238,8 +224,7 @@ composer require spiral/roadrunner-grpc
 
 ### Implement Service
 
-Next, you will need to create a PHP class that implements the `Greeter` service defined in the `.proto` file. This class
-should implement the `GRPC/Greeter/GreeterInterface`.
+Next, you will need to create a PHP class that implements the `Greeter` service defined in the `.proto` file. This class should implement the `GRPC/Greeter/GreeterInterface`.
 
 Here's an example:
 
@@ -324,8 +309,7 @@ grpc:
 {% endcode %}
 
 {% hint style="info" %}
-You can define command to start server in the `server.command` section:. It will be used to start PHP workers for all
-registered plugins, such as `grpc`, `http`, `jobs`, etc.
+You can define command to start server in the `server.command` section. It will be used to start PHP workers for all registered plugins, such as `grpc`, `http`, `jobs`, etc.
 {% endhint %}
 
 {% endtab %}
@@ -372,11 +356,9 @@ After configuring the server, you can start it using the following command:
 
 {% endcode %}
 
-This will start the gRPC server and make the `Greeter` service available for remote clients to call. You can use any gRPC
-client library in any language that supports gRPC to call the `SayHello` method.
+This will start the gRPC server and make the `Greeter` service available for remote clients to call. You can use any gRPC client library in any language that supports gRPC to call the `SayHello` method.
 
-To quickly verify your code's correctness, you can install [grpc-client-cli](https://github.com/vadimi/grpc-client-cli) which
-provides an interactive CLI tool for talking to gRPC services.
+To quickly verify your code's correctness, you can install [grpc-client-cli](https://github.com/vadimi/grpc-client-cli) which provides an interactive CLI tool for talking to gRPC services.
 
 To access the `Greeter` service with `grpc-client-cli` run the following in a terminal:
 
@@ -393,8 +375,7 @@ It will provide some interactive prompts asking you what service and method you 
 → SayHello
 ```
 
-You will then be prompted to manually form the JSON payload it expects and upon pressing enter, your `Greeter` service
-should respond in an amicable manner:
+You will then be prompted to manually form the JSON payload it expects and upon pressing enter, your `Greeter` service should respond in an amicable manner:
 
 ```
 Message json (type ? to see defaults): {"name":"Roadrunner"}
@@ -414,15 +395,13 @@ Congratulations on being able to communicate over gRPC to PHP using Roadrunner!
 
 ## Metrics
 
-RoadRunner has a [metrics plugin](../lab/metrics.md) that provides metrics for the gRPC server, which can be used with
-Prometheus and a preconfigured [Grafana dashboard](../lab/dashboards/grpc.md)
+RoadRunner has a [metrics plugin](../lab/metrics.md) that provides metrics for the gRPC server, which can be used with Prometheus and a preconfigured [Grafana dashboard](../lab/dashboards/grpc.md)
 
 ![grpc-metrics](https://user-images.githubusercontent.com/773481/235685443-05cf8af0-9e43-4aed-8801-da6595ca7d19.png)
 
 ## mTLS
 
-To enable [mTLS](https://www.cloudflare.com/en-gb/learning/access-management/what-is-mutual-tls/) use the following
-configuration:
+To enable [mTLS](https://www.cloudflare.com/en-gb/learning/access-management/what-is-mutual-tls/) use the following configuration:
 
 {% code title=".rr.yaml" %}
 
@@ -466,7 +445,7 @@ grpc:
   # This option is required
   listen: "tcp://127.0.0.1:9001"
 
-  # Proto file to use, multiply files supported [SINCE 2.6]. As of [2023.1.4], wilcards are allowed in the proto field.
+  # Proto file to use, multiply files supported [SINCE 2.6]. As of [2023.1.4], wildcards are allowed in the proto field.
   #
   # This option is required
   proto:
