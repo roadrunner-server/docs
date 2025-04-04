@@ -78,6 +78,17 @@ The gRPC metrics provided by the metrics plugin include:
 - `rr_gprc_request_total` - Total number of handled gRPC requests after server restart.
 - `rr_grpc_request_duration_seconds` - gRPC request duration.
 
+### Redis Metrics
+
+The Redis metrics provided by the redis plugin include:
+
+- `rr_redis_pool_conn_idle_current` - Current number of idle connections in the pool.
+- `rr_redis_pool_conn_stale_total` - Number of times a connection was removed from the pool because it was stale.
+- `rr_redis_pool_conn_total_current` - Current number of connections in the pool.
+- `rr_redis_pool_hit_total` - Number of times a connection was found in the pool.
+- `rr_redis_pool_miss_total` - Number of times a connection was not found in the pool.
+- `rr_redis_pool_timeout_total` - Number of times a timeout occurred when looking for a connection in the pool.
+
 ### JOBS Metrics
 
 The JOBS metrics provided by the metrics plugin include:
