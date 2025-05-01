@@ -123,6 +123,7 @@
 
 ## 📚 Releases
 
+* [v2025.1.0](releases/v2025-1-0.md)
 * [v2024.3.5](releases/v2024-3-5.md)
 * [v2024.3.4](releases/v2024-3-4.md)
 * [v2024.3.3](releases/v2024-3-3.md)

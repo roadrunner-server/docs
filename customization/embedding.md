@@ -12,7 +12,7 @@ Import RoadRunner library via `go get` command into your Go project:
 {% code title="main.go" %}
 
 ```Bash
-go get -u github.com/roadrunner-server/roadrunner/v2024/lib
+go get -u github.com/roadrunner-server/roadrunner/v2025/lib
 ```
 
 {% endcode %}
@@ -25,7 +25,7 @@ go get -u github.com/roadrunner-server/roadrunner/v2024/lib
 ```go
 
 import (
-	"github.com/roadrunner-server/roadrunner/v2024/lib"
+	"github.com/roadrunner-server/roadrunner/v2025/lib"
 )
 
 func main() {
@@ -47,7 +47,7 @@ You can, however, choose only the plugins you want and add your own private plug
 
 ```go
 import (
-	"github.com/roadrunner-server/roadrunner/v2024/lib"
+	"github.com/roadrunner-server/roadrunner/v2025/lib"
 	httpPlugin "github.com/roadrunner-server/http/v5"
 	"github.com/roadrunner-server/resetter/v5"
 	"github.com/roadrunner-server/informer/v5"
