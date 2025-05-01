@@ -265,7 +265,7 @@ To download Velox and build an application server you need [Golang 1.22+](https:
 {% code title="go install" %}
 
 ```bash
-go install github.com/roadrunner-server/velox/v2024/cmd/vx@latest
+go install github.com/roadrunner-server/velox/v2025/cmd/vx@latest
 ```
 
 {% endcode %}

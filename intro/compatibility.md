@@ -137,3 +137,8 @@ Pool, Workers, and Context tools are now available separately:
 - `events` (events bus package from `github.com/roadrunner-server/sdk/v4/events`) was moved to the [Events](https://github.com/roadrunner-server/events) package.
 
 {% endhint %}
+
+### Upgrading to RoadRunner v2025
+
+- For users of the RoadRunner library, the only required update is to change the Go package version from `v2024` to `v2025` in your `go.mod` file and package imports.
+- There are no breaking changes in the userland API and no configuration changes.
