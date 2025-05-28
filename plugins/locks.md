@@ -73,9 +73,9 @@ $id = $lock->lock('pdf:create', ttl: 10);
 $id = $lock->lock('pdf:create', ttl: new \DateInterval('PT10S'));
 
 // Acquire lock and wait 5 microseconds until lock will be released
-$id = $lock->lock('pdf:create', wait: 5);
+$id = $lock->lock('pdf:create', waitTTL: 5);
 // or
-$id = $lock->lock('pdf:create', wait: new \DateInterval('PT5S'));
+$id = $lock->lock('pdf:create', waitTTL: new \DateInterval('PT5S'));
 
 // Acquire lock with id - 14e1b600-9e97-11d8-9f32-f2801f1b9fd1
 $id = $lock->lock('pdf:create', id: '14e1b600-9e97-11d8-9f32-f2801f1b9fd1');
@@ -97,9 +97,9 @@ $id = $lock->lockRead('pdf:create', ttl: 100000);
 $id = $lock->lockRead('pdf:create', ttl: new \DateInterval('PT10S'));
 
 // Acquire lock and wait 5 microseconds until lock will be released
-$id = $lock->lockRead('pdf:create', wait: 5);
+$id = $lock->lockRead('pdf:create', waitTTL: 5);
 // or
-$id = $lock->lockRead('pdf:create', wait: new \DateInterval('PT5S'));
+$id = $lock->lockRead('pdf:create', waitTTL: new \DateInterval('PT5S'));
 
 // Acquire lock with id - 14e1b600-9e97-11d8-9f32-f2801f1b9fd1
 $id = $lock->lockRead('pdf:create', id: '14e1b600-9e97-11d8-9f32-f2801f1b9fd1');
