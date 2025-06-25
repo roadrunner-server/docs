@@ -65,7 +65,6 @@ gzip = { ref = "v5.0.2", owner = "roadrunner-server", repository = "gzip" }
 prometheus = { ref = "v5.0.1", owner = "roadrunner-server", repository = "prometheus" }
 headers = { ref = "v5.0.2", owner = "roadrunner-server", repository = "headers" }
 static = { ref = "v5.0.1", owner = "roadrunner-server", repository = "static" }
-proxy = { ref = "v5.0.2", owner = "roadrunner-server", repository = "proxy_ip_parser" }
 send = { ref = "v5.0.1", owner = "roadrunner-server", repository = "send" }
 
 # OpenTelemetry
