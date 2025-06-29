@@ -182,9 +182,6 @@ Next you're needed create `Server` in your IDE. For example, in PhpStorm you can
 Also, please check `Docker` setting in your IDE. For example, in PhpStorm you can do it by going to `Build, Execution, Deployment > Docker` and set the following options:
 ![PhpStorm Docker settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-43-03.png)
 
-{% code %}
-
-```bash
 
 ## Jobs debugging
 
@@ -200,13 +197,9 @@ false-positive debug session.
 
 Once RoadRunner starts all workers, enable XDebug listener and reset jobs workers with:
 
-{% code %}
-
 ```bash
 ./rr reset jobs
 ```
-
-{% endcode %}
 
 Now you should see debug session started:
 
