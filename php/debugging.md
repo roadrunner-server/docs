@@ -129,7 +129,7 @@ ENV XDEBUG_VERSION=3.4.4
 RUN apk add --no-cache autoconf g++ make postgresql-dev coreutils --update linux-headers \
     && pecl install xdebug-$XDEBUG_VERSION \
     && rm -rf /tmp/pear \
-    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-configure pgsql --with-pgsql=/usr/local/pgsql \
     && docker-php-ext-install pdo_pgsql sockets \
     && docker-php-ext-enable xdebug \
     && apk del linux-headers make g++ autoconf
