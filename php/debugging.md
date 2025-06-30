@@ -59,24 +59,24 @@ First create a `docker-compose.yml` file in your project root or copy environmen
 {% code title="docker-compose.yml" %}
 
 ```yml
-    services:
-    api:
-      build:
-        context: ./
-        dockerfile: Dockerfile
-      container_name: projectName-api
-      command: rr serve -c .rr.yaml
-      tty: true
-      ports:
-        - "8080:8080"
-      volumes:
-        - ./api:/app
-      networks:
-        - default
-      environment:
-        - PHP_IDE_CONFIG=serverName=docker
-      extra_hosts:
-        - "host.docker.internal:host-gateway"
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: projectName-api
+    command: rr serve -c .rr.yaml
+    tty: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./api:/app
+    networks:
+      - default
+    environment:
+      - PHP_IDE_CONFIG=serverName=docker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 ```
 
 {% endcode %}
