@@ -7,7 +7,7 @@ If you run multiple PHP processes you have to extend the maximum number of allow
 active workers, otherwise some calls would not be caught on your breakpoints.
 {% endhint %}
 
-### XDebug for RoadRunner installed on your system
+## XDebug for RoadRunner installed on your system
 
 ![xdebug](https://user-images.githubusercontent.com/796136/46493729-c767b400-c819-11e8-9110-505a256994b0.png)
 
@@ -52,9 +52,9 @@ php -dvariables_order=EGPCS artisan octane:start --max-requests=250 --server=roa
 
 {% endcode %}
 
-### XDebug for RoadRunner installed on Docker
+## XDebug for RoadRunner installed on Docker
 
-First create a `docker-compose.yml` file in your project root or copy environment and extra_hosts sections in your existing `docker-compose.yml` file:
+First, create a `docker-compose.yml` file in your project root, or copy the `environment` and `extra_hosts` sections into your existing `docker-compose.yml`:
 
 {% code title="docker-compose.yml" %}
 
@@ -154,7 +154,7 @@ USER app
 
 {% endcode %}
 
-Important: Make sure to change the `XDEBUG_VERSION` to the version you want to use, see [xdebug.org](https://xdebug.org/docs/install). Also note that the example container is run on behalf of the `app` user.
+Important: make sure to change the `XDEBUG_VERSION` to the version you want to use, see xdebug.org, and note that the example container is run as the `app` user.
 
 Next create a `xdebug.ini` file in your project root or copy the following content:
 
@@ -172,13 +172,13 @@ xdebug.log_level=0
 
 {% endcode %}
 
-Next you're needed change settings in your IDE to accept remote connections. For example, in PhpStorm you can do it by going to `PHP > Debug` and set the following options:
+Next, you need to change the settings in your IDE so it can accept remote connections. For example, in PhpStorm you can do it by going to `PHP > Debug` and set the following options:
 ![PhpStorm xDebug settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-42-36.png)
 
-Next you're needed create `Server` in your IDE. For example, in PhpStorm you can do it by going to `PHP > Servers` and set the following options:
+Next, you need to create a *Server* entry in your IDE. For example, in PhpStorm you can do it by going to `PHP > Servers` and set the following options:
 ![PhpStorm xDebug server settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-42-26.png)
 
-Also, please check `Docker` setting in your IDE. For example, in PhpStorm you can do it by going to `Build, Execution, Deployment > Docker` and set the following options:
+Also, please check the `Docker` settings in your IDE. For example, in PhpStorm you can do it by going to `Build, Execution, Deployment > Docker` and set the following options:
 ![PhpStorm Docker settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-43-03.png)
 
 
