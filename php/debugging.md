@@ -86,7 +86,6 @@ Next, create a `.rr.yaml` file in your project root or copy the following conten
 {% code title=".rr.yaml" %}
 
 ```yaml
-version: '3'
 rpc:
     listen: 'tcp://127.0.0.1:6001'
 http:
