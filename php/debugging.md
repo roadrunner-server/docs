@@ -173,12 +173,15 @@ xdebug.log_level=0
 {% endcode %}
 
 Next, you need to change the settings in your IDE so it can accept remote connections. For example, in PhpStorm you can do it by going to `PHP > Debug` and set the following options:
+
 ![PhpStorm xDebug settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-42-36.png)
 
 Next, you need to create a *Server* entry in your IDE. For example, in PhpStorm you can do it by going to `PHP > Servers` and set the following options:
+
 ![PhpStorm xDebug server settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-42-26.png)
 
 Also, please check the `Docker` settings in your IDE. For example, in PhpStorm you can do it by going to `Build, Execution, Deployment > Docker` and set the following options:
+
 ![PhpStorm Docker settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-43-03.png)
 
 
