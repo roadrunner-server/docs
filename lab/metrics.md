@@ -103,6 +103,41 @@ The JOBS metrics provided by the metrics plugin include:
 - `rr_jobs_push_latency_count` - Histogram that represents the latency for pushed operation and the number of processed
   jobs for the metric. Available filters: driver, job (pipeline), source.
 
+### Temporal Metrics
+
+In temporal each SDK, has its own metrics - RoadRunner retransmits Go SDK metrics to the metrics storage.
+For example, we can observe a workflow failing or a nondeterminism state.
+
+Full list of metrics we can look at here [Sdk Metrics](https://docs.temporal.io/references/sdk-metrics)
+
+```yaml
+version: "3"
+
+temporal:
+  address: 127.0.0.1:7233
+  namespace: default
+
+  # Temporal metrics
+  #
+  # Optional section
+  metrics:
+
+    # Metrics driver to use
+    # Optional, default: prometheus. Available values: prometheus, statsd
+    driver: prometheus
+
+    # ---- Prometheus
+    prometheus:
+      # Server metrics address
+      # Required for the production. Default: 127.0.0.1:9091, for the metrics 127.0.0.1:9091/metrics
+      address: 127.0.0.1:9091
+      # Metrics type
+      type: "summary"
+      # Temporal metrics prefix
+      # Default: (empty)
+      prefix: "foobar"
+```
+
 ## Application Metrics
 
 The RoadRunner metrics plugin also allows you to publish application metrics to the server via RPC and collect them in
