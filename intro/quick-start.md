@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-This guide will walk you through the steps to get started with RoadRunner. You'll learn how to install RoadRunner and configure it for your project.
+This guide walks you through getting started with RoadRunner. You'll learn how to install RoadRunner and configure it for your project.
 
 ## Step 1: Download RR for your platform
 
@@ -25,7 +25,7 @@ server:
 http:
   address: 0.0.0.0:8080
 
-# do not use development mode in production
+# Do not use development mode in production
 logs:
   level: debug
   mode: development
@@ -34,12 +34,12 @@ logs:
 {% endcode %}
 
 {% hint style="info" %}
-RoadRunner is not only HTTP plugin. There are a lot of other plugins. You can find more information about plugins in the [Plugins](../plugins/intro.md) section.
+RoadRunner is not only an HTTP plugin. There are many other plugins. Find more in the [Plugins](../plugins/intro.md) section.
 {% endhint %}
 
 ## Step 4: Create a simple worker
 
-Now you need to create a simple worker. Create a new file called `psr-worker.php` and add the following content to the file:
+Now create a simple worker. Create a new file called `psr-worker.php` and add the following content:
 
 {% code title="psr-worker.php" %}
 
@@ -83,7 +83,7 @@ while (true) {
 
 ## Step 5: Start the server
 
-Now you can start the server. You should have the following files in the current folder:
+Now start the server. You should have the following files in the current folder:
 
 - `.rr.yaml`
 - `psr-worker.php`
@@ -95,7 +95,7 @@ Then, open a terminal window in the current folder and run the following command
 ./rr serve
 ```
 
-Since you have the logs in the development mode, you should see the following output:
+Since logs are in development mode, you should see the following output:
 <figure>
   <picture>
     <source srcset="image.png" media="(prefers-color-scheme: dark)">

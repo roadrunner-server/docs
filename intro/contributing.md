@@ -13,13 +13,13 @@ our [Discord channel](https://discord.gg/spiralphp) for support from the RoadRun
 ## Issues
 
 If you come across any issues or security vulnerabilities while using RoadRunner, please report them. The maintainers
-take these matters very seriously and will do their best to address them as soon as possible. You can report issues or
+take these matters very seriously and will address them as soon as possible. You can report issues or
 vulnerabilities by [opening an issue](https://github.com/roadrunner-server/roadrunner/issues/new/choose)
 in `roadrunner-server/roadrunner` GitHub repository.
 
 ## Pull Requests
 
-One way to contribute to the RoadRunner is by submitting pull requests on GitHub. If you have a fix or improvement, you
+One way to contribute to RoadRunner is by submitting pull requests on GitHub. If you have a fix or improvement, you
 can submit a [pull request](https://github.com/roadrunner-server/roadrunner/pulls), and it will be reviewed by the
 maintainers.
 
@@ -44,7 +44,7 @@ to complete the sponsorship process, and you'll be well on your way to supportin
 RoadRunner project.
 
 We are deeply grateful for the generosity of our sponsors and their commitment to the RoadRunner community. Together, we
-can continue to drive innovation and deliver outstanding solutions for users worldwide.**
+can continue to drive innovation and deliver outstanding solutions for users worldwide.
 
 ## Contributors
 

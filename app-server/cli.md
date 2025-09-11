@@ -71,7 +71,7 @@ command:
 
 ## Background mode
 
-Additionally, you can start the server in the background mode using the `-p` option. In this mode, RoadRunner creates
+Additionally, you can start the server in background mode using the `-p` option. In this mode, RoadRunner creates
 a `.pid` file:
 
 {% code %}
@@ -143,7 +143,7 @@ To stop RoadRunner, you have a few options:
   force stop.
 
 {% hint style="info" %}
-By default, graceful period is 30 seconds. You can change it in the configuration file using `endure.grace_period`
+By default, the grace period is 30 seconds. You can change it in the configuration file using `endure.grace_period`
 setting. You can find an example [here](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml#L2115).
 {% endhint %}
 
@@ -168,7 +168,7 @@ If you want to force stop the server, you can use the `-f` option:
 {% endcode %}
 
 {% hint style="info" %}
-The `rr stop` command can only be used to stop a RoadRunner server that was started with the`-p` option and has a `.pid` file.
+The `rr stop` command can only be used to stop a RoadRunner server that was started with the `-p` option and has a `.pid` file.
 {% endhint %}
 
 ### Options
@@ -188,7 +188,7 @@ RoadRunner allows you to reload all workers.
 
 {% endcode %}
 
-This command reloads all RoadRunner workers, including HTTP, GRPC, and other, and starts them with a new worker pool.
+This command reloads all RoadRunner workers, including HTTP, gRPC, and others, and starts them with a new worker pool.
 This can be useful when you make changes to your application code and want to see the changes reflected in the running
 server.
 
@@ -296,15 +296,15 @@ they become critical.
 {% hint style="info" %}
 When the `pool.debug` configuration option is set to `true`, the `rr workers` command will not display any workers in
 the pool. This is because workers are only created when incoming requests arrive, so there may not be any active
-workers at the time when the command is executed.
+workers at the time the command is executed.
 {% endhint %}
 
 ### Options
 
-- `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a .rr.yaml file in the current
+- `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a `.rr.yaml` file in the current
   working directory. However, you can specify a different file using this option.
 - `-w` - sets the working directory for the server. By default, RoadRunner uses the current working directory.
-- `-i` - interactive mode (update statistic every second).
+- `-i` - interactive mode (updates statistics every second).
 
 ## Jobs commands
 

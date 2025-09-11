@@ -19,9 +19,9 @@ You should choose the appropriate plugin based on the requirements of your appli
 we will explore the creation of an HTTP worker and a simple implementation of an entry point that can handle several
 types of requests.
 
-### Simple HTTP Worker
+### Simple HTTP worker
 
-To create HTTP worker, you need to install the required composer packages:
+To create an HTTP worker, you need to install the required Composer packages:
 
 {% code %}
 
@@ -114,7 +114,7 @@ http:
 {% endcode %}
 
 {% hint style="info" %}
-Read more about the configuration HTTP in the [HTTP Plugin](../http/http.md) section.
+Read more about HTTP configuration in the [HTTP Plugin](../http/http.md) section.
 {% endhint %}
 
 ### Single entry point
@@ -126,7 +126,7 @@ and handle any potential exceptions. In this example, we strive to minimize depe
 to the maximum extent possible. The sole objective of this example is to demonstrate how to handle various types of
 requests.
 
-First of all, we need to install the required composer packages:
+First, we need to install the required Composer packages:
 
 {% code %}
 

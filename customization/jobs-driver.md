@@ -1,10 +1,10 @@
-# JOBS driver
+# Jobs driver
 
 JOBS drivers are mini-plugins that are connected to the main JOBS plugin and initialized by it.
 
 ## Architecture
 
-While initializing, JOBS plugin searches for the registered drivers by the `Constructor` interface. Constructor and Driver (will be described below) interfaces are declared in the [RR API repository](https://github.com/roadrunner-server/api/blob/master/plugins/v4/jobs/driver.go).
+While initializing, the JOBS plugin searches for registered drivers by the `Constructor` interface. The `Constructor` and `Driver` (described below) interfaces are declared in the [RR API repository](https://github.com/roadrunner-server/api/blob/master/plugins/v4/jobs/driver.go).
 
 Constructor interface:
 
@@ -48,19 +48,19 @@ type Driver interface {
 
 {% endcode %}
 
-So every driver should implement the `Constructor` interface to be found by the JOBS plugin. Let's have at the methods included in the `Constructor` interface:
+So every driver should implement the `Constructor` interface to be found by the JOBS plugin. Let's have a look at the methods included in the `Constructor` interface:
 
 1. `Name() string`: This method should return a user-friendly name for the driver. It'll be used later in the pipelines `<pipeline_name>.driver` option. **It is an important option. The name here and name in the pipeline options should match.**
-2. `DriverFromConfig(configKey string, queue Queue, pipeline Pipeline) (Driver, error)`: Returns Driver implementation declared via configuration. RoadRunner in turn provide a configuration key (like: `jobs.pipelines.pipeline-name.driver-name.config`), queue implementation where to push the messages and pipeline with the all information about the pipeline. Later we will have a look on how to use it.
-3. `DriverFromPipeline(pipe Pipeline, queue Queue) (Driver, error)`: Returns Driver implementation declared via RPC `jobs.Declare` call. It doesn't have a configuration, but all info and configuration options are stored in the pipeline method argument.
+2. `DriverFromConfig(configKey string, queue Queue, pipeline Pipeline) (Driver, error)`: Returns a `Driver` implementation declared via configuration. RoadRunner, in turn, provides a configuration key (such as `jobs.pipelines.pipeline-name.driver-name.config`), the queue implementation to which messages are pushed, and the pipeline with all information about the pipeline. Later we will look at how to use this.
+3. `DriverFromPipeline(pipe Pipeline, queue Queue) (Driver, error)`: Returns a `Driver` implementation declared via the RPC `jobs.Declare` call. It doesn't have configuration, but all info and configuration options are stored in the `pipeline` method argument.
 
 ### Initialization
 
-On the Initialization step, JOBS plugin searches for the JOBS drivers and saves them into a hashmap with by its name provided by the `Name() string` method. 
-It is not possible to have two drivers with the same name. 
-Drives here are things which are declared in the `jobs.pipelines` configuration.
-For the pipelines declared via configuration, RoadRunner saves them as well with their name. Pipelines can also be declared with [`jobs.Declare`](https://github.com/roadrunner-php/jobs/blob/v4.5.0/src/Jobs.php#L26) RPC method.
-If it is required, you may use `Configurer` plugin to unmarshal global driver configuration, such a connection string for example.
+During initialization, the JOBS plugin searches for the JOBS drivers and saves them into a hashmap by the name provided by the `Name() string` method.
+It is not possible to have two drivers with the same name.
+Drivers here are the ones declared in the `jobs.pipelines` configuration.
+RoadRunner also saves pipelines declared via configuration by their name. Pipelines can also be declared with the [`jobs.Declare`](https://github.com/roadrunner-php/jobs/blob/v4.5.0/src/Jobs.php#L26) RPC method.
+If required, you may use the `Configurer` plugin to unmarshal global driver configuration, such as a connection string.
 
 ![alt text](image.png)
 
@@ -197,15 +197,15 @@ func (d *Driver) Stop(ctx context.Context) error {
 
 {% endcode %}
 
-Here you need to remember the following things:
+Remember the following things:
 
-1. `FromConfig` and `FromPipeline` methods are used to initialize the driver, but not to start the message consumption.
-2. `JOBS` plugin will automatically call the `Run` method is your pipelines would be in the `jobs.consume` array.
-3. For the pipelines, declared via `jobs.Declare` RPC call, method `jobs.Resume` should be called instead.
+1. The `FromConfig` and `FromPipeline` methods are used to initialize the driver, not to start message consumption.
+2. The `JOBS` plugin will automatically call the `Run` method if your pipelines are in the `jobs.consume` array.
+3. For pipelines declared via the `jobs.Declare` RPC call, the `jobs.Resume` method should be called instead.
 
-### Pushing Jobs into the priority queue
-To push the job into priority queue, you need to slightly transform it to add `Ack`, `Nack`, etc. methods to it. 
-All interfaces are here [RR API repository](https://github.com/roadrunner-server/api/blob/master/plugins/v4/jobs/job.go), but let's have a look at the `Job` interface.
+### Pushing jobs into the priority queue
+To push a job into the priority queue, you need to slightly transform it to add `Ack`, `Nack`, etc. methods to it.
+All interfaces are in the [RR API repository](https://github.com/roadrunner-server/api/blob/master/plugins/v4/jobs/job.go). Let's have a look at the `Job` interface.
 
 
 {% code title="job.go" %}
@@ -233,8 +233,8 @@ type Job interface {
 
 {% endcode %}
 
-Job interface also includes the `pq.Item` interface to satisfy a minimal priority queue requirement. 
-You may add this (`pq.Item`) interface to any interface and benefit from the RoadRunner's priority queue.
+The `Job` interface also includes the `pq.Item` interface to satisfy a minimal priority queue requirement.
+You may add this (`pq.Item`) interface to any interface and benefit from RoadRunner's priority queue.
 So, our driver's `Push` method would be updated as follows:
 
 {% code title="driver.go" %}
@@ -264,10 +264,10 @@ func fromJob(job jobs.Message) *Item {
 
 {% endcode %}
 
-`fromJob` method needed to simply transform `jobs.Message` into the `Job`. See [link](https://github.com/roadrunner-server/samples/blob/master/plugins/jobs_driver/driver/message.go).
-The rest is to implement a driver specific `Ack`, `Nack`, etc. methods.
+The `fromJob` method is needed to simply transform `jobs.Message` into a `Job`. See [link](https://github.com/roadrunner-server/samples/blob/master/plugins/jobs_driver/driver/message.go).
+The rest is to implement driver-specific `Ack`, `Nack`, etc. methods.
 
-Configuration for your `Jobs` driver:
+Configuration for your jobs driver:
 
 {% code title=".rr.yaml" %}
 

@@ -1,10 +1,10 @@
 # HTTP — Headers and CORS
 
-Headers middleware is used to set up request/response headers and control CORS for your application.
+The headers middleware sets request/response headers and controls CORS for your application.
 
 ## CORS
 
-To enable CORS headers add the following section to your configuration.
+To enable CORS headers, add the following section to your configuration.
 
 {% code title=".rr.yaml" %}
 
@@ -36,7 +36,7 @@ http:
 > Make sure to declare "headers" middleware.
 
 {% hint style="info" %}
-Since RoadRunner v2023.2.0 following changes were made:
+Since RoadRunner v2023.2.0, the following changes were made:
 
 - Ability to define status code of successful OPTIONS request via `options_success_status` config;
 - Debug flag (`debug: true/false`) was added to enable additional output to debug CORS issues;
@@ -44,9 +44,9 @@ Since RoadRunner v2023.2.0 following changes were made:
 - CORS requests are handled using [rs/cors](https://github.com/rs/cors) package.
 {% endhint %}
 
-## Custom headers for Response or Request
+## Custom headers for response or request
 
-You can control additional headers to be set for outgoing responses and headers to be added to the request sent to your application.
+You can control additional headers for outgoing responses and headers to be added to requests sent to your application.
 
 {% code title=".rr.yaml" %}
 

@@ -1,14 +1,12 @@
 # Migration from v1.0 to v2.0/v2023+
 
-To migration integration from RoadRunner v1.* to v2.*/v2023+ follow the next steps.
+To migrate integration from RoadRunner v1.* to v2.*/v2023+, follow these steps.
 
 ## Update Configuration
 
-Second version of RoadRunner use single worker factory for all of its plugins. This means that you must include a new
-section
-into your config `server` which is responsible for the worker creation. Limit service no longer presented as separate
-entity
-but rather part of specific service configuration.
+The second version of RoadRunner uses a single worker factory for all of its plugins. This means that you must include a new
+`server` section in your config, which is responsible for worker creation. The limit service is no longer presented as a separate
+entity but rather as part of specific service configuration.
 
 {% code title=".rr.yaml" %}
 
@@ -28,18 +26,17 @@ http:
 {% endcode %}
 
 {% hint style="warning" %}
-Read more in [config reference](/intro/config.md).
+Read more in the [config reference](/intro/config.md).
 {% endhint %}
 
 ## No longer worry about echoing
 
-RoadRunner 2.0+ intercepts all output to the STDOUT, this means you can start using default var_dump and other echo
-function
-without breaking the communication. Yay!
+RoadRunner 2.0+ intercepts all output to STDOUT. This means you can start using default var_dump and other echo
+functions without breaking the communication. Yay!
 
 ## Explicitly declare PSR-15 dependency
 
-We no longer ship the default PSR implementation with RoadRunner, make sure to include one you like the most by
+We no longer ship a default PSR implementation with RoadRunner; make sure to include one you like the most
 yourself.
 For example:
 
@@ -49,7 +46,7 @@ $ composer require nyholm/psr7
 
 ## Update Worker Code
 
-RoadRunner simplifies worker creation, use static `create()` method to automatically configure your worker:
+RoadRunner simplifies worker creation: use the static `create()` method to automatically configure your worker:
 
 {% code title="worker.php" %}
 
@@ -65,7 +62,7 @@ $worker = RoadRunner\Worker::create();
 
 {% endcode %}
 
-Pass the PSR-15 factories to your PSR Worker:
+Pass the PSR-15 factories to your PSR worker:
 
 {% code title="worker.php" %}
 
@@ -85,7 +82,7 @@ $worker = new RoadRunner\Http\PSR7Worker($worker, $psrFactory, $psrFactory, $psr
 
 {% endcode %}
 
-RoadRunner 2 unifies all workers to use similar naming, change `acceptRequest` to `waitRequest`:
+RoadRunner 2 unifies all workers to use similar naming: change `acceptRequest` to `waitRequest`:
 
 {% code title="worker.php" %}
 
@@ -108,7 +105,7 @@ while ($req = $worker->waitRequest()) {
 
 ## Update RPCs
 
-To create RPC client use new Goridge API:
+To create an RPC client, use the new Goridge API:
 
 {% code title="worker.php" %}
 

@@ -1,11 +1,11 @@
-# Temporal Worker
-Unlike HTTP, Temporal use different way to configure a worker. Make sure to require PHP SDK:
+# Temporal worker
+Unlike HTTP, Temporal uses a different way to configure a worker. Make sure to require the PHP SDK:
 
 ```
 $ composer require temporal/sdk
 ```
 
-The worker file will look as following:
+The worker file will look as follows:
 
 ```php
 <?php
@@ -37,10 +37,10 @@ $worker->registerActivityImplementations(new MyActivity());
 $factory->run();
 ```
 
-Read more about temporal configuration and usage [at official website](https://docs.temporal.io/develop/php/core-application#run-a-dev-worker). 
+Read more about Temporal configuration and usage on the [official website](https://docs.temporal.io/develop/php/core-application#run-a-dev-worker).
 
-## Multi-worker Environment
-To serve both HTTP and Temporal from the same worker use `getMode()` option of `Environment`:
+## Multi-worker environment
+To serve both HTTP and Temporal from the same worker, use the `getMode()` option of `Environment`:
 
 ```php
 use Spiral\RoadRunner;
@@ -48,17 +48,17 @@ use Spiral\RoadRunner;
 $rrEnv = RoadRunner\Environment::fromGlobals();
 
 if ($rrEnv->getMode() === RoadRunner\Environment\Mode::MODE_TEMPORAL) {
-    // start temporal worker
+    // start Temporal worker
     return;
 }
 
 if ($rrEnv->getMode() === RoadRunner\Environment\Mode::MODE_HTTP) {
-    // start http worker
+    // start HTTP worker
     return;
 }
 ```
 
-Or you may override server's command via: 
+Or you may override the server command via:
 ```yaml
 temporal:
   address: "127.0.0.1:7233"

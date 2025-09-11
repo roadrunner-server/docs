@@ -2,11 +2,11 @@
 
 ## Introduction
 
-Starting from the RR `v2023.3.4` release, we have introduced a new feature called **Experimental Features**. This feature allows you to try out new features that are not yet ready for production use.
+Starting with RR `v2023.3.4`, we introduced a new capability called **Experimental Features**. This allows you to try out features that are not yet ready for production use.
 
 ## How to enable experimental features
 
-To enable experimental features, you need to run RR with the `-e` (`--enable-experimental`) flag. For example:
+To enable experimental features, run RR with the `-e` (`--enable-experimental`) flag. For example:
 
 {% code %}
 
@@ -30,7 +30,7 @@ Or:
 
 ### Support for loading [`envfiles`](https://github.com/roadrunner-server/roadrunner/issues/1077) in the `.rr.yaml`: `[>= v2023.3.5]`
 
-In the `v2023.3.5` added experimental support for loading `envfiles` in the `.rr.yaml` configuration file.
+In `v2023.3.5`, we added experimental support for loading `envfiles` in the `.rr.yaml` configuration file.
 `.env` file should be in the same directory as the `.rr.yaml` file.
 
 Sample `.rr.yaml` file:
@@ -44,9 +44,9 @@ envfile: .env
 
 {% endcode %}
 
-### Support for the HTTP3 server: `[>=2023.3.8]`
+### Support for the HTTP/3 server: `[>=2023.3.8]`
 
-In the `v2023.3.8` we added experimental support for the HTTP3 server. It can work with the ACME provider to generate certificates for the HTTP3 server automatically.
+In `v2023.3.8`, we added experimental support for an HTTP/3 server. It can work with the ACME provider to generate certificates for the HTTP/3 server automatically.
 
 Sample `.rr.yaml` file:
 
@@ -71,7 +71,7 @@ http:
 
 {% endcode %}
 
-Or if you use ACME provider:
+Or if you use an ACME provider:
 
 {% code title=".rr.yaml" %}
 
@@ -104,7 +104,7 @@ http:
 
 {% endcode %}
 
-You may also generate testing certificates manually and use them in the configuration file. To do that, you may use [mkcert](https://github.com/FiloSottile/mkcert) or [certbot](https://certbot.eff.org/):
+You can also generate test certificates manually and use them in the configuration file. To do that, use [mkcert](https://github.com/FiloSottile/mkcert) or [certbot](https://certbot.eff.org/):
 
 {% code %}
 
@@ -114,7 +114,7 @@ mkcert -install && mkcert -client localhost 127.0.0.1 ::1 && mkcert localhost 12
 
 {% endcode %}
 
-This command will generate the client and server certificates for the `localhost` domain. You may use them in the configuration file:
+This command generates the client and server certificates for the `localhost` domain. You can use them in the configuration file:
 
 {% code title=".rr.yaml" %}
 
@@ -137,7 +137,7 @@ http:
 
 {% endcode %}
 
-Client certificates might be used in your favorite `http3` client. For example, you may use [curl3](https://curl.se/docs/http3.html) to test the HTTP3 server:
+You can use client certificates in your preferred HTTP/3 client. For example, use [curl3](https://curl.se/docs/http3.html) to test the HTTP/3 server:
 
 {% code %}
 

@@ -12,7 +12,7 @@ development process. Some of the most notable plugins include:
 - [**Centrifuge**](./centrifuge.md): Real-time websocket messaging and broadcasting.
 - [**HTTP**](../http/http.md): Efficient and scalable HTTP server implementation.
 - [**Logger**](../lab/logger.md): Robust logging capabilities for various output formats and destinations.
-- [**App-Logger**](../lab/applogger.md): Send application logs to the RoadRunner logger from PHP application.
+- [**App-Logger**](../lab/applogger.md): Send application logs to the RoadRunner logger from a PHP application.
 - [**gRPC**](./grpc.md): Efficient and scalable gRPC server implementation.
 - [**Temporal**](../workflow/temporal.md): Workflow and task orchestration with distributed computing capabilities.
 - [**Server**](./server.md): Core server functionality and lifecycle management.
@@ -25,14 +25,14 @@ development process. Some of the most notable plugins include:
 - [**HealthChecks**](../lab/health.md): Health monitoring and reporting for system components.
 - [**OpenTelemetry (OTEL)**](../lab/otel.md): Distributed tracing and observability with OpenTelemetry integration.
 
-## Custom Plugins
+## Custom plugins
 
 In addition, RoadRunner encourages developers to create their own custom plugins, tailored to meet specific requirements
 or extend the core functionality. By creating plugins in Go, developers can tap into the performance, concurrency, and
 scalability benefits that Go offers, while still using PHP for the core application logic.
 
 To get started with custom plugin development, refer to [Writing Plugins](../customization/plugin.md)
-and [HTTP Middleware](../customization/middleware.md) documentation. It provides a comprehensive guide on how to
+and the [HTTP Middleware](../customization/middleware.md) documentation. These provide a comprehensive guide on how to
 create, test, and integrate your own plugins into RoadRunner.
 
 ## Community Sharing

@@ -1,7 +1,7 @@
 # HTTP — Gzip middleware
 
-The gzip middleware is used to support the `Accept-Encoding: gzip` header and to compress and decompress the contents of the
-outgoing/incoming requests.
+The gzip middleware supports the `Accept-Encoding: gzip` header and compresses or decompresses the contents of
+outgoing and incoming requests.
 
 ## Documentation
 
@@ -25,4 +25,4 @@ http:
 
 {% endcode %}
 
-Gzip middleware supports OpenTelemetry headers propagation.
+The gzip middleware supports OpenTelemetry header propagation.

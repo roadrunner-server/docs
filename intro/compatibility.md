@@ -22,13 +22,13 @@ versions.
 
 ### v3.0 Configuration and RR v2023.x.x
 
-#### Reload plugin Update
+#### Reload plugin update
 
 {% hint style="warning" %}
 The `reload` plugin has been removed from the default plugins list. Please use `*.pool.debug=true` instead.
 {% endhint %}
 
-#### OpenTelemetry Middleware Update
+#### OpenTelemetry middleware update
 
 Starting from version **v2023.1.0**, the OpenTelemetry (OTEL) middleware configuration has been moved out of the HTTP
 plugin to support its usage across multiple plugins, including HTTP, gRPC, jobs, and temporal. The OTEL middleware is now
@@ -94,13 +94,13 @@ To update your configuration from version 2.7 to version 3, follow these steps:
 
 #### Configuration
 
-1. **`server.relay_timeout`** was deprecated and replaced internally with the Golang context timeout. Starting from `v2024.1.0` this option is no-op.
+1. **`server.relay_timeout`** was deprecated and replaced internally with the Go context timeout. Starting from `v2024.1.0`, this option is a no-op.
 
 #### ⚠️ HTTP plugin ⚠️
 
 {% hint style="warning" %}
 Starting from `v2024.1.0` RR uses the protobuf encoded messages to send the payloads to the PHP workers via pipes and our protocol called `goridge`.
-That means that you'll need to install the `protobuf` PHP extension to have the increased performance. PHP userland API remains the same.
+That means you'll need to install the `protobuf` PHP extension to benefit from increased performance. The PHP userland API remains the same.
 {% endhint %}
 
 {% hint style="info" %}
@@ -108,7 +108,7 @@ RR uses `pipes` and our custom protocol called `goridge` to communicate with the
 However, the user payload was usually encoded with a `JSON` codec.
 This approach led to issues,
 such as broken raw binary payloads due to `JSON's` limitations and fields reordering, even in raw mode.
-With the new protobuf codec, all these problems have been resolved.
+With the new protobuf codec, these problems have been resolved.
 Now, by using the `http.raw_body=true` option, you'll receive the payload completely untouched as it is.
 Additionally, encoded images or raw binary payloads will no longer be escaped
 (which previously led to broken images in payloads not encoded in base64).
@@ -124,7 +124,7 @@ Additionally, encoded images or raw binary payloads will no longer be escaped
 **There are no breaking changes in the userland API and no configuration changes.**
 {% endhint %}
 
-#### Information for Plugin Developers
+#### Information for plugin developers
 
 {% hint style="warning" %}
 

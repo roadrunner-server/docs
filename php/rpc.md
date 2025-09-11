@@ -1,11 +1,11 @@
 # RPC to RoadRunner
 
 RoadRunner provides a powerful RPC (Remote Procedure Call) interface for communication between PHP applications and the
-server using [Goridge library](https://github.com/roadrunner-php/goridge).
+server using the [Goridge library](https://github.com/roadrunner-php/goridge).
 
 ## Goridge
 
-Goridge is a high-performance PHP-to-Golang/Golang-to-PHP library developed specifically for communication between PHP
+Goridge is a high-performance PHP-to-Go/Go-to-PHP library developed specifically for communication between PHP
 applications and RoadRunner. It is designed to provide a reliable and efficient way to communicate between the two
 components, allowing PHP developers to take advantage of the performance benefits of Golang-based systems while still
 writing their applications in PHP.
@@ -80,12 +80,12 @@ $rpc = new Goridge\RPC\RPC(
 
 {% hint style="warning" %}
 The `Environment::getRPCAddress()` method returns the RPC address from the `RR_RPC` environment variable and can be
-used only inside PHP worker.
+used only inside a PHP worker.
 {% endhint %}
 
 ## Calling RPC Methods
 
-Once you have created `$rpc` instance, you can use it to call embedded RPC services.
+Once you have created an `$rpc` instance, you can use it to call embedded RPC services.
 
 {% code title="worker.php" %}
 
@@ -132,7 +132,7 @@ the RPC Go definitions for these plugins in the following repositories:
 
 ### Async PHP RPC interface
 
-You can use `Spiral\Goridge\RPC\AsyncRPCInterface` and implementation with multiple relays to effectively offer non-blocking IO in regard to the Roadrunner communication.
+You can use `Spiral\Goridge\RPC\AsyncRPCInterface` and an implementation with multiple relays to offer non-blocking I/O for RoadRunner communication.
 
 The interface provides the following new methods:
  - `callIgnoreResponse(string $method, mixed $payload): void` - Invoke the remote RoadRunner service method using the given payload (free form) non-blocking and ignore the response.
@@ -141,7 +141,7 @@ The interface provides the following new methods:
  - `hasResponses(array $seqs): array`
  - `getResponses(array $seqs, mixed $options = null): iterable` - methods to check for and retrieve one or more results of executed requests.
 
-The callIgnoreResponse method can be used to invoke RPC methods without waiting for a response. If you don't need a response, this can greatly improve performance. For example, consider sending metric data.
+The `callIgnoreResponse` method can be used to invoke RPC methods without waiting for a response. If you don't need a response, this can greatly improve performance. For example, consider sending metric data.
 
 {% code %}
 
@@ -198,11 +198,11 @@ final class MetricsIgnoreResponse implements MetricsInterface
 
 {% endcode %}
 
-This code is greatly simplified and does not include error handling, for example. However, it demonstrates an example of using the new functionality.
+This code is greatly simplified and does not include error handling, for example. However, it demonstrates how to use the new functionality.
 
 The `callAsync` method allows you to invoke an RPC method and obtain a request identifier, but it does not immediately request a response and does not block further execution while waiting for a response. Instead, you can save the identifier and continue executing other operations that do not require an immediate response from the service. Afterward, you can request the response using the saved identifier.
 
-Using this method, we can implement, for example, sending data to a cache and reading the response only after sending all the necessary data. The code in the example below will be greatly simplified, and the implementation of some methods will be omitted:
+Using this method, you can implement, for example, sending data to a cache and reading the response only after sending all the necessary data. The code in the example below will be greatly simplified, and the implementation of some methods will be omitted:
 
 {% code %}
 

@@ -1,15 +1,15 @@
 # HTTP — Serving static content
 
-`Static` HTTP middleware serving static content using RoadRunner on the main HTTP plugin endpoint. Using this middleware
+The `static` HTTP middleware serves static content using RoadRunner on the main HTTP plugin endpoint. Using this middleware
 can slow down the overall performance by up to `~10%`, because RoadRunner has to check the path for each file request.
 
 {% hint style="info" %}
-If there is no such file to serve, RR will redirect the request back to the PHP worker.
+If there is no file to serve, RR will redirect the request back to the PHP worker.
 {% endhint %}
 
-## Enable HTTP Middleware
+## Enable HTTP middleware
 
-To enable static content serving use the configuration inside the http section:
+To enable static content serving, use the configuration inside the HTTP section:
 
 {% code title=".rr.yaml" %}
 
@@ -19,7 +19,7 @@ version: "3"
 http:
   # host and port separated by semicolon
   address: 127.0.0.1:44933
-  middleware: [ "static" ] # <-- Add static to the list of the middleware
+  middleware: [ "static" ] # Add static to the list of middleware
   static:
     dir: "."
     forbid: [ "" ]
@@ -38,12 +38,12 @@ Where:
 
 1. `dir`: path to the directory.
 2. `forbid`: file extensions that should not be served.
-3. `allow`: extensions that should be served (empty - serve all except forbidden). If extension is present in both (allow and forbidden) hashmaps - that is treated as we should forbid file extension.
+3. `allow`: extensions that should be served (empty = serve all except forbidden). If an extension is present in both lists (allow and forbid), it is treated as forbidden.
 4. `calculate_etag`: enable etag calculation for the static file.
-5. `weak`: use a weak generator (/W), it uses only filename to generate a CRC32 sum. If false - all file content used to generate CRC32 sum.
+5. `weak`: use a weak generator (/W); it uses only the filename to generate a CRC32 sum. If false, the entire file content is used to generate the CRC32 sum.
 6. `request/response`: custom headers for the static files.
 
-To combine static content with other middleware, use the following sequence (static is always last in the line, then headers and gzip):
+To combine static content with other middleware, use the following sequence (static last, then headers and gzip):
 
 {% code title=".rr.yaml" %}
 
@@ -80,10 +80,10 @@ http:
 
 ## Fileserver plugin
 
-Fileserver plugin serves the static files. It works similar to the `static` HTTP middleware and has extended functionality.
+The Fileserver plugin serves static files. It works similarly to the `static` HTTP middleware and has extended functionality.
 Static HTTP middleware slows down request processing by `~10%` because RR has to check each request for the
 corresponding file.
-The file server plugin uses a different port and only serves static files.
+The file server plugin uses a different port and serves only static files.
 
 ## File server configuration
 

@@ -5,7 +5,7 @@ make changes to your codebase.
 
 ## Manual restarting
 
-One of the way reloading server is using console command:
+One way to reload the server is using the console command:
 
 {% code %}
 
@@ -37,11 +37,10 @@ rpc:
 You must also forward/expose port `6001` in your Docker container to be able to use this feature.
 {% endhint %}
 
-Now when you run the command, RoadRunner client sends RPC request to the running server.
+Now when you run the command, the RoadRunner client sends an RPC request to the running server.
 
 {% hint style="warning" %}
-Pay attention to the RPC host and port which uses RoadRunner client specified in the `.rr.yaml` should be the same as
-the RPC host and port which uses RoadRunner server. By default, client uses `127.0.0.1:6001`.
+Ensure the RPC host and port used by the RoadRunner client (in `.rr.yaml`) match those used by the RoadRunner server. By default, the client uses `127.0.0.1:6001`.
 {% endhint %}
 
 ## Debug Mode
@@ -51,7 +50,7 @@ of a project. To address this issue, RoadRunner provides a debug mode that autom
 handled request, allowing developers to make changes to their codebase without having to manually reload the server each
 time.
 
-To enable debug mode, you can set the `pool.debug` option to `true` in desired plugin section that has workers pool:
+To enable debug mode, set the `pool.debug` option to `true` in the desired plugin section that has a worker pool:
 
 {% code title=".rr.yaml" %}
 
@@ -64,7 +63,7 @@ http:
 
 {% endcode %}
 
-Or if you have only `debug` option in the `pool` section you can use short syntax:
+Or, if you have only the `debug` option in the `pool` section, you can use the short syntax:
 
 {% code title=".rr.yaml" %}
 
@@ -80,14 +79,12 @@ Every plugin in RoadRunner that creates workers has a `pool` section in which yo
 {% endhint %}
 
 {% hint style="warning" %}
-When using the `pool.debug` option in RoadRunner, it is important to note that settings in `pool` section would work
+When using the `pool.debug` option in RoadRunner, it is important to note that settings in the `pool` section will work
 differently. All options will be ignored (`supervisor`, `max_jobs`, `num_workers`, etc.). This is because, in debug
 mode, RoadRunner does not create a worker at startup. Instead, it waits for requests to come in and creates workers
 accordingly. After the response, RoadRunner stops and removes the worker.
-When you send 2-3-n parallel requests to RoadRunner, it creates 2-3-n workers to handle those requests simultaneously.
-The number of workers depends on the number of requests you send. Similarly, when you use the Jobs plugin and the Jobs
-consumers, every message consumed creates a worker to handle that message. The number of workers is based on the
-number of messages consumed.
+When you send multiple parallel requests to RoadRunner, it creates the same number of workers to handle those requests simultaneously.
+Similarly, when you use the Jobs plugin and the Jobs consumers, every consumed message creates a worker to handle that message. The number of workers is based on the number of messages consumed.
 
 This enables you to make changes to your codebase and reload it automatically.
 {% endhint %}
@@ -96,7 +93,7 @@ This enables you to make changes to your codebase and reload it automatically.
 ## RoadRunner-Temporal Debug Mode
 
 {% hint style="warning" %}
-Note, that in the Temporal plugin, `pool` is actually called `activities`. All other `pool` options are the same. For example, `pool.num_workers` is `activities.num_workers`.
+Note that in the Temporal plugin, `pool` is actually called `activities`. All other `pool` options are the same. For example, `pool.num_workers` is `activities.num_workers`.
 {% endhint %}
 
 ## Stop Command

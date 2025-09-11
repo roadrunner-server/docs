@@ -1,11 +1,11 @@
 # HTTP — X-Sendfile middleware
 
-The `Send` HTTP middleware and the `X-Sendfile` HTTP response headers are used to stream large files using the RoadRunner.
-While the file is being streamed with the help of the RoadRunner, the PHP worker may be accepting the next request.
+The `Send` HTTP middleware and the `X-Sendfile` HTTP response header are used to stream large files using RoadRunner.
+While the file is being streamed with the help of RoadRunner, the PHP worker may accept the next request.
 
 Original issue: [link](https://github.com/roadrunner-server/roadrunner-plugins/issues/9)
-The middleware reads the file in 10MB chunks. For example, for the 5Gb file, only 10MB of RSS is used. If the file
-is smaller than 10MB, the middleware adjusts the buffer to fit the file size.
+The middleware reads the file in 10 MB chunks. For example, for a 5 GB file, only 10 MB of RSS memory is used. If the file
+is smaller than 10 MB, the middleware adjusts the buffer to fit the file size.
 
 ## Similar approaches
 
