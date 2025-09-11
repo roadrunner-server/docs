@@ -1,11 +1,11 @@
 # X-Sendremotefile middleware [Under Development]
 
-The `Sendremotefile` HTTP middleware and the `X-Sendremotefile` HTTP response headers are used to stream large files using the RoadRunner.
-Unlike [X-Sendfile middleware](./../http/sendfile.md) `Sendremotefile` allows passing a URL as header value.
-While the file is being streamed with the help of the RoadRunner, the PHP worker may be accepting the next request.
+The `Sendremotefile` HTTP middleware and the `X-Sendremotefile` HTTP response header are used to stream large files using RoadRunner.
+Unlike the [X-Sendfile middleware](./../http/sendfile.md), `Sendremotefile` allows passing a URL as a header value.
+While the file is being streamed with the help of RoadRunner, the PHP worker may accept the next request.
 
-The middleware reads the file in 10MB chunks. For example, for the 5Gb file, only 10MB of RSS is used. If the file
-is smaller than 10MB, the middleware adjusts the buffer to fit the file size.
+The middleware reads the file in 10 MB chunks. For example, for a 5 GB file, only 10 MB of RSS memory is used. If the file
+is smaller than 10 MB, the middleware adjusts the buffer to fit the file size.
 
 ## Configuration
 

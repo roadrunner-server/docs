@@ -1,10 +1,10 @@
-# Workers pool
+# Worker pool
 
-RoadRunner uses a worker pool to manage the PHP workers (PHP CLI processes). Internally, the worker pool consists of a Workers Watcher, which is used to control the workers—releasing, allocating, preventing zombie processes, resetting, destroying, and an internal stack responsible for manipulating (popping and pushing) already allocated workers.
+RoadRunner uses a worker pool to manage the PHP workers (PHP CLI processes). Internally, the worker pool consists of a worker watcher used to control the workers—releasing, allocating, preventing zombie processes, resetting, destroying—and an internal stack responsible for manipulating (popping and pushing) already allocated workers.
 
 The worker pool is not used in every RoadRunner plugin but only in the `http`, `gRPC`, `tcp`, `roadrunner-temporal`, `jobs`, and `centrifuge` plugins.
 
-Additionally, the worker pool contains an internal `supervisor` to control the execution TTL of the workers, overall TTL, and limit execution time.
+Additionally, the worker pool contains an internal `supervisor` to control the execution TTL of the workers, overall TTL, and execution time limits.
 
 ## Workers pool configuration:
 
@@ -13,7 +13,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
 ```yaml
   # Workers pool settings.
   pool:
-    # Debug mode for the pool. In this mode, pool will not pre-allocate the worker. Worker (only 1, num_workers ignored) will be allocated right after the request arrived.
+    # Debug mode for the pool. In this mode, the pool will not pre-allocate the worker. A worker (only 1; num_workers ignored) will be allocated right after a request arrives.
     #
     # Default: false
     debug: false
@@ -33,7 +33,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     # Default: 0
     max_jobs: 0
 
-    # [2023.3.10] 
+    # [2023.3.10]
     # Maximum size of the internal requests queue. After reaching the limit, all additional requests would be rejected with error.
     #
     # Default: 0 (no limit)
@@ -44,7 +44,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     # Default: 60s
     allocate_timeout: 60s
 
-    # Timeout for the reset timeout. Zero means 60s.
+    # Timeout for the reset operation. Zero means 60s.
     #
     # Default: 60s
     reset_timeout: 60s
@@ -67,7 +67,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
         spawn_rate: 10
         idle_timeout: 10s
 
-    # Supervisor is used to control http workers (previous name was "limit", video: https://www.youtube.com/watch?v=NdrlZhyFqyQ).
+    # Supervisor is used to control HTTP workers (previous name was "limit", video: https://www.youtube.com/watch?v=NdrlZhyFqyQ).
     # "Soft" limits will not interrupt current request processing. "Hard"
     # limit on the contrary - interrupts the execution of the request.
     supervisor:
@@ -76,12 +76,12 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
       # Default: 1s
       watch_tick: 1s
 
-      # How long worker can live (soft limit). Zero means no limit.
+      # How long a worker can live (soft limit). Zero means no limit.
       #
       # Default: 0s
       ttl: 0s
 
-      # How long worker can spend in IDLE mode after first using (soft limit). Zero means no limit.
+      # How long a worker can spend in IDLE mode after first use (soft limit). Zero means no limit.
       #
       # Default: 0s
       idle_ttl: 10s
@@ -114,5 +114,5 @@ If you need to control the worker's memory, use `supervisor.max_worker_memory` o
 {% endhint %}
 
 {% hint style="info" %}
-Use `pool.debug = true` locally, for the development purposes, [additional info](developer.md)
+Use `pool.debug = true` locally for development purposes. See [additional info](developer.md).
 {% endhint %}

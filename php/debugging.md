@@ -1,19 +1,19 @@
 # Debugging
 
-You can use RoadRunner scripts with xDebug extension. In order to enable configure your IDE to accept remote connections.
+You can use RoadRunner with the Xdebug extension. To enable it, configure your IDE to accept remote connections.
 
 {% hint style="info" %}
 If you run multiple PHP processes you have to extend the maximum number of allowed connections to the number of
 active workers, otherwise some calls would not be caught on your breakpoints.
 {% endhint %}
 
-## XDebug for RoadRunner installed on your system
+## Xdebug for RoadRunner installed on your system
 
 ![xdebug](https://user-images.githubusercontent.com/796136/46493729-c767b400-c819-11e8-9110-505a256994b0.png)
 
-To activate xDebug make sure to set the `xdebug.mode=debug` in your `php.ini`.
+To activate Xdebug, set `xdebug.mode=debug` in your `php.ini`.
 
-To enable xDebug in your application make sure to set ENV variable `XDEBUG_SESSION`:
+To enable Xdebug in your application, set the environment variable `XDEBUG_SESSION`:
 
 {% code title=".rr.yaml" %}
 
@@ -35,7 +35,7 @@ http:
 
 {% endcode %}
 
-Please, keep in mind this guide: [xdebug3](https://xdebug.org/docs/upgrade_guide).  
+Please keep in mind this guide: [xdebug3](https://xdebug.org/docs/upgrade_guide).
 
 You should be able to use breakpoints and view state at this point.
 
@@ -52,7 +52,7 @@ php -dvariables_order=EGPCS artisan octane:start --max-requests=250 --server=roa
 
 {% endcode %}
 
-## XDebug for RoadRunner installed on Docker
+## Xdebug for RoadRunner in Docker
 
 First, create a `docker-compose.yml` file in your project root, or copy the `environment` and `extra_hosts` sections into your existing `docker-compose.yml`:
 
@@ -114,7 +114,7 @@ metrics:
 
 {% endcode %}
 
-Next create a `Dockerfile` file in your project root or copy the following content:
+Next, create a `Dockerfile` in your project root or copy the following content:
 
 {% code title="Dockerfile" %}
 
@@ -154,9 +154,9 @@ USER app
 
 {% endcode %}
 
-Important: make sure to change the `XDEBUG_VERSION` to the version you want to use, see xdebug.org, and note that the example container is run as the `app` user.
+Important: Make sure to change `XDEBUG_VERSION` to the version you want to use (see xdebug.org). Note that the example container runs as the `app` user.
 
-Next create a `xdebug.ini` file in your project root or copy the following content:
+Next, create an `xdebug.ini` file in your project root or copy the following content:
 
 {% code title="xdebug.ini" %}
 
@@ -172,15 +172,15 @@ xdebug.log_level=0
 
 {% endcode %}
 
-Next, you need to change the settings in your IDE so it can accept remote connections. For example, in PhpStorm you can do it by going to `PHP > Debug` and set the following options:
+Next, change the settings in your IDE so it can accept remote connections. For example, in PhpStorm go to `PHP > Debug` and set the following options:
 
 ![PhpStorm xDebug settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-42-36.png)
 
-Next, you need to create a *Server* entry in your IDE. For example, in PhpStorm you can do it by going to `PHP > Servers` and set the following options:
+Next, create a Server entry in your IDE. For example, in PhpStorm go to `PHP > Servers` and set the following options:
 
 ![PhpStorm xDebug server settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-42-26.png)
 
-Also, please check the `Docker` settings in your IDE. For example, in PhpStorm you can do it by going to `Build, Execution, Deployment > Docker` and set the following options:
+Also check the Docker settings in your IDE. For example, in PhpStorm go to `Build, Execution, Deployment > Docker` and set the following options:
 
 ![PhpStorm Docker settings](https://raw.githubusercontent.com/lobanovkirill/roadrunner-docs/442d06de35c41f30a5249bb087204cf60beec971/Screenshot%20from%202025-06-29%2021-43-03.png)
 
@@ -189,13 +189,13 @@ Also, please check the `Docker` settings in your IDE. For example, in PhpStorm y
 
 ### Prerequisites
 
-1. XDebug 3 installed and properly configured.
+1. Xdebug 3 installed and properly configured.
 2. Number of jobs workers set to `1` with `jobs.pool.num_workers` configuration option in `.rr.yaml`.
 
 ### Debug process
 
-If you have any active XDebug listener while starting RoadRunner with XDebug enabled — disable it. This will prevent
-false-positive debug session.
+If you have any active Xdebug listener while starting RoadRunner with Xdebug enabled, disable it. This will prevent
+a false-positive debug session.
 
 Once RoadRunner starts all workers, enable XDebug listener and reset jobs workers with:
 
@@ -203,12 +203,12 @@ Once RoadRunner starts all workers, enable XDebug listener and reset jobs worker
 ./rr reset jobs
 ```
 
-Now you should see debug session started:
+Now you should see the debug session started:
 
-1. Step over to some place where job task is being resolved with `$consumer->waitTask()`.
-2. As soon as you reach it, debugger stops but session will still be active.
-3. Trigger task consumption with either an HTTP request or a console command (depending on how your application works).
-and continue to debug job worker as usual within active session started before.
-4. You can continue to debug jobs as long as debug session active.
+1. Step over to where the job task is being resolved with `$consumer->waitTask()`.
+2. As soon as you reach it, the debugger stops but the session remains active.
+3. Trigger task consumption with either an HTTP request or a console command (depending on how your application works),
+and continue debugging the job worker within the active session.
+4. You can continue debugging jobs as long as the debug session is active.
 
-If connections session broken or timed out, you can repeat instruction above to reestablish connection by resetting jobs workers.
+If the connection/session is broken or times out, you can repeat the instructions above to reestablish the connection by resetting job workers.

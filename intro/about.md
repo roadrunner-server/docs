@@ -4,12 +4,12 @@ RoadRunner is a high-performance PHP application server and process manager, des
 its utilization of plugins. Developed in Go, RoadRunner operates by running your application in the form of workers,
 where each worker represents an individual process, ensuring isolation and independence in their operation.
 
-It is designed to be like a central processor for PHP applications, helping developers create faster, more
-responsive and robust applications with ease.
+It is designed to be a central processor for PHP applications, helping developers create faster, more
+responsive, and robust applications with ease.
 
 ![image](https://user-images.githubusercontent.com/773481/235296092-2f82643b-7822-4649-952a-0529efa3af88.png)
 
-## How it works?
+## How it works
 
 RoadRunner efficiently manages a collection of PHP processes, referred to as workers, and routes incoming requests from
 various plugins to these workers. This communication is done through
@@ -31,10 +31,10 @@ The following plugins are designed to run workers and handle specific types of r
 - [**Temporal**](../workflow/temporal.md) - Manages workflows and activities, allowing for the efficient handling of
   various tasks and processes.
 
-By utilizing these plugins, RoadRunner ensures that your PHP application can effectively handle a wide range of requests
+By utilizing these plugins, RoadRunner ensures that your PHP application can handle a wide range of requests
 and communication protocols, delivering optimal performance and flexibility.
 
-## (g)RPC Interface
+## (g)RPC interface
 
 RoadRunner also provides a customized gRPC interface for communication between the application and the server, which plays a
 significant role in enhancing the interaction between the two components. This interface is particularly useful when
@@ -66,7 +66,7 @@ even develop your own [custom RoadRunner plugin](../customization/plugin.md) to 
 offers improved efficiency and performance. By leveraging the strengths of both PHP and Go, you can create a more robust
 and high-performance solution for your applications.
 
-It is worth mentioning the following properties of the PHP workers:
+The following properties of PHP workers are worth mentioning:
 
 - **Isolation:** Each worker process operates independently, preventing interference with other worker processes and
   improving stability.

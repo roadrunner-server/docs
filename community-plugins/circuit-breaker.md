@@ -1,6 +1,6 @@
 # Circuit Breaker [Under Development]
 
-Circuit breaker HTTP middleware used to detect failures and prevent a failure from constantly recurring.
+Circuit breaker HTTP middleware is used to detect failures and prevent failures from constantly recurring.
 This middleware is still under development.
 
 ## Configuration

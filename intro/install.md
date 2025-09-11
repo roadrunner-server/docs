@@ -21,7 +21,7 @@ More information about available tags can be
 found [here](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner).
 {% endhint %}
 
-**Here is an example of usage**
+**Here is an example of usage:**
 
 ```dockerfile
 FROM ghcr.io/roadrunner-server/roadrunner:2024.X.X AS roadrunner
@@ -36,7 +36,7 @@ CMD rr serve -c .rr.yaml
 ```
 
 {% hint style="warning" %}
-Don't forget to replace `2024.X.X` with a desired version of RoadRunner.
+Don't forget to replace `2024.X.X` with the desired version of RoadRunner.
 {% endhint %}
 
 ## Composer
@@ -50,18 +50,18 @@ latest version of RoadRunner to your project's root directory.
 composer require spiral/roadrunner-cli
 ```
 
-Run the following command to download the latest version of RoadRunner
+Run the following command to download the latest version of RoadRunner:
 
 ```terminal
 ./vendor/bin/rr get-binary
 ```
 
-Server binary will be available at the root of your project.
+The server binary will be available at the root of your project.
 
 {% hint style="warning" %}
-PHP's extensions `php-curl` and `php-zip` are required to download RoadRunner automatically.
-PHP's extensions `php-sockets` need to be installed to run roadrunner.
-Check with `php --modules` your installed extensions.
+The `php-curl` and `php-zip` extensions are required to download RoadRunner automatically.
+The `php-sockets` extension needs to be installed to run RoadRunner.
+Check your installed extensions with `php --modules`.
 {% endhint %}
 
 ## Debian Package
@@ -69,7 +69,7 @@ Check with `php --modules` your installed extensions.
 For Debian-based operating systems such as **Ubuntu**, **Mint**, and **MX**, you can download the `.deb` package from
 the RoadRunner GitHub releases page and install it using dpkg.
 
-**Just run the following commands**
+**Just run the following commands:**
 
 ```bash
 wget https://github.com/roadrunner-server/roadrunner/releases/download/v2024.X.X/roadrunner-2024.X.X-linux-amd64.deb
@@ -77,7 +77,7 @@ sudo dpkg -i roadrunner-2024.X.X-linux-amd64.deb
 ```
 
 {% hint style="warning" %}
-Don't forget to replace `2024.X.X` with a desired version of RoadRunner.
+Don't forget to replace `2024.X.X` with the desired version of RoadRunner.
 {% endhint %}
 
 ## macOS package using [Homebrew](https://brew.sh/):
@@ -92,9 +92,9 @@ choco install roadrunner
 
 ## CURL
 
-You can also install RoadRunner using curl and the download-latest.sh script from the RoadRunner GitHub repository.
+You can also install RoadRunner using curl and the `download-latest.sh` script from the RoadRunner GitHub repository.
 
-**Just run the following commands**
+**Just run the following commands:**
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf  https://raw.githubusercontent.com/roadrunner-server/roadrunner/master/download-latest.sh | sh

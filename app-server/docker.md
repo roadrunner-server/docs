@@ -1,6 +1,6 @@
 # Docker Images
 
-Following Docker images are available:
+The following Docker images are available:
 
 | Description                              | Links                                                                             | Status                                                                                                                                                                                                                   |
 |------------------------------------------|-----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -34,7 +34,7 @@ WORKDIR /app
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Copy composer files from app directory to install dependencies
+# Copy composer files from the app directory to install dependencies
 COPY ./app/composer.* .
 
 RUN composer install --optimize-autoloader --no-dev
@@ -42,7 +42,7 @@ RUN composer install --optimize-autoloader --no-dev
 # Copy application files
 COPY ./app .
 
-# Run RoadRunner server
+# Run the RoadRunner server
 CMD ./rr serve -c .rr.yaml
 ```
 

@@ -28,7 +28,7 @@ the [Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html#S
 This allows you to easily customize the configuration based on your specific environment without changing the
 configuration file itself.
 
-Here's an example of a `docker-compose.yaml` file that redefines the `HTTP_PORT` for an RR service:
+Here is an example of a `docker-compose.yaml` file that redefines the `HTTP_PORT` for an RR service:
 
 {% code title="docker-compose.yaml" %}
 
@@ -44,12 +44,12 @@ services:
 
 {% endcode %}
 
-## Setting Env Variables
+## Setting environment variables
 
 You can set environment variables for PHP workers by defining them in the `server.env` section of the RoadRunner
 configuration file. These variables will be applied to all workers when they are started by the server.
 
-**Here's an example:**
+**Here is an example:**
 
 {% code title=".rr.yaml" %}
 
@@ -83,20 +83,20 @@ To read environment variables from an `.env` file, you can use the `--dotenv` CL
 
 {% endcode %}
 
-## Default Env variables in PHP Workers
+## Default environment variables in PHP workers
 
 RoadRunner comes with a set of default environment (ENV) values that facilitate proper communication between the PHP
 process and the server. These values are automatically available to workers and can be used to configure and manage
 various aspects of the worker's operation.
 
-**Here's a list of the default ENV values provided by RoadRunner:**
+**Here is a list of the default environment variables provided by RoadRunner:**
 
 | Key            | Description                                                                                                  |
 |----------------|--------------------------------------------------------------------------------------------------------------|
-| **RR_MODE**    | Identifies what mode worker should work with (`http`, `temporal`, `grpc`, `jobs`, `tcp`, `centrifuge`, etc.) |
+| **RR_MODE**    | Identifies the mode the worker should run in (`http`, `temporal`, `grpc`, `jobs`, `tcp`, `centrifuge`, etc.) |
 | **RR_RPC**     | Contains RPC connection address when enabled.                                                                |
 | **RR_RELAY**   | `pipes` or `tcp://...`, depends on server relay configuration.                                               |
-| **RR_VERSION** | RoadRunner version started the PHP worker (minimum `2023.1.0`)                                               |
+| **RR_VERSION** | RoadRunner version that started the PHP worker (minimum `2023.1.0`)                                          |
 
 These default environment values can be used within your PHP worker to configure various settings and adapt the worker's
 behavior according to the specific requirements of your application.

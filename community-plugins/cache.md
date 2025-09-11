@@ -1,12 +1,12 @@
 # HTTP — Cache (RFC7234) middleware
 
-Cache middleware implements http-caching RFC 7234. It's based on the [Souin](https://github.com/darkweak/souin) HTTP
+Cache middleware implements HTTP caching (RFC 7234). It's based on the [Souin](https://github.com/darkweak/souin) HTTP
 cache library.
 
 Have a look at the [Souin documentation](https://github.com/darkweak/souin) if you need more information.
 
 {% hint style="warning" %}
-This is a third-party plugin and isn't included by default. See the `Building RoadRunner with Cache` section for more
+This is a third-party plugin and isn't included by default. See the "Building RoadRunner with Cache" section for more
 information.
 {% endhint %}
 
@@ -15,15 +15,15 @@ information.
 * Sets [the `Cache-Status` HTTP Response Header](https://httpwg.org/http-extensions/draft-ietf-httpbis-cache-header.html)
 * [RFC 7234](https://httpwg.org/specs/rfc7234.html) compliant HTTP Cache.
 * REST API to purge the cache and list stored resources.
-* Builtin support for distributed cache.
+* Built-in support for distributed cache.
 * Tag-based invalidation.
 * Partial GraphQL caching.
 * Configure multiple HTTP verbs to cache (especially for GraphQL).
-* Builtin timeout.
+* Built-in timeout.
 
 ## Building RoadRunner with Cache
 
-As it's based on the [Souin](https://github.com/darkweak/souin) HTTP cache library we can use directly the roadrunner
+As it's based on the [Souin](https://github.com/darkweak/souin) HTTP cache library, we can directly use the RoadRunner
 middleware implementation. We have to set the `folder` property because this middleware is located in a subdirectory.
 
 {% code title="configuration.toml" %}
@@ -45,7 +45,7 @@ mode = "development"
 
 {% endcode %}
 
-**Available storages**:  
+**Available storages**:
 In-memory/Filesystem
 
 * `nutsdb`
@@ -66,7 +66,7 @@ You can set each Souin configuration key under the `http.cache` key. There is a 
 
 ```yaml
 http:
-  # Other http sub keys
+  # Other HTTP subkeys
   cache:
     api:
       basepath: /httpcache_api

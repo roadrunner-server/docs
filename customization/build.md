@@ -15,7 +15,7 @@ to determine which plugins and repositories are required for building a RoadRunn
 ## Configuration
 
 The configuration file is written in TOML format and contains a list of repositories to add to the build. For each
-repository, you can specify the owner and version. You can also add private repositories from GitHub or Gitlab, and
+repository, you can specify the owner and version. You can also add private repositories from GitHub or GitLab and
 authenticate with access tokens.
 
 {% hint style="info" %}
@@ -74,7 +74,7 @@ otel = { ref = "v5.0.1", owner = "roadrunner-server", repository = "otel" }
 # SERVER
 server = { ref = "v5.0.2", owner = "roadrunner-server", repository = "server" }
 
-# SERVICE aka lightweit systemd
+# SERVICE aka lightweight systemd
 service = { ref = "v5.0.2", owner = "roadrunner-server", repository = "service" }
 
 # JOBS
@@ -153,7 +153,7 @@ Here is the list of environment variables from the example above:
 | `${TIME}`     | Build time (will be shown with `./rr --version`).                          |
 
 {% hint style="info" %}
-Keep in mind to set the latest stable version in the `${VERSION}` env variable. You may also use `${TIME}` env
+Keep in mind to set the latest stable version in the `${VERSION}` environment variable. You may also use the `${TIME}` environment
 variable to write the build time in the output binary.
 {% endhint %}
 
@@ -259,7 +259,7 @@ CMD ["/usr/bin/rr"]
 You can use the `go install` command to download Velox.
 
 {% hint style="warning" %}
-To download Velox and build an application server you need [Golang 1.22+](https://golang.org/dl/) on you local server.
+To download Velox and build an application server, you need [Golang 1.22+](https://golang.org/dl/) on your local machine.
 {% endhint %}
 
 {% code title="go install" %}
@@ -289,11 +289,11 @@ vx build -c velox.toml -o ~/Downloads
 
 {% tab title="Downloading Binary" %}
 
-To build the application server, you need to download Velox binary
+To build the application server, you need to download the Velox binary from
 the [GitHub releases page](https://github.com/roadrunner-server/velox/releases) and unpack it to your `PATH`.
 
 {% hint style="warning" %}
-To build an application server you need [Golang 1.22+](https://golang.org/dl/) on you local server.
+To build an application server, you need [Golang 1.22+](https://golang.org/dl/) on your local machine.
 {% endhint %}
 
 After the binary has been downloaded, you can build the application server:
@@ -334,6 +334,6 @@ vx build -c velox.toml -o ~/Downloads
 - [souin, third-party](https://github.com/darkweak/souin/tree/master/plugins/roadrunner)
 - [reload, deprecated](https://github.com/roadrunner-server/reload)
 
-## Known limitation
+## Known limitations
 
-- At the moment only GitHub and GitLab repositories are supported.
+- At the moment, only GitHub and GitLab repositories are supported.

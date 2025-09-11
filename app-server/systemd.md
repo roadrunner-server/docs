@@ -1,8 +1,8 @@
-# Running server as systemd unit
+# Running the server as a systemd unit
 
-## Configuring unit
+## Configuring the unit
 
-Here you can find an example of systemd unit file that can be used to run RoadRunner as a daemon on
+Here you can find an example of a systemd unit file that can be used to run RoadRunner as a daemon on
 a server:
 
 {% code title="rr.service" %}
@@ -67,12 +67,12 @@ systemctl start rr.service
 
 This will start RoadRunner as a daemon on the server.
 
-For more information about systemd unit files, the user can refer to the
-following [link](https://wiki.archlinux.org/index.php/systemd#Writing_unit_files).
+For more information about systemd unit files, you can refer to the following
+[link](https://wiki.archlinux.org/index.php/systemd#Writing_unit_files).
 
 ## Status and logs
 
-Make sure that the systemd service has started successfully, use the command:
+To ensure the systemd service has started successfully, use the command:
 
 {% code %}
 
@@ -105,7 +105,7 @@ journalctl -f -u rr.service
 
 {% endcode %}
 
-Example output with `info` [level logs](../lab/logger.md#level):
+Example output with `info`-level logs (see [levels](../lab/logger.md#level)):
 
 ```bash
 Mar 12 20:12:53 server systemd[1]: Starting PHP application server...
@@ -116,9 +116,9 @@ Mar 12 20:12:55 server systemd[1]: Started PHP application server.
 
 ## `sd_notify` protocol
 
-Roadrunner supports [sd_notify](https://man.archlinux.org/man/sd_notify.3.en) protocol. You can use it to notify systemd about the readiness of your application. Don't forget to add `Type=notify` directive to the `Service` section, Roadrunner will automatically detect systemd and send the notification. The only one option which might be
-configured is watchdog timeout. By default, it's turned off. You can enable it by setting the following option in your
-`.rr.yaml` config:
+RoadRunner supports the [sd_notify](https://man.archlinux.org/man/sd_notify.3.en) protocol. You can use it to notify systemd about the readiness of your application. Don't forget to add the `Type=notify` directive to the `Service` section; RoadRunner will automatically detect systemd and send the notification. The only option that can be
+configured is the watchdog timeout. By default, it is turned off. You can enable it by setting the following option in your
+`.rr.yaml` configuration file:
 
 {% code title=".rr.yaml" %}
 

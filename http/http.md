@@ -16,7 +16,7 @@ http:
   # This option is required.
   address: 127.0.0.1:8080
 
-  # override http error code for the internal RR errors
+  # Override HTTP error code for internal RR errors
   #
   # Default: 500
   internal_error_code: 505
@@ -26,7 +26,7 @@ http:
   # Default: false
   access_logs: false
 
-  # Maximal incoming request size in megabytes. Zero means no limit.
+  # Maximum incoming request size in megabytes. Zero means no limit.
   #
   # Default: 0
   max_request_size: 256
@@ -36,7 +36,7 @@ http:
   # Optional, default: false
   raw_body: false
 
-  # Middlewares for the http plugin, order is important. Allowed values is: "headers", "gzip", "static", "sendfile",  [SINCE 2.6] -> "new_relic", [SINCE 2.6] -> "http_metrics", [SINCE 2.7] -> "cache"
+  # Middleware for the HTTP plugin; order is important. Allowed values are: "headers", "gzip", "static", "sendfile", [SINCE 2.6] -> "new_relic", [SINCE 2.6] -> "http_metrics", [SINCE 2.7] -> "cache"
   #
   # Default value: []
   middleware: [ "headers", "gzip" ]
@@ -131,12 +131,12 @@ http:
     # Default: empty
     forbid: [ "" ]
 
-    # Etag calculation (base on the body CRC32)
+    # ETag calculation (based on the body CRC32)
     #
     # Default: false
     calculate_etag: false
 
-    # Weak etag calculation (based only on the content-length CRC32)
+    # Weak ETag calculation (based only on the content-length CRC32)
     #
     # Default: false
     weak: false
@@ -160,7 +160,7 @@ http:
 
   # Workers pool settings.
   pool:
-    # Debug mode for the pool. In this mode, pool will not pre-allocate the worker. Worker (only 1, num_workers ignored) will be allocated right after the request arrived.
+    # Debug mode for the pool. In this mode, the pool will not pre-allocate the worker. A worker (only 1; num_workers ignored) will be allocated right after a request arrives.
     #
     # Default: false
     debug: false
@@ -180,7 +180,7 @@ http:
     # Default: 0
     max_jobs: 0
 
-    # [2023.3.10] 
+    # [2023.3.10]
     # Maximum size of the internal requests queue. After reaching the limit, all additional requests would be rejected with error.
     #
     # Default: 0 (no limit)
@@ -191,7 +191,7 @@ http:
     # Default: 60s
     allocate_timeout: 60s
 
-    # Timeout for the reset timeout. Zero means 60s.
+    # Timeout for the reset operation. Zero means 60s.
     #
     # Default: 60s
     reset_timeout: 60s
@@ -201,7 +201,7 @@ http:
     # Default: 60s
     destroy_timeout: 60s
 
-    # Supervisor is used to control http workers (previous name was "limit", video: https://www.youtube.com/watch?v=NdrlZhyFqyQ).
+    # Supervisor is used to control HTTP workers (previous name was "limit", video: https://www.youtube.com/watch?v=NdrlZhyFqyQ).
     # "Soft" limits will not interrupt current request processing. "Hard"
     # limit on the contrary - interrupts the execution of the request.
     supervisor:
@@ -230,7 +230,7 @@ http:
       # Default: 0s
       exec_ttl: 60s
 
-  # SSL (Secure Sockets Layer) (TLS) settings.
+  # SSL/TLS settings.
   ssl:
     # Host and port to listen on (e.g.: `127.0.0.1:443`).
     #
@@ -249,7 +249,7 @@ http:
       # Used to create LE account. Mandatory. Error on empty.
       email: you-email-here@email
 
-      # Alternate port for the http challenge. Challenge traffic should be redirected to this port if overridden.
+      # Alternate port for the HTTP challenge. Challenge traffic should be redirected to this port if overridden.
       #
       # Optional. Default: 80
       alt_http_port: 80
@@ -265,7 +265,7 @@ http:
       # Optional. Default: http-01. Possible values: http-01, tlsalpn-01
       challenge_type: http-01
 
-      # Use production or staging endpoint. NOTE, try to use staging endpoint to make sure, that everything works correctly.
+      # Use production or staging endpoint. NOTE: try to use the staging endpoint to make sure that everything works correctly.
       #
       # Optional, but for production should be set to true. Default: false
       use_production_endpoint: true
@@ -327,7 +327,7 @@ http:
 
 ## HTTPS
 
-You can enable HTTPS support by adding `ssl` section into `http` config.
+You can enable HTTPS support by adding the `ssl` section to the `http` config.
 
 {% code title=".rr.yaml" %}
 
@@ -460,7 +460,7 @@ http:
 
 ## HTTP/2
 
-You can enable HTTP2 support by adding `http2` section into `http` config.
+You can enable HTTP/2 support by adding the `http2` section to the `http` config.
 
 {% code title=".rr.yaml" %}
 
@@ -477,7 +477,7 @@ http:
 
 {% endcode %}
 
-### Upgrade connection from `http1.1` to `h2c` [`v2.10.2`]
+### Upgrade connection from `HTTP/1.1` to `H2C` [`v2.10.2`]
 
 Connection might be upgraded from the `http/1.1`
 to `h2c`: [rfc7540](https://datatracker.ietf.org/doc/html/rfc7540#section-3.4)
@@ -491,7 +491,7 @@ to `h2c`: [rfc7540](https://datatracker.ietf.org/doc/html/rfc7540#section-3.4)
 
 ### HTTP/2 Push Resources
 
-RoadRunner support [HTTP/2 push](https://en.wikipedia.org/wiki/HTTP/2_Server_Push) via virtual headers provided by PHP
+RoadRunner supports [HTTP/2 push](https://en.wikipedia.org/wiki/HTTP/2_Server_Push) via virtual headers provided by the PHP
 response.
 
 {% code title="script.php" %}
@@ -506,7 +506,7 @@ Note that the path of the resource must be related to the public application dir
 beginning.
 
 {% hint style="info" %}
-HTTP2 push only works under HTTPS with `static` service enabled.
+HTTP/2 push only works under HTTPS with the `static` service enabled.
 {% endhint %}
 
 ### H2C
@@ -526,7 +526,7 @@ http:
 
 ## FastCGI
 
-There is FastCGI frontend support inside the HTTP module, you can enable it (disabled by default):
+FastCGI frontend support is available inside the HTTP module; you can enable it (disabled by default):
 
 {% code title=".rr.yaml" %}
 
@@ -543,7 +543,7 @@ http:
 
 ## HTTP/3
 
-HTTP3 support is experimental and might be changed in the future. Docs are available in the [experimental](../experimental/experimental.md) section.
+HTTP/3 support is experimental and might change in the future. Docs are available in the [experimental](../experimental/experimental.md) section.
 
 ## Overriding HTTP default error code
 
@@ -553,18 +553,17 @@ HTTP3 support is experimental and might be changed in the future. Docs are avail
 version: "3"
 
 http:
-  # override http error code for the internal RR errors (default 500)
+  # Override HTTP error code for internal RR errors (default: 500)
   internal_error_code: 505
 ```
 
 {% endcode %}
 
-`http.internal_error_code` code is used for the `SoftJob`, allocation, all kinds of TTL, Network, errors. But for
-example, for the load balancer might be better to use a different code. So, you may override the default one.
+The `http.internal_error_code` is used for `SoftJob`, allocation, TTL, network, and similar errors. For example, a load balancer might require a different code, so you may override the default.
 
 ## Middleware order
 
-Since all middleware are independent, they can remove/update headers set by
+Since all middleware components are independent, they can remove or update headers set by
 the [previous one](https://github.com/roadrunner-server/roadrunner/issues/1501).
 
 **Note that the request (imagine) comes from the right:**
@@ -578,11 +577,11 @@ http:
 
 {% endcode %}
 
-So in this case the request gets into the `sendfile` middleware, then `gzip` and `static`. And vice versa from the
+So in this case, the request gets into the `sendfile` middleware, then `gzip`, and `static`. And vice versa from the
 response.
 
 ## Request queues
 
-RR has an internal queue for requests. The `allocate_timeout` is used to assign a worker to the request.
-If your worker works for 1 minute for example, but `allocate_timeout` is equal to 30 seconds, after this timeout, RR will start rejecting the first request in queue.
-Then +30s for the second, and so on and so forth.
+RR has an internal queue for requests. The `allocate_timeout` is used to assign a worker to a request.
+If your worker runs for 1 minute but `allocate_timeout` is 30 seconds, after this timeout RR will start rejecting the first request in the queue,
+then another 30 seconds for the second, and so on.

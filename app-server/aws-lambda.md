@@ -1,11 +1,11 @@
 # AWS Lambda
 
-RoadRunner can run PHP as AWS Lambda function.
+RoadRunner can run PHP as an AWS Lambda function.
 
 ## PHP Worker
 
-PHP worker does not require any specific configuration to run inside a Lambda function. We can use the default snippet with
-internal counter to demonstrate how workers are being reused:
+The PHP worker does not require any specific configuration to run inside a Lambda function. We can use the default snippet with
+an internal counter to demonstrate how workers are reused:
 
 {% code title="handler.php" %}
 
@@ -42,7 +42,7 @@ while ($req = $psr7->waitRequest()) {
 
 {% endcode %}
 
-Name this file `handler.php` and put it into the root of your project. Make sure to run:
+Name this file `handler.php` and put it in the root of your project. Make sure to run:
 
 {% code %}
 
@@ -56,7 +56,7 @@ composer require spiral/roadrunner-http nyholm/psr7
 
 We can create a simple application to demonstrate how it works:
 
-1. You need three files, `main.go` with `Endure` container:
+1. You need three files: `main.go` with the `Endure` container:
 
 {% code title="main.go" %}
 
@@ -326,7 +326,7 @@ func (p *Plugin) getPld() *payload.Payload {
 
 {% endcode %}
 
-3. Config file, which can be embedded into the binary with [`embed`](https://pkg.go.dev/embed) import:
+3. A config file, which can be embedded into the binary using the [`embed`](https://pkg.go.dev/embed) package:
 
 {% code title=".rr.yaml" %}
 
@@ -349,9 +349,9 @@ endure:
 
 {% endcode %}
 
-Here you can use full advantage of the RoadRunner, you can include any plugin here and configure it with the embedded config (within reasonable limits).
+Here you can take full advantage of RoadRunner: you can include any plugin here and configure it with the embedded config (within reasonable limits).
 
-To build and package your lambda function run:
+To build and package your Lambda function, run:
 
 {% code title="build.sh" %}
 
@@ -362,7 +362,7 @@ zip main.zip * -r
 
 {% endcode %}
 
-You can now upload and invoke your handler using simple string event.
+You can now upload and invoke your handler using a simple string event.
 
 ## Repository with the full example
 
@@ -370,7 +370,7 @@ You can now upload and invoke your handler using simple string event.
 
 ## Notes
 
-There are multiple notes you have to acknowledge:
+There are multiple notes to acknowledge:
 
-- Start with one worker per lambda function to control your memory usage.
-- Make sure to include env variables listed in the code to properly resolve the location of PHP binary and its dependencies.
+- Start with one worker per Lambda function to control your memory usage.
+- Make sure to include the environment variables listed in the code to properly resolve the location of the PHP binary and its dependencies.

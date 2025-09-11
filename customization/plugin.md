@@ -1,21 +1,21 @@
 # Writing Plugins
 
 RoadRunner provides the ability to create custom plugins, event listeners, middlewares, etc., that extend its
-functionality. It uses Endure container to manage dependencies, this approach is similar to the PHP Container
+functionality. It uses the Endure container to manage dependencies. This approach is similar to the PHP container
 implementation with automatic method injection.
 
 **To create a custom plugin, you can follow these steps:**
 
 - Define a struct with a public `Init` method that returns an error value.
 - Implement the `Service` interface in your struct to provide the `Serve` and `Stop` methods.
-- Request dependencies using their respective interfaces and inject them using Endure container.
+- Request dependencies using their respective interfaces and inject them using the Endure container.
 - Register your plugin with RoadRunner by creating a custom version of the `main.go` file and [building it](build.md).
 
 Below you can find more information about the plugin interface, how to define a plugin, and how to access other plugins.
 
 ## Interface
 
-RoadRunner plugins are implemented using the Service interface, which provides the `Serve` and `Stop` methods for
+RoadRunner plugins are implemented using the `Service` interface, which provides the `Serve` and `Stop` methods for
 starting and stopping the plugin. Additionally, plugins can implement other optional interfaces
 like `Named`, `Provider`, `Weighted`, and `Collector`. These interfaces enable plugins to provide dependencies to other
 plugins, define their weight in the plugin's topology, and collect plugins that implement specific interfaces.
@@ -34,7 +34,7 @@ import (
 )
 
 type (
-    // Service interface can be implemented by the plugin to use Start-Stop functionality
+    // Service interface can be implemented by the plugin to use start/stop functionality
     Service interface {
         // Serve starts the plugin
         Serve() chan error
@@ -42,26 +42,26 @@ type (
         Stop(context.Context) error
     }
 
-    // Named -> Name of the service
+    // Named -> name of the service
     Named interface {
-        // Name return user friendly name of the plugin
+        // Name returns a user-friendly name of the plugin
         Name() string
     }
 
     // Provider declares the ability to provide service edges of declared types.
     Provider interface {
-        // Provides function return set of functions which provided dependencies to other plugins
+        // Provides returns a set of functions that provide dependencies to other plugins
         Provides() []*dep.Out
     }
 
-    // Weighted is optional to implement, but when implemented the return value added during the topological sort
+    // Weighted is optional to implement, but when implemented, the return value is used during topological sort
     Weighted interface {
         Weight() uint
     }
 
-    // Collector declares the ability to accept the plugins which match the provided method signature.
+    // Collector declares the ability to accept plugins that match the provided method signature.
     Collector interface {
-        // Collects search for the plugins which implements given interfaces in the args
+        // Collects searches for plugins that implement the given interfaces in the args
         Collects() []*dep.In
     }
 )
@@ -91,11 +91,11 @@ func (s *Plugin) Init() error {
 
 {% endcode %}
 
-## Disabling plugin
+## Disabling a plugin
 
 Sometimes, you may want to disable a plugin at runtime based on certain conditions. For example, if there are no
-configurations for the plugin, or if there is an initialization error, but you still don't want to stop the execution of
-the server. In such cases, you can return the special type of error called `Disabled`, which can be found in
+configurations for the plugin, or if there is an initialization error but you still do not want to stop server execution.
+In such cases, you can return the special type of error called `Disabled`, which can be found in
 the `github.com/roadrunner-server/errors` package. This type of error can only be used in the `Init` function of the
 plugin.
 
@@ -136,7 +136,7 @@ func (s *Plugin) Init(cfg Configurer) error {
 ## Dependencies
 
 You can access other plugins by requesting dependencies in your `Init` method. All dependencies should be represented as
-interfaces, and a plugin implementing this interface should be registered in the RR's container - Endure.
+interfaces, and a plugin implementing this interface should be registered in RR's container, Endure.
 
 {% code title="plugin.go" %}
 
@@ -220,14 +220,14 @@ func (s *Plugin) Init(cfg Configurer, log Logger) error {
         return errors.E(op, errors.Disabled)
     }
 
-    // unmarshall initial configuration
+    // unmarshal initial configuration
     err := cfg.UnmarshalKey(PluginName, &s.cfg)
     if err != nil {
         // Error will stop execution
         return errors.E(op, err)
     }
 
-    // Check the unmarshalled configuration and fill-up the defaults if not provided by the configuration
+    // Check the unmarshaled configuration and fill in defaults if not provided by the configuration
     s.cfg.InitDefaults()
 
     return nil
@@ -247,7 +247,7 @@ type Config struct {
     Address string `mapstructure:"address"`
 }
 
-// InitDefaults .. You can also initialize some defaults values for config keys
+// InitDefaults .. You can also initialize some default values for config keys
 func (cfg *Config) InitDefaults() {
     if cfg.Address == "" {
         cfg.Address = "tcp://127.0.0.1:8088"
@@ -259,7 +259,7 @@ func (cfg *Config) InitDefaults() {
 
 ## Serving
 
-Create `Serve` and `Stop` methods in your structure to let RoadRunner start and stop your service. You may also use a
+Create `Serve` and `Stop` methods in your structure to let RoadRunner start and stop your service. You may also use the
 context from the `Stop` method to let RR force your plugin to stop after a specified timeout in the configuration.
 
 {% code title=".rr.yaml" %}
@@ -316,7 +316,7 @@ The `Serve` method is thread-safe. It runs in a separate goroutine managed by th
 One note is that you should unblock it when calling `Stop` on the container.
 Otherwise, the service will be killed after the timeout (which can be set in Endure).
 
-## Collecting dependencies in runtime
+## Collecting dependencies at runtime
 
 RoadRunner provides a way to collect dependencies at runtime via the `Collects` interface.
 This is very useful for middlewares or extending plugins with additional functionality without changing them.
@@ -342,19 +342,19 @@ type Middleware interface {
 
 {% endcode %}
 
-2. Implement `Collects` endure interface in the plugin where you want to have these dependencies in the runtime.
+2. Implement the `Collects` Endure interface in the plugin where you want to have these dependencies at runtime.
 
 {% code title="middleware.go" %}
 
 ```go
 package custom
 
-// Collects collecting http middlewares
+// Collects HTTP middleware
 func (p *Plugin) Collects() []*dep.In {
     return []*dep.In{
         dep.Fits(func(pp any) {
             mdw := pp.(Middleware)
-            // add the middleware to the list of the middleware
+            // add the middleware to the list
         }, (*Middleware)(nil)),
     }
 }
@@ -399,7 +399,7 @@ type rpc struct {
 
 {% endcode %}
 
-2. Create a method, which you want to expose:
+2. Create a method that you want to expose:
 
 ```go
 package custom

@@ -69,7 +69,7 @@ http:
 {% endcode %}
 
 {% hint style="info" %}
-Read more about configuring HTTP server in the [HTTP Plugin](../http/http.md) section.
+Read more about configuring the HTTP server in the [HTTP Plugin](../http/http.md) section.
 {% endhint %}
 
 The Proxy method involves configuring Nginx to act as a reverse proxy for RoadRunner. Nginx receives client requests and
@@ -106,7 +106,7 @@ server {
 
 ### WebSocket proxy
 
-To enable WebSocket connections using Nginx proxy, you need to configure the proxy accordingly.
+To enable WebSocket connections using an Nginx proxy, you need to configure the proxy accordingly.
 
 This can be done by including the following configuration in the Nginx configuration file:
 
@@ -185,7 +185,7 @@ Consider using the direct version in production. The `latest` image tag might be
 
 ### RoadRunner configuration
 
-Create a `.rr.yaml` configuration file to specify how RoadRunner should interact with your PHP application
+Create a `.rr.yaml` configuration file to specify how RoadRunner should interact with your PHP application.
 
 {% code title=".rr.yaml" %}
 
@@ -216,7 +216,7 @@ logs:
 
 ### PHP Worker
 
-Create a PHP worker to handle the HTTP requests.
+Create a PHP worker to handle HTTP requests.
 
 **Here is a simple example:**
 
@@ -252,7 +252,7 @@ while ($req = $psr7->waitRequest()) {
 
 {% endcode %}
 
-And do not forget about the `composer.json` file:
+Do not forget the `composer.json` file:
 
 {% code title="composer.json" %}
 
@@ -276,7 +276,7 @@ Read more about the RoadRunner PHP Worker in the [PHP Workers](../php/worker.md)
 ### Docker Compose
 
 To assemble and manage all components, create a `docker-compose.yaml` file that defines the RoadRunner and Nginx
-services, as well as their configurations
+services, as well as their configurations.
 
 {% code title="docker-compose.yaml" %}
 

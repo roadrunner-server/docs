@@ -1,17 +1,17 @@
-# Events bus
+# Event bus
 
 In a typical application, plugins often need to communicate with one another to coordinate tasks or respond to events.
 RoadRunner provides a built-in event bus that makes it easy for plugins to raise events and listen for events from other
 plugins. This event-driven architecture allows plugins to be more loosely coupled and makes it easier to extend the
 functionality of your application.
 
-The RoadRunner Event Bus provides a simple and efficient way to subscribe to and emit events. You can subscribe to
+The RoadRunner event bus provides a simple and efficient way to subscribe to and emit events. You can subscribe to
 specific events or use wildcards to subscribe to a broader range of events. It also supports message passing,
 allowing you to include additional information with each event.
 
 In the following sections, we will explore how to subscribe to events.
 
-## Subscribing to Events
+## Subscribing to events
 
 To subscribe to an event, you'll first need to obtain an instance of the event bus and create a channel to receive
 events. You can then subscribe to events using the `SubscribeP` method, which takes an event pattern as an argument.
@@ -29,23 +29,23 @@ import (
 )
 
 func foo() {
-    // Get the instance (it's global) of the events bus. Make sure to 
-    // unsubscribe event handler when you don't need it anymore: eh.Unsubscribe(id).
+    // Get the (global) instance of the event bus. Make sure to
+    // unsubscribe the event handler when you don't need it anymore: eh.Unsubscribe(id).
     eh, id := events.Bus()
     defer eh.Unsubscribe(id)
 
     // Create an events channel.
     ch := make(chan events.Event, 100)
-    // Subscribe to the events which fits your pattern (`http.EventJobOK`).
+    // Subscribe to the events that fit your pattern (e.g., `http.EventJobOK`).
     err := eh.SubscribeP(id, "http.EventJobOK", ch)
     if err != nil {
         panic(err)
     }
 
-    // Send event to the channel.
+    // Send an event to the channel.
     eh.Send(events.NewEvent(events.EventJobOK, "http", "foo"))
     
-    // Receive event from the channel.
+    // Receive an event from the channel.
     evt := <-ch
 
     // evt.Message() -> "foo"
@@ -84,7 +84,7 @@ When receiving an event, you can access these properties using the following met
 
 ### Wildcards
 
-Event Bus supports wildcard subscriptions like: `*.SomeEvent`, `http.*`, `http.Some*`, `*`, allowing you to subscribe to
+The event bus supports wildcard subscriptions such as `*.SomeEvent`, `http.*`, `http.Some*`, `*`, allowing you to subscribe to
 multiple events using a single pattern. Wildcards can be used to match any event type, plugin, or both.
 
 Here's an example of a wildcard subscription:
@@ -121,9 +121,9 @@ func foo() {
 {% endcode %}
 
 In this example, we've changed the subscription pattern from `http.EventJobOK` to `http.*`, allowing the subscription to
-match any event from the http plugin.
+match any event from the HTTP plugin.
 
-## How to implement custom event
+## How to implement a custom event
 
 To implement custom events, you need to define a custom event type that implements the `fmt.Stringer` interface. This
 involves creating a new type and implementing the `String()` method on that type. You can also define an enumeration
@@ -197,7 +197,7 @@ func (mse MySuperEvent) String() string {
 
 {% endcode %}
 
-### Using
+### Usage
 
 Once you've defined your custom event type and implemented the `fmt.Stringer` interface, you can use it in your
 application like this:
@@ -221,7 +221,7 @@ func foo() {
         panic(err)
     }
 
-    // first arg of the NewEvent method is fmt.Stringer
+    // The first argument of the NewEvent method is an fmt.Stringer
     eh.Send(events.NewEvent(EventHTTPError, "http", "foo"))
     evt := <-ch
 

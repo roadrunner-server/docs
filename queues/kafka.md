@@ -217,7 +217,7 @@ jobs:
           # keep this less than a group's session timeout.
           #
           # Optional, default: 40s. Possible values: 10s, 10m.
-          transaction_timeout: 100
+          transaction_timeout: 100s
 
           # compression_codec sets the compression codec to use for producing records.
           #

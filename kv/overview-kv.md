@@ -1,6 +1,6 @@
 # Overview
 
-The RoadRunner KV (Key-Value) plugin is a powerful cache implementation written in Go language. It offers lightning-fast
+The RoadRunner KV (Key-Value) plugin is a powerful cache implementation written in Go. It offers lightning-fast
 communication with cache drivers such as:
 
 - [Redis Server](https://redis.io/),
@@ -8,22 +8,22 @@ communication with cache drivers such as:
 - [BoltDB](https://github.com/etcd-io/bbolt) - does not require a separate server,
 - [In-memory](./memory.md) storage — temporary stores data in RAM.
 
-It is able to handle cache operations more efficiently than the same operations in PHP, leading to faster response times
+It can handle cache operations more efficiently than the same operations in PHP, leading to faster response times
 and improved application performance.
 
-It provides the ability to store arbitrary data inside the RoadRunner between different requests (in case of HTTP
+It provides the ability to store arbitrary data inside RoadRunner between different requests (in the case of an HTTP
 application) or different types of applications. Thus, using [Temporal](https://docs.temporal.io/docs/php/introduction),
-for example, you can transfer data inside the [HTTP application](../php/worker.md)and vice versa.
+for example, you can transfer data inside the [HTTP application](../php/worker.md) and vice versa.
 
 One of the key benefits of using the RoadRunner KV plugin is its RPC interface, which allows for seamless integration
 with your existing infrastructure.
 
 ![kv-general-info](https://user-images.githubusercontent.com/2461257/128436785-3dadbf0d-13c3-4e0c-859c-4fd9668558c8.png)
 
-## Opentelemetry tracing
+## OpenTelemetry tracing
 
-All KV drivers support opentelemetry tracing. 
-To enable tracing, you need to add [otel](../lab/otel.md) section to your configuration file:
+All KV drivers support OpenTelemetry tracing.
+To enable tracing, add the [otel](../lab/otel.md) section to your configuration file:
 
 {% code title=".rr.yaml" %}
 
@@ -49,8 +49,8 @@ otel:
 
 {% endcode %}
 
-After that, you can see traces in your [Dash0](https://www.dash0.com/), [Jaeger](https://www.jaegertracing.io/), [Uptrace](https://uptrace.dev/), 
-[Zipkin](https://zipkin.io/) or any other opentelemetry compatible tracing system.
+After that, you can see traces in [Dash0](https://www.dash0.com/), [Jaeger](https://www.jaegertracing.io/), [Uptrace](https://uptrace.dev/),
+[Zipkin](https://zipkin.io/), or any other OpenTelemetry-compatible tracing system.
 
 
 ## Configuration
@@ -60,7 +60,7 @@ configuration file. Each storage must have a `driver` that indicates the type of
 the moment, four different types of drivers are available: `boltdb`, `redis`, `memcached`, and `memory`.
 
 {% hint style="info" %}
-The `memory` and `boltdb` drivers do not require additional binaries and are available immediately, while the rest
+The `memory` and `boltdb` drivers do not require additional binaries and are available immediately, while the others
 require additional setup. Please see the appropriate documentation for installing [Redis Server](https://redis.io/)
 and/or [Memcached Server](https://memcached.org/).
 {% endhint %}
@@ -84,14 +84,14 @@ kv:
 {% endcode %}
 
 {% hint style="info" %}
-to interact with the RoadRunner KV plugin, you will need to have the RPC defined in the rpc configuration section. You
+To interact with the RoadRunner KV plugin, you need to have RPC defined in the `rpc` configuration section. You
 can refer to the documentation page [here](../php/rpc.md) to learn more about the configuration.
 {% endhint %}
 
 ## PHP client
 
-The RoadRunner KV plugin comes with a convenient PHP package that simplifies the process of integrating the plugin with
-your PHP application and store and request data from storages using RoadRunner PRC.
+The RoadRunner KV plugin comes with a convenient PHP package that simplifies integration with
+your PHP application and lets you store and retrieve data from storages using RoadRunner RPC.
 
 ### Installation
 
@@ -136,7 +136,7 @@ connection. It provides a method for selecting the storage.
   implementation of the [PSR-16](https://www.php-fig.org/psr/psr-16/) `Psr\SimpleCache\CacheInterface` for interacting
   with the key-value RoadRunner storage.
 
-Here is a simple example of using:
+Here is a simple example:
 
 {% code title="app.php" %}
 
@@ -246,7 +246,7 @@ $storage
 
 {% endcode %}
 
-#### Igbinary Value Serialization
+#### igbinary value serialization
 
 The serialization mechanism in PHP is not always efficient, which can impact the performance of your application. To
 increase the speed of serialization and deserialization, it is recommended to use
@@ -255,7 +255,7 @@ the [igbinary extension](https://github.com/igbinary/igbinary).
 {% tabs %}
 {% tab title="Linux and macOS" %}
 
-In a Linux and macOS environment, it may be installed with a simple command:
+In Linux and macOS environments, it may be installed with a simple command:
 
 {% code %}
 
@@ -269,7 +269,7 @@ pecl install igbinary
 
 {% tab title="Windows" %}
 
-For the Windows OS, you can download it from the
+For Windows, you can download it from the
 [PECL website](https://windows.php.net/downloads/pecl/releases/igbinary/).
 
 {% endtab %}
@@ -318,7 +318,7 @@ php -r "echo sodium_crypto_box_keypair();" > keypair.key
 {% endcode %}
 
 {% hint style="warning" %}
-Do not store security keys in a control versioning system (like GIT)!
+Do not store security keys in a version control system (like Git)!
 {% endhint %}
 
 After generating the keypair, you can use it to encrypt and decrypt the data.

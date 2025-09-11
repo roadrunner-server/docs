@@ -1,7 +1,7 @@
-# HTTP Response streaming `[>=2023.3]`
+# HTTP response streaming `[>=2023.3]`
 
-RoadRunner supports HTTP response streaming. This feature means that responses can be sent to the client in chunks. It is useful when you need to send a large amount of data to the client.
-You don't need to update the configuration to enable this feature. It is enabled by default and controlled by the PHP worker.
+RoadRunner supports HTTP response streaming, which allows responses to be sent to the client in chunks. This is useful when you need to send a large amount of data to the client.
+You don't need to update the configuration to enable this feature; it is enabled by default and controlled by the PHP worker.
 
 ## Samples
 
@@ -25,7 +25,7 @@ The `$body` parameter can be a string or a generator. If it is a generator, the 
 `$status` and `$headers` are the same as in the `respond()` method of the `Spiral\RoadRunner\Http\HttpWorker` class.
 The `$endOfStream` parameter indicates whether the response is finished. If set to false, the worker will wait for the next chunk.
 
-Here is the example of the streaming response:
+Here is an example of a streaming response:
 
 {% code title="worker.php" %}
 
@@ -65,7 +65,7 @@ try {
 
 ### Sending headers and status codes
 
-You can send headers and status codes (`1XX` multiple times, or other, but only once) to the client during the streaming.
+You can send headers and status codes (`1XX` multiple times, or others once) to the client during streaming.
 
 {% code title="worker.php" %}
 
@@ -113,4 +113,4 @@ try {
 
 {% endcode %}
 
-In this example, we send 5 status codes and 5 headers to the client. You may send a `103 Early Hints` status code (or any `1XX` status code) to the client at any time during streaming (do not forget about `$endOfStream`).
+In this example, we send five status codes and five headers to the client. You may send a `103 Early Hints` status code (or any `1XX` status code) at any time during streaming (do not forget about `$endOfStream`).
