@@ -48,6 +48,7 @@
 * [Circuit Breaker](community-plugins/circuit-breaker.md)
 * [SendRemoteFile](community-plugins/sendremotefile.md)
 * [RFC 7234 Cache](community-plugins/cache.md)
+* [AMQP1](community-plugins/amqp1.md)
 
 ## 📡 App Server
 
