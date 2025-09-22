@@ -73,7 +73,7 @@ For Azure Service Bus, use the `amqps://` protocol with your connection string:
 
 ```yaml
 amqp1:
-  addr: "amqps://RootManageSharedAccessKey:YOUR_ACCESS_KEY@YOUR_NAMESPACE.servicebus.windows.net:5671/"
+  addr: "amqps://YOUR_POLICY_NAME:YOUR_ACCESS_KEY@YOUR_NAMESPACE.servicebus.windows.net:5671/"
   container_id: "roadrunner-jobs-azure"
 
 jobs:
