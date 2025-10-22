@@ -467,10 +467,10 @@ http:
     supervisor:
 
       # watch_tick defines how often to check the state of the workers (seconds)
-      watch_tick: 1s
+      watch_tick: 5s
 
       # ttl defines maximum time worker is allowed to live (seconds)
-      ttl: 0
+      ttl: 0s
 
       # idle_ttl defines maximum duration worker can spend in idle mode after 
       # first use. Disabled when 0 (seconds)
