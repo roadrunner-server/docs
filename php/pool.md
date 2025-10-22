@@ -73,8 +73,8 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     supervisor:
       # How often to check the state of the workers.
       #
-      # Default: 1s
-      watch_tick: 1s
+      # Default: 5s
+      watch_tick: 5s
 
       # How long a worker can live (soft limit). Zero means no limit.
       #
