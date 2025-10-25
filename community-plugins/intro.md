@@ -24,5 +24,6 @@ Here is a list of community plugins that are available:
 | SendRemoteFile | [link](https://github.com/roadrunner-server/sendremotefile)| Used to send a file from a remote endpoint into the response | [docs](./sendremotefile.md) |
 | CircuitBreaker | [link](https://github.com/roadrunner-server/circuit-breaker)| Circuit breaker pattern implementation for RoadRunner | [docs](./circuit-breaker.md) |
 | RFC 7234 Cache | [link](https://github.com/darkweak/souin/tree/master/plugins/roadrunner)| RFC 7234 Cache implementation for RoadRunner | [docs](https://github.com/darkweak/souin?tab=readme-ov-file#roadrunner-middleware) |
+| AMQP1 | [link](https://github.com/ammadfa/amqp1)| AMQP 1.0 driver for Azure Service Bus and RabbitMQ with pure go-amqp library | [docs](./amqp1.md) |
 
 Feel free to make a PR to add your plugin to the list.
