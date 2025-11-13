@@ -507,10 +507,9 @@ grpc:
   #	which the connection will be forcibly closed.
   max_connection_age_grace: 0s8h
 
-  # MaxConnectionAgeGrace is an additive period after MaxConnectionAge after
-  #	which the connection will be forcibly closed.
+  # Maximal concurrent streams count.
   #
-  # This option is optional: Default value: 10
+  # This option is optional. Default value: 10
   max_concurrent_streams: 10
 
   # After a duration of this time if the server doesn't see any activity it
