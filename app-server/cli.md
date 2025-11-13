@@ -137,10 +137,14 @@ To enable experimental features, use the `--enable-experimental` or `-e` option:
 
 To stop RoadRunner, you have a few options:
 
-- You can send a `SIGINT` or `SIGTERM` system call to the main RoadRunner process. Inside a Kubernetes environment, this
-  is done automatically when you're stopping the pod.
+- You can send a `SIGINT`, `SIGTERM`, or `SIGQUIT` signal to the main RoadRunner process. Inside a Kubernetes environment, this
+  is done automatically when you're stopping the pod. All these signals trigger a graceful shutdown.
 - If you want to stop RoadRunner manually, you can hit `ctrl+c` for a graceful stop or hit `ctrl+c` one more time to
   force stop.
+
+{% hint style="info" %}
+`SIGQUIT` is only available on Unix-like systems (Linux, macOS, FreeBSD, etc.) and is not supported on Windows.
+{% endhint %}
 
 {% hint style="info" %}
 By default, the grace period is 30 seconds. You can change it in the configuration file using `endure.grace_period`
@@ -175,6 +179,37 @@ The `rr stop` command can only be used to stop a RoadRunner server that was star
 
 - `-f` - force stop.
 - `-s` - silent mode.
+
+## Restarting the Server
+
+RoadRunner supports graceful restarts using the `SIGUSR2` signal on Unix-like systems. This allows you to restart the RoadRunner process without downtime, which is particularly useful in deployment scenarios.
+
+To restart RoadRunner, send the `SIGUSR2` signal to the main RoadRunner process:
+
+{% code %}
+
+```bash
+kill -USR2 <pid>
+```
+
+{% endcode %}
+
+Where `<pid>` is the process ID of the main RoadRunner process.
+
+When RoadRunner receives the `SIGUSR2` signal, it performs the following steps:
+
+1. Validates the executable path
+2. Notifies systemd (if running under systemd)
+3. Gracefully stops all workers and plugins
+4. Replaces the current process with a new one using the same executable path
+
+{% hint style="info" %}
+If the configuration file is a symlink, RoadRunner will properly re-read the configuration from the symlink target after restart. This allows you to update the symlink to point to a new configuration file for deployment workflows.
+{% endhint %}
+
+{% hint style="warning" %}
+`SIGUSR2` is only available on Unix-like systems (Linux, macOS, FreeBSD, etc.) and is not supported on Windows.
+{% endhint %}
 
 ## Reloading workers
 
