@@ -39,7 +39,6 @@
 * [Configuration](plugins/config.md)
 * [Server](plugins/server.md)
 * [Locks](plugins/locks.md)
-* [gRPC](plugins/grpc.md)
 * [TCP](plugins/tcp.md)
 
 ## 🌐 Community Plugins
@@ -87,6 +86,11 @@
 * [X-Sendfile](http/sendfile.md)
 * [Streaming](http/resp-streaming.md)
 * [gzip](http/gzip.md)
+
+## ⚡️ gRPC
+
+* [Intro into gRPC](grpc/grpc.md)
+* [Protoreg](grpc/protoreg.md)
 
 ## 📈 Logging and Observability
 

@@ -34,7 +34,7 @@ Documentation is organized in GitBook format using Markdown files, structured hi
 ### Documentation Conventions
 
 - **File naming**: Kebab-case (e.g., `quick-start.md`, `nginx-with-rr.md`)
-- **Internal links**: Relative paths from document location (e.g., `../http/http.md`, `../plugins/grpc.md`)
+- **Internal links**: Relative paths from document location (e.g., `../http/http.md`, `../grpc/grpc.md`)
 - **GitBook hints**: Use `{% hint style="info" %}`, `{% hint style="warning" %}` for callouts
 - **Code blocks**: Use `{% code %}` / `{% endcode %}` wrappers with optional title attribute
 - **Configuration examples**: YAML format (`.rr.yaml`) is preferred, JSON is also supported
