@@ -1,6 +1,6 @@
 # Protoreg Plugin
 
-A community plugin for [RoadRunner](https://github.com/roadrunner-server/roadrunner) that provides a Protocol Buffers registry. This plugin enables other plugins to access proto definitions at runtime, making it ideal for building custom gRPC interceptors, middleware, and dynamic message handling.
+`protoreg` provides a shared protobuf registry, enabling other plugins to access proto definitions at runtime, making it ideal for building custom gRPC interceptors, middleware, and dynamic message handling.
 
 ## Features
 
@@ -17,31 +17,6 @@ A community plugin for [RoadRunner](https://github.com/roadrunner-server/roadrun
 - **Dynamic Message Handling**: Deserialize and serialize protobuf messages without compile-time generated code
 - **Request/Response Validation**: Validate gRPC requests against proto schemas
 - **Logging & Monitoring**: Create detailed logs with field-level message inspection
-
-## Installation
-
-To use this plugin, you need to build RoadRunner with [Velox](https://docs.roadrunner.dev/customization/build). Add the plugin to your `velox.toml`:
-
-```toml
-[velox]
-build_args = ['-trimpath', '-ldflags', '-s -X github.com/roadrunner-server/roadrunner/v2025/internal/meta.version=custom -X github.com/roadrunner-server/roadrunner/v2025/internal/meta.buildTime=now']
-
-[roadrunner]
-ref = "master"
-
-[github]
-    [github.token]
-    token = "your_github_token"
-
-    [github.plugins]
-    protoreg = { ref = "master", owner = "roadrunner-server", repository = "protoreg" }
-```
-
-Then build RoadRunner:
-
-```bash
-vx build -c velox.toml
-```
 
 ## Configuration
 
