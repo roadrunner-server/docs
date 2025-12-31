@@ -26,7 +26,7 @@ The following plugins are designed to run workers and handle specific types of r
 - [**Centrifuge**](../plugins/centrifuge.md) - Manages events from Centrifugo WebSocket server clients and forwards them
   to the PHP application. It supports bidirectional communication, allowing for efficient and seamless interaction
   between the server and clients.
-- [**gRPC**](../plugins/grpc.md) - Deals with gRPC requests from clients and passes them on to the PHP application.
+- [**gRPC**](../grpc/grpc.md) - Deals with gRPC requests from clients and passes them on to the PHP application.
 - [**TCP**](../plugins/tcp.md) - Handles TCP requests from clients and routes them to the appropriate PHP application.
 - [**Temporal**](../workflow/temporal.md) - Manages workflows and activities, allowing for the efficient handling of
   various tasks and processes.

@@ -13,7 +13,7 @@ development process. Some of the most notable plugins include:
 - [**HTTP**](../http/http.md): Efficient and scalable HTTP server implementation.
 - [**Logger**](../lab/logger.md): Robust logging capabilities for various output formats and destinations.
 - [**App-Logger**](../lab/applogger.md): Send application logs to the RoadRunner logger from a PHP application.
-- [**gRPC**](./grpc.md): Efficient and scalable gRPC server implementation.
+- [**gRPC**](../grpc/grpc.md): Efficient and scalable gRPC server implementation.
 - [**Temporal**](../workflow/temporal.md): Workflow and task orchestration with distributed computing capabilities.
 - [**Server**](./server.md): Core server functionality and lifecycle management.
 - [**Service**](./service.md): Start and monitor services like a supervisor.
