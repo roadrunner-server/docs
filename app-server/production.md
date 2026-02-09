@@ -46,3 +46,5 @@ Consider calling `gc_collect_cycles` after every execution if you want to keep m
   few percent for the Go GC.
 - If you have `~const` worker latency, you can calculate the number of workers needed to handle the
   target [load](https://github.com/orgs/roadrunner-server/discussions/799#discussioncomment-1332646).
+- If you are running RoadRunner inside Docker, avoid using Alpine-based images.
+  Alpine relies on musl libc, which is not fully compatible with RoadRunner’s Go binaries and many PHP extensions. This may cause runtime instability and hard-to-diagnose production issues. Prefer debian, ubuntu, or non-alpine official PHP images.
