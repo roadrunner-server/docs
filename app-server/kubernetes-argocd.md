@@ -43,19 +43,27 @@ ingress:
 
 Apply the Argo CD `Application` manifest:
 
+{% code %}
+
 ```bash
 kubectl apply -f deploy/argocd/application.yaml
 ```
 
+{% endcode %}
+
 If needed, customize `repoURL` and `targetRevision` in `application.yaml` before applying.
 
 ## Verify Sync and Health
+
+{% code %}
 
 ```bash
 kubectl -n roadrunner get svc roadrunner -w
 curl -sS http://<external-ip>/
 curl -sS http://<external-ip>/health
 ```
+
+{% endcode %}
 
 ## Troubleshooting
 
