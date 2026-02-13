@@ -1,5 +1,8 @@
 # Kubernetes + Argo CD
 
+<img alt="k8s-argo" src="https://github.com/user-attachments/assets/10be64f4-85cd-47ed-8c4c-858b9cbd232c" />
+
+
 You can deploy RoadRunner to Kubernetes via GitOps using Argo CD with the official example repository: [roadrunner-server/k8s-examples](https://github.com/roadrunner-server/k8s-examples). The chart lives in [`deploy/charts/roadrunner`](https://github.com/roadrunner-server/k8s-examples/tree/master/deploy/charts/roadrunner), and the Argo CD example is in [`deploy/argocd`](https://github.com/roadrunner-server/k8s-examples/tree/master/deploy/argocd).
 
 ## Prerequisites
