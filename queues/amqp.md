@@ -14,7 +14,7 @@ To install and configure the RabbitMQ, use the
 corresponding [documentation page](https://www.rabbitmq.com/download.html).
 
 {% hint style="info" %}
-Every messages pushed to the RabbitMQ server uses the publiser confirms. This means that the message is only considered as sent when the server confirms it. This is a reliable way to ensure that the message is delivered to the server.
+Every message pushed to the RabbitMQ server uses publisher confirms. A message is considered sent only after the server confirms it. This is a reliable way to ensure delivery to the server.
 {% endhint %}
 
 

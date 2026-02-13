@@ -276,8 +276,8 @@ $task = $queue->create(
 
 {% endcode %}
 
-As you noticed we use everywhere interfaces for setting options for the task, and a developer has the ability create his
-own implementation of the interfaces.
+As noted above, we use interfaces everywhere to configure task options, and developers can create their own
+implementations of those interfaces.
 
 ### Task Dispatching
 

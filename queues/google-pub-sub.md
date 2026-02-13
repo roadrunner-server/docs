@@ -78,4 +78,4 @@ https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic
 
 1. TLS is not supported at the moment.
 2. Metrics are not supported at the moment.
-3. Telemetry and Authentification are not supported at the moment. Use `insecure: true` to test this driver.
+3. Telemetry and Authentication are not supported at the moment. Use `insecure: true` to test this driver.

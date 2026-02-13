@@ -51,7 +51,7 @@ import (
 	httpPlugin "github.com/roadrunner-server/http/v5"
 	"github.com/roadrunner-server/resetter/v5"
 	"github.com/roadrunner-server/informer/v5"
-	"github.com/yourCompay/yourCusomPlugin" // compillation error here, used only as an example.
+	"github.com/yourCompay/yourCusomPlugin" // compilation error here, used only as an example.
 )
 
 func main() {
