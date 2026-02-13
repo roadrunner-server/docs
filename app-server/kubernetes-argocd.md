@@ -51,8 +51,6 @@ If needed, customize `repoURL` and `targetRevision` in `application.yaml` before
 
 ## Verify Sync and Health
 
-![Argo CD application in Synced and Healthy state](images/argocd-roadrunner-synced-healthy.png)
-
 ```bash
 kubectl -n roadrunner get svc roadrunner -w
 curl -sS http://<external-ip>/
