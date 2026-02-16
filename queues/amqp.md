@@ -23,8 +23,8 @@ contains exactly one `addr` key with a [connection DSN](https://www.rabbitmq.com
 
 - `key`: path to a key file.
 - `cert`: path to a certificate file.
-- `root_ca`: CA certificate path, used with the `client_auth_type`.
-- `client_auth_type`: also known as `mTLS`. Possible values are: `request_client_cert`, `require_any_client_cert`, `verify_client_cert_if_given`, `require_and_verify_client_cert`, `no_client_certs`.
+- `root_ca`: path to Root CAs used by the AMQP client to trust and verify the broker/server certificate during TLS dial.
+- `client_auth_type`: also known as `mTLS`. Possible values are: `no_client_cert`, `request_client_cert`, `require_any_client_cert`, `verify_client_cert_if_given`, `require_and_verify_client_cert`.
 
 You should also configure `rabbitMQ` with `TLS` support: [link](https://www.rabbitmq.com/ssl.html).
 
@@ -48,15 +48,15 @@ amqp:
     # This option is required
     cert: ""
 
-    # Path to the CA certificate, defines the set of root certificate authorities that servers use if required to verify a client certificate. Used with the `client_auth_type` option.
+    # Path to Root CAs used by the AMQP client to trust and verify the broker/server certificate during TLS dial.
     #
     # This option is optional
     root_ca: ""
 
     # Client auth type (mTLS, peer verification).
     #
-    # This option is optional. Default value: no_client_certs. Possible values: request_client_cert, require_any_client_cert, verify_client_cert_if_given, require_and_verify_client_cert, no_client_certs
-    client_auth_type: no_client_certs
+    # This option is optional. Default value: no_client_cert. Possible values: no_client_cert, request_client_cert, require_any_client_cert, verify_client_cert_if_given, require_and_verify_client_cert
+    client_auth_type: no_client_cert
 ```
 
 {% endcode %}
@@ -88,15 +88,15 @@ amqp:
     # This option is required
     cert: ""
 
-    # Path to the CA certificate, defines the set of root certificate authorities that servers use if required to verify a client certificate. Used with the `client_auth_type` option.
+    # Path to Root CAs used by the AMQP client to trust and verify the broker/server certificate during TLS dial.
     #
     # This option is optional
     root_ca: ""
 
     # Client auth type (mTLS, peer verification).
     #
-    # This option is optional. Default value: no_client_certs. Possible values: request_client_cert, require_any_client_cert, verify_client_cert_if_given, require_and_verify_client_cert, no_client_certs
-    client_auth_type: no_client_certs
+    # This option is optional. Default value: no_client_cert. Possible values: no_client_cert, request_client_cert, require_any_client_cert, verify_client_cert_if_given, require_and_verify_client_cert
+    client_auth_type: no_client_cert
 
 jobs:
   pipelines:
@@ -154,22 +154,23 @@ jobs:
 
         # Queue name
         #
-        # Default: default
+        # Optional for producer-only pipelines. Required for run/resume/pause.
+        # Can be omitted for push-only mode.
         queue: test-1-queue
 
         # Exchange name
         #
-        # Default: amqp.default
-        exchange: default
+        # Optional. Default: amqp.default
+        exchange: amqp.default
 
         # Exchange type
         #
-        # Default: direct.
+        # Default: direct. Possible values: direct, fanout, topic, headers.
         exchange_type: direct
 
         # Routing key for the queue
         #
-        # Default: empty.
+        # Default: empty. Required for push when exchange_type != fanout.
         routing_key: test
 
         # Declare a queue exclusive at the exchange
@@ -219,23 +220,27 @@ from `pipe1` have been processed.
 
 ### Queue
 
-`queue` - required, AMQP internal (inside the driver) queue name.
+`queue` - AMQP internal (inside the driver) queue name. Optional for producer-only pipelines, required for consumer lifecycle operations (`run`, `resume`, `pause`).
 
 ### Exchange
 
-`exchange` - required, rabbitMQ exchange name.
+`exchange` - rabbitMQ exchange name. Optional, default: `amqp.default`.
 
 {% hint style="info" %}
 See also [AMQP model](https://www.rabbitmq.com/tutorials/amqp-concepts.html#amqp-model) documentation section.
 {% endhint %}
 
+{% hint style="info" %}
+Producer-only pipeline: `queue` can be empty, `push` works, but `run`, `resume`, and `pause` will fail without a queue.
+{% endhint %}
+
 ### Exchange type
 
-`exchange_type` - rabbitMQ exchange type. May be one of `direct`, `topics`,`headers` or `fanout`.
+`exchange_type` - rabbitMQ exchange type. May be one of `direct`, `fanout`, `topic`, `headers`.
 
 ### Routing key
 
-`routing_key` - queue's routing key. Required to push the `Job`.
+`routing_key` - queue's routing key. Required for `push` when `exchange_type != fanout`.
 
 ### Exclusive
 
