@@ -66,7 +66,7 @@ the queue settings, including those specific to AMQP.
 
 ## Pipeline Configuration Formats
 
-AMQP static pipeline configuration is selected by `jobs.pipelines.<name>.config.version`:
+AMQP pipeline configuration is selected by `jobs.pipelines.<name>.config.version`:
 
 - `0`, `1`, or omitted: legacy flat parser.
 - `2`: nested parser with `exchange` and `queue` sections (recommended).
@@ -166,7 +166,7 @@ jobs:
 
 ## Read-only RabbitMQ Permissions
 
-If the RabbitMQ user does not have `configure` permission, disable declarations in static config:
+If the RabbitMQ user does not have `configure` permission, disable declarations in pipeline configuration:
 
 - `jobs.pipelines.<name>.config.exchange.declare: false`
 - `jobs.pipelines.<name>.config.queue.declare: false`
