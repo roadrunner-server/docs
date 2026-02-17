@@ -69,19 +69,19 @@ the queue settings, including those specific to AMQP.
 AMQP static pipeline configuration is selected by `jobs.pipelines.<name>.config.version`:
 
 - `0`, `1`, or omitted: legacy flat parser.
-- `2`: nested parser with `exchange` and `queue` objects (recommended).
+- `2`: nested parser with `exchange` and `queue` sections (recommended).
 
 ## Version 2 Configuration (Recommended)
 
-Use `jobs.pipelines.<name>.config.version: 2` to enable nested static configuration.
+Set `jobs.pipelines.<name>.config.version: 2` and define `exchange` and `queue` sections.
 
-### Common keys (`jobs.pipelines.<name>.config`)
+### Options in `config`
 
 - `priority`: pipeline priority. If a job has priority `0`, it inherits the pipeline priority. Default: `10`.
 - `prefetch`: RabbitMQ QoS prefetch. Default: `10`.
 - `redial_timeout`: reconnect timeout in seconds. Default: `60`.
 
-### `exchange` object (`jobs.pipelines.<name>.config.exchange`)
+### Exchange settings
 
 - `name`: exchange name. Default: `amqp.default`.
 - `type`: exchange type. Supported: `direct`, `fanout`, `topic`, `headers`. Default: `direct`.
@@ -89,7 +89,7 @@ Use `jobs.pipelines.<name>.config.version: 2` to enable nested static configurat
 - `auto_delete`: auto-delete exchange when last queue is unbound. Default: `false`.
 - `declare`: declare exchange on startup. Default: `true`.
 
-### `queue` object (`jobs.pipelines.<name>.config.queue`)
+### Queue settings
 
 - `name`: queue name. Optional for producer-only pipelines; required for `run`, `resume`, and `pause`.
 - `routing_key`: routing key. Required when `exchange.type != fanout`.
@@ -188,14 +188,14 @@ jobs:
       config:
         version: 2
         exchange:
-          name: CARGO_OUT
+          name: test-1-exchange
           type: fanout
           durable: true
           auto_delete: false
           declare: false
         queue:
-          name: CARGO_ECN_EVENTS
-          routing_key: CARGO_ECN_EVENTS
+          name: test-1-queue
+          routing_key: test-1
           durable: true
           auto_delete: false
           exclusive: false
@@ -206,7 +206,7 @@ jobs:
 
 ## Runtime / RPC (`jobs.Declare`)
 
-Dynamic pipeline declaration over RPC remains flat. It does not use nested `config.exchange` / `config.queue` objects.
+Dynamic pipeline declaration over RPC remains flat. It does not use nested `config.exchange` / `config.queue` sections.
 
 Declaration control keys in `jobs.Declare` payload:
 
@@ -276,6 +276,6 @@ In legacy format, `queue` can be omitted for push-only pipelines, but `run`, `re
 
 ## Migration
 
-- Prefer `config.version: 2` with nested `exchange` and `queue` objects for new configurations.
+- Prefer `config.version: 2` with nested `exchange` and `queue` sections for new configurations.
 - Existing flat configurations remain compatible through `config.version: 0`, `config.version: 1`, or omitted `config.version`.
 - For restricted RabbitMQ permissions, set `exchange.declare: false` and `queue.declare: false`.
