@@ -279,3 +279,11 @@ In legacy format, `queue` can be omitted for push-only pipelines, but `run`, `re
 - Prefer `config.version: 2` with nested `exchange` and `queue` sections for new configurations.
 - Existing flat configurations remain compatible through `config.version: 0`, `config.version: 1`, or omitted `config.version`.
 - For restricted RabbitMQ permissions, set `exchange.declare: false` and `queue.declare: false`.
+
+## What's Next?
+
+1. [Queues and Jobs overview](overview-queues.md) - Review the full jobs pipeline model before configuring AMQP in production.
+2. [Read-only RabbitMQ permissions](amqp.md#read-only-rabbitmq-permissions) - See declaration flags for restricted users and review the Runtime / RPC (`jobs.Declare`) section on this page for flat declaration keys.
+3. [Pipeline configuration formats](amqp.md#pipeline-configuration-formats) - Confirm when to use `config.version: 2` versus legacy `0|1`, and review general RoadRunner config structure in [Configuration](../intro/config.md).
+4. [Exchange settings](amqp.md#exchange-settings) and [Queue settings](amqp.md#queue-settings) - Compare exchange and queue responsibilities when tuning routing and consumption behavior.
+5. [Allocate Timeout](../known-issues/allocate-timeout.md) and [CRC validation failed](../known-issues/stdout-crc.md) - Use these troubleshooting references when workers fail to process queue jobs as expected.
