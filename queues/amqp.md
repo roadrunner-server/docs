@@ -258,7 +258,7 @@ jobs:
         exclusive: false
         multiple_ack: false
         requeue_on_fail: false
-        queue_headers: {}
+        queue_headers: {} # optional, e.g. { x-queue-mode: lazy }
         durable: false
         delete_queue_on_stop: false
         redial_timeout: 60
