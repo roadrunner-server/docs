@@ -83,16 +83,16 @@ Ready-to-use example code is available in the samples repository:
 
 - [gRPC interceptor sample](https://github.com/roadrunner-server/samples/tree/master/grpc_interceptor)
 
-## Build a custom RR binary with interceptor (step by step)
+## Build a custom RoadRunner binary with interceptor
 
 1. Clone the RoadRunner repository.
 2. Add your interceptor plugin package (you can start from the sample above).
 3. Register interceptor plugin in `container/plugins.go`.
-4. Build RoadRunner.
+4. Build the RoadRunner binary using one of the build options below.
 5. Configure `grpc.interceptors` in `.rr.yaml`.
-6. Start RR and verify requests pass through the interceptor.
+6. Start RoadRunner and verify requests pass through the interceptor.
 
-### 1) Clone RoadRunner
+### Clone RoadRunner
 
 {% code %}
 
@@ -103,7 +103,7 @@ cd roadrunner
 
 {% endcode %}
 
-### 2) Add interceptor package
+### Add interceptor package
 
 You can either:
 
@@ -120,7 +120,7 @@ go get github.com/roadrunner-server/samples/grpc_interceptor@latest
 
 {% endcode %}
 
-### 3) Register plugin in container
+### Register plugin in container
 
 Edit `container/plugins.go` and add your interceptor plugin to the plugin list:
 
@@ -144,21 +144,11 @@ func Plugins() []any {
 
 {% endcode %}
 
-### 4) Build RR
+### Build options
 
-{% code %}
+#### Build with Velox
 
-```bash
-make build
-```
-
-{% endcode %}
-
-The binary is created as `./rr`.
-
-### 4a) Build RR with Velox (alternative)
-
-You can also use [Velox](../customization/build.md) to build a custom RoadRunner binary and include the interceptor plugin without editing `container/plugins.go` for every build.
+Use [Velox](../customization/build.md) when you want to build RoadRunner from a `velox.toml` configuration.
 
 {% code title="velox.toml" %}
 
@@ -197,7 +187,21 @@ vx build -c velox.toml -o .
 
 The binary is created as `./rr`.
 
-### 5) Configure interceptor in `.rr.yaml`
+#### Build with RoadRunner
+
+Use this option when you build directly from the RoadRunner repository after updating `container/plugins.go`.
+
+{% code %}
+
+```bash
+make build
+```
+
+{% endcode %}
+
+The binary is created as `./rr`.
+
+### Configure interceptor in `.rr.yaml`
 
 Use the plugin name returned by `Name()`:
 
@@ -211,7 +215,7 @@ grpc:
 
 {% endcode %}
 
-### 6) Run and verify
+### Run and verify
 
 Start RoadRunner:
 
