@@ -156,6 +156,47 @@ make build
 
 The binary is created as `./rr`.
 
+### 4a) Build RR with Velox (alternative)
+
+You can also use [Velox](../customization/build.md) to build a custom RoadRunner binary and include the interceptor plugin without editing `container/plugins.go` for every build.
+
+{% code title="velox.toml" %}
+
+```toml
+[roadrunner]
+ref = "v2025.1.5"
+
+[github]
+[github.token]
+token = "${RT_TOKEN}"
+
+[github.plugins]
+appLogger = { ref = "v5.0.2", owner = "roadrunner-server", repository = "app-logger" }
+logger = { ref = "v5.0.2", owner = "roadrunner-server", repository = "logger" }
+lock = { ref = "v5.0.2", owner = "roadrunner-server", repository = "lock" }
+rpc = { ref = "v5.0.2", owner = "roadrunner-server", repository = "rpc" }
+server = { ref = "v5.0.2", owner = "roadrunner-server", repository = "server" }
+grpc = { ref = "v5.0.2", owner = "roadrunner-server", repository = "grpc" }
+grpcInterceptor = { ref = "master", owner = "roadrunner-server", repository = "samples", folder = "grpc_interceptor" }
+
+[log]
+level = "info"
+mode = "production"
+```
+
+{% endcode %}
+
+{% code %}
+
+```bash
+go install github.com/roadrunner-server/velox/v2025/cmd/vx@latest
+vx build -c velox.toml -o .
+```
+
+{% endcode %}
+
+The binary is created as `./rr`.
+
 ### 5) Configure interceptor in `.rr.yaml`
 
 Use the plugin name returned by `Name()`:
