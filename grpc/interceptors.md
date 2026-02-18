@@ -85,65 +85,6 @@ Ready-to-use example code is available in the samples repository:
 
 ## Build a custom RoadRunner binary with interceptor
 
-1. Clone the RoadRunner repository.
-2. Add your interceptor plugin package (you can start from the sample above).
-3. Register interceptor plugin in `container/plugins.go`.
-4. Build the RoadRunner binary using one of the build options below.
-5. Configure `grpc.interceptors` in `.rr.yaml`.
-6. Start RoadRunner and verify requests pass through the interceptor.
-
-### Clone RoadRunner
-
-{% code %}
-
-```bash
-git clone https://github.com/roadrunner-server/roadrunner.git
-cd roadrunner
-```
-
-{% endcode %}
-
-### Add interceptor package
-
-You can either:
-
-- copy sample code into your project, or
-- import the sample package directly.
-
-To import the sample package directly:
-
-{% code %}
-
-```bash
-go get github.com/roadrunner-server/samples/grpc_interceptor@latest
-```
-
-{% endcode %}
-
-### Register plugin in container
-
-Edit `container/plugins.go` and add your interceptor plugin to the plugin list:
-
-{% code title="container/plugins.go" %}
-
-```go
-import (
-	grpcPlugin "github.com/roadrunner-server/grpc/v5"
-	grpcInterceptor "github.com/roadrunner-server/samples/grpc_interceptor"
-)
-
-func Plugins() []any {
-	return []any{
-		// ...
-		&grpcInterceptor.Plugin{},
-		&grpcPlugin.Plugin{},
-		// ...
-	}
-}
-```
-
-{% endcode %}
-
 ### Build options
 
 #### Build with Velox
@@ -189,7 +130,61 @@ The binary is created as `./rr`.
 
 #### Build with RoadRunner
 
-Use this option when you build directly from the RoadRunner repository after updating `container/plugins.go`.
+Use this option when you build directly from the RoadRunner repository.
+
+##### Clone RoadRunner
+
+{% code %}
+
+```bash
+git clone https://github.com/roadrunner-server/roadrunner.git
+cd roadrunner
+```
+
+{% endcode %}
+
+##### Add interceptor package
+
+You can either:
+
+- copy sample code into your project, or
+- import the sample package directly.
+
+To import the sample package directly:
+
+{% code %}
+
+```bash
+go get github.com/roadrunner-server/samples/grpc_interceptor@latest
+```
+
+{% endcode %}
+
+##### Register plugin in container
+
+Edit `container/plugins.go` and add your interceptor plugin to the plugin list:
+
+{% code title="container/plugins.go" %}
+
+```go
+import (
+	grpcPlugin "github.com/roadrunner-server/grpc/v5"
+	grpcInterceptor "github.com/roadrunner-server/samples/grpc_interceptor"
+)
+
+func Plugins() []any {
+	return []any{
+		// ...
+		&grpcInterceptor.Plugin{},
+		&grpcPlugin.Plugin{},
+		// ...
+	}
+}
+```
+
+{% endcode %}
+
+##### Build binary
 
 {% code %}
 
