@@ -60,7 +60,7 @@ Make sure every name in `grpc.interceptors` matches a registered interceptor plu
 
 ## Execution order
 
-RoadRunner applies configured interceptors in reverse order from the config list.
+RoadRunner applies configured interceptors in the same order as the config list.
 
 Example:
 
@@ -75,7 +75,7 @@ grpc:
 
 Execution order will be:
 
-`third -> second -> first -> handler`
+`first -> second -> third -> handler`
 
 ## Example plugin
 
