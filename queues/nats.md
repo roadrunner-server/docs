@@ -56,8 +56,11 @@ jobs:
         # Delete message from the stream after successful acknowledge
         # Default: false
         delete_after_ack: false
+     
+        # Time in seconds after which NATS will redeliver the message if no ACK received
+        # Default: 30
+        ack_wait: 30
 ```
-
 {% endcode %}
 
 ## Configuration options
@@ -91,3 +94,7 @@ To prevent duplicate message consumption, ensure that each pipeline is configure
 ### Delete after ack
 
 `delete_after_ack` - delete message after it successfully acknowledged.
+
+### Ack wait
+
+`ack_wait` - time in seconds after which NATS will redeliver the message if no ACK received.
