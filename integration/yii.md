@@ -2,7 +2,7 @@
 
 ### Yii 3
 
-See "[Using Yii with RoadRunner](https://yiisoft.github.io/docs/guide/tutorial/using-yii-with-roadrunner.html)".
+See [Using Yii with RoadRunner](https://yiisoft.github.io/docs/guide/tutorial/using-yii-with-roadrunner.html).
 
 ### Yii 2
 
