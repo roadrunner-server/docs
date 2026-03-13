@@ -343,7 +343,7 @@ grpc:
 {% endtabs %}
 
 {% hint style="info" %}
-You can define multiple proto files in the `proto` section.
+You can define multiple proto files in the `proto` section. From [>=2025.1.9], one can use glob patterns to specify multiple proto files.
 {% endhint %}
 
 After configuring the server, you can start it using the following command:
@@ -445,13 +445,14 @@ grpc:
   # This option is required
   listen: "tcp://127.0.0.1:9001"
 
-  # Proto file to use, multiply files supported [SINCE 2.6]. As of [2023.1.4], wildcards are allowed in the proto field.
+  # Proto file to use, multiply files supported [SINCE 2.6]. As of [2023.1.4], wildcards are allowed in the proto field and in version [>=2025.1.9] glob patterns are supported.
   #
   # This option is required
   proto:
     - "*.proto"
     - "first.proto"
     - "second.proto"
+    - "some/path/**/*.proto"
 
   # GRPC TLS configuration
   #
