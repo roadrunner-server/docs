@@ -67,6 +67,8 @@ jobs:
   num_pollers: 64
   timeout: 60
   pipeline_size: 100000
+  options:
+    parallelism: 10
 
   pool:
     num_workers: 10
@@ -95,6 +97,8 @@ Above is a complete list of all possible common Jobs settings. Let's now figure 
   redial state with a timeout of 10 minutes (but our timeout is e.g. 1 minute),
   or the queue is full. If the timeout is exceeded, your call will be rejected with an
   error. Default: 60 (seconds).
+
+- `options.parallelism`: The number of goroutines that process jobs from the binary heap priority queue simultaneously. Default: 10.
 
 - `pipeline_size`: The binary heaps priority queue (PQ) settings. The priority
   queue stores jobs in order of priority. The priority can be set

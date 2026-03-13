@@ -63,8 +63,8 @@ centrifuge:
   proxy_address: "tcp://127.0.0.1:30000"
 
   # gRPC server API address (docs: https://centrifugal.dev/docs/server/server_api#grpc-api)
-  # Optional, default: tcp://127.0.0.1:30000. Centrifugo: `grpc_api` should be set to true and `grpc_port` should be the same as in the RR's config.
-  grpc_api_address: tcp://127.0.0.1:30000
+  # Optional, default: 127.0.0.1:10000. Centrifugo: `grpc_api` should be set to true and `grpc_port` should be the same as in the RR's config.
+  grpc_api_address: "127.0.0.1:10000"
 
   # Use gRPC gzip compressor
   # Optional, default: false

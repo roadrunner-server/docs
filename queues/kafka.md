@@ -317,6 +317,12 @@ jobs:
           #
           # Optional, default: false.
           block_rebalance_on_poll: true
+
+          # instance_id sets an instance ID to use for the consumer group.
+          # This is used for static group membership (KIP-345).
+          #
+          # Optional, default: empty.
+          instance_id: ""
 ```
 
 {% endcode %}

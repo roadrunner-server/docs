@@ -27,6 +27,10 @@ sqs:
   # Default: empty
   region: us-west-1
 
+  # AWS Session Token. Used for temporary credentials (e.g., from AWS STS).
+  # Default: empty
+  session_token: ""
+
   # AWS SQS endpoint.
   # This parameter *is only required* if your SQS endpoint is *not* hosted on the AWS infrastructure.
   # Always leave this empty if your queue is on AWS SQS.

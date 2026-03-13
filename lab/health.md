@@ -54,7 +54,7 @@ To access the readiness check, use the following URL: `http://127.0.0.1:2114/rea
 
 The readiness check endpoint will return `HTTP 200` if there is at least one worker ready to take the request (i.e., not
 currently busy with another request). If there is no worker ready or all workers are busy, the endpoint will return
-`HTTP 500` status code (you can override this with the `unavailable_status_code` option).
+`HTTP 503` status code (you can override this with the `unavailable_status_code` option).
 
 Like the health check, you can target a specific plugin using the `plugin` query parameter:
 
@@ -70,7 +70,7 @@ The response format is the same JSON structure as the `/health` endpoint.
 
 ## Customizing the Not-Ready Status Code
 
-By default, Status Plugin uses a `500` status code. However, you can replace this status code with a custom one.
+By default, the Status Plugin uses a `503` status code. However, you can replace this status code with a custom one.
 
 To achieve this, utilize the `unavailable_status_code` option:
 

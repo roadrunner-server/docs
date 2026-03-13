@@ -201,6 +201,11 @@ http:
     # Default: 60s
     destroy_timeout: 60s
 
+    # Timeout for streaming responses. Zero means 60s.
+    #
+    # Default: 60s
+    stream_timeout: 60s
+
     # Supervisor is used to control HTTP workers (previous name was "limit", video: https://www.youtube.com/watch?v=NdrlZhyFqyQ).
     # "Soft" limits will not interrupt current request processing. "Hard"
     # limit on the contrary - interrupts the execution of the request.
@@ -242,7 +247,7 @@ http:
       # Directory to use as a certificate/pk, account info storage
       #
       # Optional. Default: rr_cache
-      certs_dir: rr_le_certs
+      cache_dir: rr_le_certs
 
       # User email
       #
@@ -351,7 +356,7 @@ http:
 ### Let's Encrypt
 
 RR can automatically obtain TLS certificates for your domain. The folder with your certs might be moved between servers,
-RR will check the `certs_dir` and obtain a new certificate if the old one is above to expire.
+RR will check the `cache_dir` and obtain a new certificate if the old one is about to expire.
 
 RR will track your certificate's expiration date and refresh it automatically.
 

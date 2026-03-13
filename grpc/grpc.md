@@ -438,10 +438,10 @@ RoadRunner automatically registers a [`grpc.health.v1.Health`](https://github.co
 
 ### Available methods
 
-| Method  | Description |
-|---------|-------------|
-| `Check` | Returns the current serving status of the server: `SERVING` or `NOT_SERVING`. |
-| `Watch` | Opens a server-side stream that pushes status changes in real time. |
+| Method  | Description                                                                                                       |
+| ------- | ----------------------------------------------------------------------------------------------------------------- |
+| `Check` | Returns the current serving status of the server: `SERVING` or `NOT_SERVING`.                                     |
+| `Watch` | Opens a server-side stream that pushes status changes in real time.                                               |
 | `List`  | Returns the health status of all registered services. **Available since v2025.1.0** (requires `grpc >= v1.72.0`). |
 
 ### Lifecycle
@@ -550,7 +550,7 @@ grpc:
 
   # MaxConnectionAgeGrace is an additive period after MaxConnectionAge after
   #	which the connection will be forcibly closed.
-  max_connection_age_grace: 0s8h
+  max_connection_age_grace: 0s
 
   # Maximal concurrent streams count.
   #

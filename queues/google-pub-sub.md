@@ -27,7 +27,7 @@ version: "3"
 
 google_pub_sub:
   insecure: true
-  host: 127.0.0.1:8085
+  endpoint: 127.0.0.1:8085
 
 jobs:
   pool:
@@ -48,7 +48,7 @@ jobs:
 
 ## Configuration options
 
-**Here is a detailed description of each of the amqp-specific options:**
+**Here is a detailed description of each of the Google Pub/Sub-specific options:**
 
 ### Priority
 
@@ -58,13 +58,11 @@ from `pipe1` have been processed.
 
 ### Project ID
 
-`project_id` - required, string. Google Cloud project ID. You can use a special value `*detect-project-id*` (with asterics) to detect the project ID from the credentials. More info: [link](https://developers.google.com/accounts/docs/application-default-credentials)
+`project_id` - required, string. Google Cloud project ID. You can use a special value `*detect-project-id*` (with asterisks) to detect the project ID from the credentials. More info: [link](https://developers.google.com/accounts/docs/application-default-credentials)
 
 ### Topic
 
 `topic` - required, string. Topic is a named resource that represents a feed of messages. The specified topic ID must start with a letter, and contain only letters `([A-Za-z])`, numbers `([0-9])`, dashes `(-)`, underscores `(_)`, periods `(.)`, tildes `(~)`, plus `(+)` or percent signs `(%)`. It must be between 3 and 255 characters in length, and must not start with "goog". For more information, see: [link](https://cloud.google.com/pubsub/docs/admin#resource_names)
-
-https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic
 
 ### Dead letter topic
 

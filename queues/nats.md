@@ -49,7 +49,7 @@ jobs:
         # Default: 1000
         rate_limit: 100
 
-        # Delete the stream when after pipeline was stopped
+        # Delete the stream after the pipeline is stopped
         # Default: false
         delete_stream_on_stop: false
 
