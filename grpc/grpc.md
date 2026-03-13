@@ -432,6 +432,50 @@ Options for the `client_auth_type` are:
 - `require_and_verify_client_cert`
 - `no_client_certs`
 
+## Health Checking
+
+RoadRunner automatically registers a [`grpc.health.v1.Health`](https://github.com/grpc/grpc/blob/master/doc/health-checking.md) service on the same gRPC listen port. This is the standard gRPC health checking protocol — no additional configuration is required.
+
+### Available methods
+
+| Method  | Description |
+|---------|-------------|
+| `Check` | Returns the current serving status of the server: `SERVING` or `NOT_SERVING`. |
+| `Watch` | Opens a server-side stream that pushes status changes in real time. |
+| `List`  | Returns the health status of all registered services. **Available since v2025.1.0** (requires `grpc >= v1.72.0`). |
+
+### Lifecycle
+
+When RoadRunner starts, the gRPC health service reports `NOT_SERVING` until workers are allocated and ready, then transitions to `SERVING`. On stop or reset the status reverts to `NOT_SERVING`.
+
+### Using `grpc-health-probe`
+
+[`grpc-health-probe`](https://github.com/grpc-ecosystem/grpc-health-probe) is a command-line tool commonly used as a Kubernetes health check for gRPC services.
+
+{% code %}
+
+```bash
+grpc-health-probe -addr=127.0.0.1:9001
+```
+
+{% endcode %}
+
+If the server is healthy the tool exits with code `0`; otherwise it exits with a non-zero code.
+
+**Example Kubernetes liveness probe:**
+
+```yaml
+livenessProbe:
+  exec:
+    command: ["grpc-health-probe", "-addr=:9001"]
+  initialDelaySeconds: 5
+  periodSeconds: 10
+```
+
+{% hint style="info" %}
+For HTTP-based health checks (useful for load balancers and non-gRPC infrastructure), see the [Health and Readiness checks](../lab/health.md) page which documents the `/health` and `/ready` endpoints provided by the **status** plugin.
+{% endhint %}
+
 ## Full example of Configuration
 
 {% code title=".rr.yaml" %}

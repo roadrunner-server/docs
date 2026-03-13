@@ -48,9 +48,25 @@ The health check endpoint will return `HTTP 200` if there is at least one worker
 ]
 ```
 
+## Readiness Check
+
+To access the readiness check, use the following URL: `http://127.0.0.1:2114/ready`.
+
 The readiness check endpoint will return `HTTP 200` if there is at least one worker ready to take the request (i.e., not
 currently busy with another request). If there is no worker ready or all workers are busy, the endpoint will return
-`HTTP 500` status code (you can override this too).
+`HTTP 500` status code (you can override this with the `unavailable_status_code` option).
+
+Like the health check, you can target a specific plugin using the `plugin` query parameter:
+
+- `http://127.0.0.1:2114/ready?plugin=http`
+- `http://127.0.0.1:2114/ready?plugin=grpc`
+
+{% hint style="info" %}
+You can specify multiple plugins by separating them with a comma. For example:
+`http://127.0.0.1:2114/ready?plugin=http&plugin=grpc`.
+{% endhint %}
+
+The response format is the same JSON structure as the `/health` endpoint.
 
 ## Customizing the Not-Ready Status Code
 
@@ -66,6 +82,23 @@ version: "3"
 status:
   address: 127.0.0.1:2114
   unavailable_status_code: 501
+```
+
+{% endcode %}
+
+## Check Timeout
+
+The status plugin uses a timeout when checking the status of plugins. By default, this timeout is **60 seconds**. You
+can customize it using the `check_timeout` option:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+status:
+  address: 127.0.0.1:2114
+  check_timeout: 30s
 ```
 
 {% endcode %}
