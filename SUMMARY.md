@@ -91,6 +91,7 @@
 ## ⚡️ gRPC
 
 - [Intro into gRPC](grpc/grpc.md)
+- [Interceptors](grpc/interceptors.md)
 - [Protoreg](grpc/protoreg.md)
 
 ## 📈 Logging and Observability
