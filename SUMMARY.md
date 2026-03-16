@@ -128,6 +128,7 @@
 
 ## 📚 Releases
 
+- [v2025.1.10](releases/v2025-1-10.md)
 - [v2025.1.9](releases/v2025-1-9.md)
 - [v2025.1.8](releases/v2025-1-8.md)
 - [v2025.1.7](releases/v2025-1-7.md)
