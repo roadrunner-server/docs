@@ -7,6 +7,8 @@ It consists of two main parts:
 1. **protoc-plugin `protoc-gen-php-grpc`:** This is a plugin for the protoc compiler that generates PHP code from a gRPC service definition file (`.proto`). It generates PHP classes that correspond to the service definition and message types. These classes provide an interface for handling incoming gRPC requests and sending responses back to the client.
 2. **gRPC server:** This is a server that starts PHP workers and listens for incoming gRPC requests. It receives requests from gRPC clients, proxies them to the PHP workers, and sends the responses back to the client. The server is responsible for managing the lifecycle of the PHP workers and ensuring that they are available to handle requests.
 
+For custom gRPC interceptor plugins, see [Interceptors](./interceptors.md).
+
 ## Protoc-plugin
 
 The first step is to define a `.proto` file that describes the gRPC service and messages that your PHP application will handle.
