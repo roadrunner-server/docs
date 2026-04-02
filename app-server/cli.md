@@ -85,7 +85,7 @@ a `.pid` file:
 ## Debug mode
 
 RoadRunner also supports running the Golang pprof server in debug mode using the `-d` option. This option enables the
-debug mode, which starts the pprof server and listens for incoming requests on the port 6061.
+debug mode, which starts the pprof server and listens for incoming requests on port 6061.
 
 {% code %}
 
