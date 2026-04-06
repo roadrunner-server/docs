@@ -64,7 +64,60 @@ amqp:
 Upon establishing a connection to the server, you can create a new queue that utilizes this connection and encompasses
 the queue settings, including those specific to AMQP.
 
-## Configuration
+## Pipeline Configuration Formats
+
+AMQP pipeline configuration is selected by `jobs.pipelines.<name>.config.version`:
+
+- `0`, `1`, or omitted: legacy flat parser.
+- `2`: nested parser with `exchange` and `queue` sections (recommended).
+
+## Version 2 Configuration (Recommended)
+
+Set `jobs.pipelines.<name>.config.version: 2` and define `exchange` and `queue` sections.
+
+### Options in `config`
+
+- `priority`: pipeline priority. If a job has priority `0`, it inherits the pipeline priority. Default: `10`.
+- `prefetch`: RabbitMQ QoS prefetch. Default: `10`.
+- `redial_timeout`: reconnect timeout in seconds. Default: `60`.
+
+### Exchange settings
+
+- `name`: exchange name. Default: `amqp.default`.
+- `type`: exchange type. Supported: `direct`, `fanout`, `topic`, `headers`. Default: `direct`.
+- `durable`: durable exchange flag. Default: `false`.
+- `auto_delete`: auto-delete exchange when last queue is unbound. Default: `false`.
+- `declare`: declare exchange on startup. Default: `true`.
+
+### Queue settings
+
+- `name`: queue name. Optional for producer-only pipelines; required for `run`, `resume`, and `pause`.
+- `routing_key`: routing key. Required when `exchange.type != fanout`.
+- `durable`: durable queue flag. Default: `false`.
+- `auto_delete`: auto-delete queue after the last consumer unsubscribes. Default: `false`.
+- `exclusive`: exclusive queue flag. Default: `false`.
+- `consumer_id`: consumer identifier. Default: `roadrunner-<uuid>`.
+- `delete_on_stop`: delete queue when pipeline stops. Default: `false`.
+- `multiple_ack`: ACK this and prior unacked deliveries on the same channel. Default: `false`.
+- `requeue_on_fail`: use RabbitMQ requeue on failure (Nack). Default: `false`.
+- `headers`: queue declaration arguments (for example, `x-queue-mode: lazy`).
+- `declare`: declare and bind queue on startup. Default: `true`.
+
+{% hint style="info" %}
+See also [AMQP model](https://www.rabbitmq.com/tutorials/amqp-concepts.html#amqp-model) documentation section.
+{% endhint %}
+
+{% hint style="info" %}
+Producer-only pipeline: `queue.name` can be empty, `push` works, but `run`, `resume`, and `pause` will fail without a queue name.
+{% endhint %}
+
+{% hint style="info" %}
+If `exchange.type` is not `fanout`, `queue.routing_key` must be set.
+{% endhint %}
+
+{% hint style="info" %}
+Read more about Nack in RabbitMQ official docs: https://www.rabbitmq.com/confirms.html#consumer-nacks-requeue
+{% endhint %}
 
 {% code title=".rr.yaml" %}
 
@@ -72,235 +125,165 @@ the queue settings, including those specific to AMQP.
 version: "3"
 
 amqp:
-  addr: amqp://guest:guest@127.0.0.1:5672
-
-  # AMQPS TLS configuration
-  #
-  # This section is optional
+  addr: amqp://guest:guest@127.0.0.1:5672/
   tls:
-    # Path to the key file
-    #
-    # This option is required
     key: ""
-
-    # Path to the certificate
-    #
-    # This option is required
     cert: ""
-
-    # Path to Root CAs used by the AMQP client to trust and verify the broker/server certificate during TLS dial.
-    #
-    # This option is optional
     root_ca: ""
-
-    # Client auth type (mTLS, peer verification).
-    #
-    # This option is optional. Default value: no_client_cert. Possible values: no_client_cert, request_client_cert, require_any_client_cert, verify_client_cert_if_given, require_and_verify_client_cert
     client_auth_type: no_client_cert
 
 jobs:
   pipelines:
-    # User defined name of the queue.
-    example:
-      # Driver name
-      #
-      # This option is required.
+    p1:
       driver: amqp
-
-      # Driver's configuration
-      #
-      # Should not be empty
       config:
-
-        # QoS - prefetch.
-        #
-        # Default: 10
+        version: 2
+        priority: 10
         prefetch: 10
-
-        # Pipeline priority
-        #
-        # If the job has priority set to 0, it will inherit the pipeline's priority. Default: 10.
-        priority: 1
-
-        # Redial timeout (in seconds). How long to try to reconnect to the AMQP server.
-        #
-        # Default: 60
         redial_timeout: 60
-
-        # Durable queue
-        #
-        # Default: false
-        durable: false
-
-        # Durable exchange (rabbitmq option: https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges)
-        #
-        # Default: false
-        exchange_durable: false
-
-        # Auto-delete (exchange is deleted when last queue is unbound from it): https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges
-        #
-        # Default: false
-        exchange_auto_delete: false
-
-        # Auto-delete (queue that has had at least one consumer is deleted when last consumer unsubscribes) (rabbitmq option: https://www.rabbitmq.com/queues.html#properties)
-        #
-        # Default: false
-        queue_auto_delete: false
-
-        # Delete queue when stopping the pipeline
-        #
-        # Default: false
-        delete_queue_on_stop: false
-
-        # Queue name
-        #
-        # Optional for producer-only pipelines. Required for run/resume/pause.
-        # Can be omitted for push-only mode.
-        queue: test-1-queue
-
-        # Exchange name
-        #
-        # Optional. Default: amqp.default
-        exchange: amqp.default
-
-        # Exchange type
-        #
-        # Default: direct. Possible values: direct, fanout, topic, headers.
-        exchange_type: direct
-
-        # Routing key for the queue
-        #
-        # Default: empty. Required for push when exchange_type != fanout.
-        routing_key: test
-
-        # Declare a queue exclusive at the exchange
-        #
-        # Default: false
-        exclusive: false
-
-        # When multiple is true, this delivery and all prior unacknowledged deliveries
-        # on the same channel will be acknowledged.  This is useful for batch processing
-        # of deliveries
-        #
-        # Default: false
-        multiple_ack: false
-
-        # The consumer_id is identified by a string that is unique and scoped for all consumers on this channel.
-        #
-        # Default: "roadrunner" + uuid.
-        consumer_id: "roadrunner-uuid"
-
-        # Use rabbitmq mechanism to requeue the job on fail
-        #
-        # Default: false
-        requeue_on_fail: false
-
-        # Queue headers (new in 2.12.2)
-        #
-        # Default: null
-        queue_headers:
-          x-queue-mode: lazy
+        exchange:
+          name: amqp.default
+          type: direct
+          durable: false
+          auto_delete: false
+          declare: true
+        queue:
+          name: p1-queue
+          routing_key: p1
+          durable: false
+          auto_delete: false
+          exclusive: false
+          consumer_id: ""
+          delete_on_stop: false
+          multiple_ack: false
+          requeue_on_fail: false
+          headers:
+            x-queue-mode: lazy
+          declare: true
 ```
 
 {% endcode %}
 
-## Configuration options
+## Read-only RabbitMQ Permissions
 
-**Here is a detailed description of each of the amqp-specific options:**
+If the RabbitMQ user does not have `configure` permission, disable declarations in pipeline configuration:
 
-### Priority
+- `jobs.pipelines.<name>.config.exchange.declare: false`
+- `jobs.pipelines.<name>.config.queue.declare: false`
 
-`priority`- job priority. A lower value corresponds to a higher priority. For instance, consider two pipelines: `pipe1`
-with a priority of `1` and `pipe10` with a priority of `10`. Workers will only take jobs from `pipe10` if all the jobs
-from `pipe1` have been processed.
+This avoids startup declaration failures and passive queue-check failures in restricted environments.
 
-### Prefetch
+{% code title=".rr.yaml" %}
 
-`prefetch` - rabbitMQ QoS prefetch. See also ["prefetch-size"](https://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.qos.prefetch-size). Note that if you use a large number of workers and a small `prefetch` number, some of the workers may not be loaded with messages (jobs) due to the blocking nature of the prefetch. This would result in poor RoadRunner performance and waste of resources.
+```yaml
+version: "3"
 
-### Queue
+amqp:
+  addr: amqp://readonly:readonly@127.0.0.1:5675/TEST
 
-`queue` - AMQP internal (inside the driver) queue name. Optional for producer-only pipelines, required for consumer lifecycle operations (`run`, `resume`, `pause`).
+jobs:
+  pipelines:
+    readonly:
+      driver: amqp
+      config:
+        version: 2
+        exchange:
+          name: test-1-exchange
+          type: fanout
+          durable: true
+          auto_delete: false
+          declare: false
+        queue:
+          name: test-1-queue
+          routing_key: test-1
+          durable: true
+          auto_delete: false
+          exclusive: false
+          declare: false
+```
 
-### Exchange
+{% endcode %}
 
-`exchange` - rabbitMQ exchange name. Optional, default: `amqp.default`.
+## Runtime / RPC (`jobs.Declare`)
+
+Dynamic pipeline declaration over RPC remains flat. It does not use nested `config.exchange` / `config.queue` sections.
+
+Declaration control keys in `jobs.Declare` payload:
+
+- `exchange_declare`
+- `queue_declare`
+
+## Legacy Flat Configuration (`version: 0|1`)
+
+Legacy flat keys remain supported under `jobs.pipelines.<name>.config` when `config.version` is `0`, `1`, or omitted:
+
+- `priority`
+- `prefetch`
+- `queue`
+- `exchange`
+- `exchange_type`
+- `routing_key`
+- `exclusive`
+- `multiple_ack`
+- `requeue_on_fail`
+- `queue_headers`
+- `durable`
+- `delete_queue_on_stop`
+- `redial_timeout`
+- `exchange_durable`
+- `exchange_auto_delete`
+- `queue_auto_delete`
+- `consumer_id`
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+amqp:
+  addr: amqp://guest:guest@127.0.0.1:5672/
+
+jobs:
+  pipelines:
+    p1:
+      driver: amqp
+      config:
+        version: 1
+        priority: 10
+        prefetch: 10
+        queue: p1-queue
+        exchange: amqp.default
+        exchange_type: direct
+        routing_key: p1
+        exclusive: false
+        multiple_ack: false
+        requeue_on_fail: false
+        queue_headers: {} # optional, e.g. { x-queue-mode: lazy }
+        durable: false
+        delete_queue_on_stop: false
+        redial_timeout: 60
+        exchange_durable: false
+        exchange_auto_delete: false
+        queue_auto_delete: false
+        consumer_id: ""
+```
+
+{% endcode %}
 
 {% hint style="info" %}
-See also [AMQP model](https://www.rabbitmq.com/tutorials/amqp-concepts.html#amqp-model) documentation section.
+In legacy format, `queue` can be omitted for push-only pipelines, but `run`, `resume`, and `pause` require a queue name. Also, `routing_key` is required when `exchange_type != fanout`.
 {% endhint %}
 
-{% hint style="info" %}
-Producer-only pipeline: `queue` can be empty, `push` works, but `run`, `resume`, and `pause` will fail without a queue.
-{% endhint %}
+## Migration
 
-### Exchange type
+- Prefer `config.version: 2` with nested `exchange` and `queue` sections for new configurations.
+- Existing flat configurations remain compatible through `config.version: 0`, `config.version: 1`, or omitted `config.version`.
+- For restricted RabbitMQ permissions, set `exchange.declare: false` and `queue.declare: false`.
 
-`exchange_type` - rabbitMQ exchange type. May be one of `direct`, `fanout`, `topic`, `headers`.
+## What's Next?
 
-### Routing key
-
-`routing_key` - queue's routing key. Required for `push` when `exchange_type != fanout`.
-
-### Exclusive
-
-`exclusive` - applied to the queue, exclusive queues cannot be redeclared. If set to true, and you attempt to declare
-the same pipeline twice, it will result in an error.
-
-### Multiple ack
-
-`multiple_ack` - this delivery, along with all prior unacknowledged deliveries on the same channel, will be
-acknowledged. This feature is beneficial for batch processing of deliveries and is applicable only for `Ack`, not for
-`Nack`.
-
-### Requeue on fail
-
-`requeue_on_fail` - requeue on Nack (by RabbitMQ).
-
-{% hint style="info" %}
-Read more about Nack in RabbitMQ official docs: https://www.rabbitmq.com/confirms.html#consumer-nacks-requeue
-{% endhint %}
-
-### Queue headers
-
-`queue_headers` - used to pass arguments to the `Queue` create method, such as `x-queue-mode: lazy`
-
-### Durable
-
-`durable` - create a durable queue.
-
-Default: `false`
-
-### Delete queue on stop
-
-`delete_queue_on_stop` - delete the queue when the pipeline is stopped.
-
-Default: `false`
-
-### Redial timeout
-
-`redial_timeout` - Redial timeout (in seconds). How long to try to reconnect to the AMQP server.
-
-### Exchange durable
-
-`exchange_durable` - Durable
-exchange ([rabbitmq option](https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges)).
-
-Default: `false`
-
-### Exchange auto delete
-
-`exchange_auto_delete` - Auto-delete (exchange is deleted when last queue is unbound from it): [link](https://www.rabbitmq.com/tutorials/amqp-concepts.html#exchanges).
-
-Default: `false`
-
-### Queue auto delete
-
-`queue_auto_delete` - Auto-delete (queue that has had at least one consumer is deleted when last consumer
-unsubscribes): [link](https://www.rabbitmq.com/queues.html#properties).
-
-Default: `false`
-
-### Consumer id
-
-`consumer_id` - string that is unique and scoped for all consumers on this channel.
+1. [Queues and Jobs overview](overview-queues.md) - Review the full jobs pipeline model before configuring AMQP in production.
+2. [Read-only RabbitMQ permissions](https://www.rabbitmq.com/docs/access-control) - See declaration flags for restricted users and review the Runtime / RPC (`jobs.Declare`) section on this page for flat declaration keys.
+3. [Pipeline configuration formats](../intro/config.md) - Confirm when to use `config.version: 2` versus legacy `0|1`, and review the general RoadRunner configuration structure.
+4. [Exchange settings](kafka.md) and [Queue settings](sqs.md) - Compare exchange and queue responsibilities when tuning routing and consumption behavior.
+5. [Allocate Timeout](../known-issues/allocate-timeout.md) and [CRC validation failed](../known-issues/stdout-crc.md) - Use these troubleshooting references when workers fail to process queue jobs as expected.
