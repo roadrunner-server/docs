@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh issue:*)",
+      "Bash(for dir:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/valery/projects/opensource/github/spiral/docs/**)",
+      "Bash(done)",
+      "Bash(grep -l \"health\\\\|status\\\\|readiness\" /Users/valery/projects/opensource/github/spiral/docs/releases/*.md)",
+      "Bash(gh api:*)",
+      "Bash(gh repo:*)",
+      "Bash(ls -lt /Users/valery/projects/opensource/github/spiral/docs/releases/*.md)",
+      "Bash(cat <<'EOF'\nDocumented plugins to find:\nhttp, grpc, centrifuge, service, server, locks, tcp, amqp, kafka, nats, sqs, beanstalk, boltdb, memory, kv, redis, memcached, otel, metrics, logger, status, static, headers, gzip, send, proxy, jobs, temporal\n\nFound repos matching:\n- http\n- grpc\n- centrifuge\n- service\n- server\n- locks \\(lock\\)\n- tcp\n- amqp\n- kafka\n- nats\n- sqs\n- beanstalk\n- boltdb\n- memory\n- kv\n- redis\n- memcached\n- otel\n- metrics\n- logger\n- status\n- headers\n- gzip\n- send\n- proxy \\(proxy_ip_parser - related\\)\n- jobs\n- temporal \\(not found as separate repo, may be in roadrunner main\\)\nEOF)",
+      "Bash(__NEW_LINE_7f30b59b482337ce__ echo:*)",
+      "Read(//private/tmp/**)",
+      "Bash(echo \"=== SERVER PLUGIN ===\" && \\\\\nhead -150 /tmp/server_config.txt && \\\\\necho \"\" && \\\\\necho \"=== LOCK PLUGIN ===\" && \\\\\nhead -150 /tmp/lock_config.txt && \\\\\necho \"\" && \\\\\necho \"=== TCP PLUGIN ===\" && \\\\\nhead -150 /tmp/tcp_config.txt)",
+      "Bash(echo \"=== AMQP PLUGIN ===\" && \\\\\nhead -150 /tmp/amqp_config.txt && \\\\\necho \"\" && \\\\\necho \"=== KAFKA PLUGIN ===\" && \\\\\nhead -150 /tmp/kafka_config.txt && \\\\\necho \"\" && \\\\\necho \"=== NATS PLUGIN ===\" && \\\\\nhead -150 /tmp/nats_config.txt)",
+      "Bash(echo \"=== SQS PLUGIN ===\" && \\\\\nhead -100 /tmp/sqs_config.txt && \\\\\necho \"\" && \\\\\necho \"=== BEANSTALK PLUGIN ===\" && \\\\\nhead -100 /tmp/beanstalk_config.txt && \\\\\necho \"\" && \\\\\necho \"=== BOLTDB PLUGIN ===\" && \\\\\nhead -100 /tmp/boltdb_config.txt && \\\\\necho \"\" && \\\\\necho \"=== MEMORY PLUGIN ===\" && \\\\\nhead -100 /tmp/memory_config.txt)",
+      "Bash(__NEW_LINE_31fb5d3c320efdd7__ cat:*)",
+      "Bash(/tmp/plugin_summary.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(ls:*)",
+      "Bash(gh pr:*)",
+      "Bash(git pull:*)",
+      "Bash(git:*)"
+    ]
+  }
+}
