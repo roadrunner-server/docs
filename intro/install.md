@@ -24,10 +24,8 @@ found [here](https://github.com/roadrunner-server/roadrunner/pkgs/container/road
 **Here is an example of usage:**
 
 ```dockerfile
-FROM ghcr.io/roadrunner-server/roadrunner:2024.X.X AS roadrunner
 FROM php:8.x-cli
-
-COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
+COPY --from=ghcr.io/roadrunner-server/roadrunner:2025.X.X /usr/bin/rr /usr/local/bin/rr
 
 # Install and configure your application
 # ...
@@ -36,7 +34,7 @@ CMD rr serve -c .rr.yaml
 ```
 
 {% hint style="warning" %}
-Don't forget to replace `2024.X.X` with the desired version of RoadRunner.
+Don't forget to replace `2025.X.X` with the desired version of RoadRunner.
 {% endhint %}
 
 ## Composer
