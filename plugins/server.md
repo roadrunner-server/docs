@@ -25,17 +25,15 @@ server:
     # Default: ""
     user: ""
 
-    # Script execute timeout
-    #
-    # Default: 60s [60m, 60h], if used w/o units its means - NANOSECONDS.
+    # Timeout after the command starts. Default: 60s. Include a unit.
     exec_timeout: 20s
 
-    # Environment variables for the worker processes.
+    # Environment variables for the initialization command.
     #
     # Default: <empty map>
     env:
-      - SOME_KEY: "SOME_VALUE"
-      - SOME_KEY2: "SOME_VALUE2"
+      SOME_KEY: "SOME_VALUE"
+      SOME_KEY2: "SOME_VALUE2"
 
     # Exit RR if the `on_init` command fails or exceeds the `exec_timeout`.
     exit_on_error: false
@@ -50,17 +48,12 @@ server:
   # Default: ""
   user: ""
 
-  # Group name (not GID) for the worker processes. An empty value means to use the RR process user.
-  #
-  # Default: ""
-  group: ""
-
   # Environment variables for the worker processes.
   #
   # Default: <empty map>
   env:
-    - SOME_KEY: "SOME_VALUE"
-    - SOME_KEY2: "SOME_VALUE2"
+    SOME_KEY: "SOME_VALUE"
+    SOME_KEY2: "SOME_VALUE2"
 
   relay: pipes
 ```
@@ -84,10 +77,12 @@ The `on_init` section is used for application initialization or warming up befor
 a command script that will be executed before starting the workers. You can also set environment variables to pass to
 this script.
 
+With server plugin v6, `on_init.env` values override inherited process environment values. In v5, inherited values took precedence for this command. Check for conflicting variable names when upgrading. `server.env` does not configure the initialization command.
+
+The `on_init.exec_timeout` interval starts after the command starts successfully. Use a duration with a unit, such as `20s`.
+
 {% hint style="info" %}
-If the `on_init` command fails (i.e., returns a non-zero exit code), RoadRunner will log the error but continue
-execution. This ensures that a failure during initialization does not interrupt the application's operation.
-Use `on_init.exit_on_error: true` to stop RoadRunner if `on_init` command fails or exceeds the `exec_timeout`.
+By default, RoadRunner logs an `on_init` command error and continues startup. Set `on_init.exit_on_error: true` to stop RoadRunner if the command fails or exceeds `exec_timeout`.
 {% endhint %}
 
 ### Worker starting command
@@ -98,21 +93,30 @@ The `server.command` option is required and is used to start the worker pool for
 This option can be overridden by plugins with a pool section, such as the `http.pool.command`, or in general `<plugin>.pool.command`.
 {% endhint %}
 
-The `user` and `group` options allow you to set the user and group that will start and own the worker process. This
-feature provides an additional layer of security and control over the application's execution environment.
+In v6, a scalar command or a one-element sequence is split at whitespace. Repeated spaces and tabs do not create empty arguments. This is not shell parsing: quotes inside a scalar do not keep words in one argument. Use a sequence with one element for the executable and one for each argument when an argument contains spaces:
 
-{% hint style="info" %}
-An empty value means to use the RoadRunner process user.
-{% endhint %}
+{% code title=".rr.yaml" %}
+
+```yaml
+server:
+  command: ["php", "worker.php", "--label", "my worker"]
+```
+
+{% endcode %}
+
+The same argument rules apply to `server.on_init.command` and pool command overrides.
+
+### Worker User
+
+Set `server.user` to an account name, not a numeric UID. An empty value keeps the RoadRunner process user. The server plugin resolves the selected account's UID and GID during initialization. `server.group` does not override that GID.
+
+In v6, a failed account lookup or an invalid numeric UID or GID stops initialization. Correct the account name before restarting RoadRunner. A nonempty `server.user` is not supported on Windows and also stops initialization; remove that setting on Windows.
 
 {% hint style="warning" %}
-RoadRunner must be started from the root user. Root access is needed only to fork the process under a
-different user. Once the worker process is started, it will run with the specified user and group permissions,
-providing a secure and controlled execution environment for the application. All temporary files (`http` for example)
-would be created with the provided user/group
+On Unix, RoadRunner needs permission to change process credentials when `server.user` selects a different account.
 {% endhint %}
 
-The `env` option allows you to set environment variables to pass to the worker script.
+Use `server.env` to set [worker environment variables](../php/environment.md#setting-environment-variables).
 
 ## PHP Client
 

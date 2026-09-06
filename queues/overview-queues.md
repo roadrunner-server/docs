@@ -85,12 +85,9 @@ jobs:
 
 {% endcode %}
 
-Above is a complete list of all possible common Jobs settings. Let's now figure out what they are responsible for.
+Common Jobs settings:
 
-- `num_pollers`: The number of threads that are simultaneously reading from the priority
-  queue and send payloads to the workers. There is no optimal number, it depends
-  heavily on the performance of the PHP worker. For example, echo workers
-  can process over 300k jobs per second within 64 pollers (on a 32 core CPU). `num_pollers` should not be less than the number of workers to properly load all of them with the jobs.
+- `num_pollers`: RR derives the number of queue pollers from the worker count and ignores this setting in jobs v5 and v6 beta. With an explicit worker count, a single pool uses `num_workers + 2` pollers. Named pools in v6 beta use the total worker count plus two.
 
 - `timeout`: The internal Golang context timeouts (in seconds). For
   example, if the connection was disconnected or your push was in the middle of a
@@ -98,7 +95,7 @@ Above is a complete list of all possible common Jobs settings. Let's now figure 
   or the queue is full. If the timeout is exceeded, your call will be rejected with an
   error. Default: 60 (seconds).
 
-- `options.parallelism`: The number of goroutines that process jobs from the binary heap priority queue simultaneously. Default: 10.
+- `options.parallelism`: Limits concurrent pipeline initialization and destruction. Default: `10` when `options` is omitted; `5` when `options.parallelism` is zero.
 
 - `pipeline_size`: The binary heaps priority queue (PQ) settings. The priority
   queue stores jobs in order of priority. The priority can be set
@@ -116,6 +113,8 @@ driver queue until after Ack.
 - `pool`: All settings in this section are similar to the worker pool settings
   described on the [configuration page](https://roadrunner.dev/docs/intro-config).
 
+- `pools`: Named worker pools in jobs v6 beta. Use this instead of `pool`. See [Named Worker Pools](#named-worker-pools-v6-beta).
+
 - `consume`: Contains an array of the names of all queues specified in the
   `"pipelines"` section, which should be processed by the concierge specified in
   the global `"server"` section (see the [PHP worker's settings](../php/worker.md)).
@@ -123,6 +122,60 @@ driver queue until after Ack.
 - `pipelines`: This section contains a list of all queues created in the
   RoadRunner. The key is a unique *queue identifier*, and the value is an object of the
   driver-specific configuration (we will talk about this later).
+
+{% hint style="warning" %}
+In jobs `v6.0.0-beta.10`, an explicit `jobs.pool` with omitted or zero `num_workers` creates only two pollers, even after the pool selects its default worker count. Set `jobs.pool.num_workers` to a value greater than zero. Setting `num_pollers` does not correct this.
+{% endhint %}
+
+### Named Worker Pools (v6 Beta)
+
+The jobs v6 beta line (`v6.0.0-beta.10`) supports named worker pools. Jobs v5 does not support this configuration. Use `jobs.pools` instead of `jobs.pool`. Setting both is an error.
+
+Set each pipeline's `pool` to a configured pool name:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+rpc:
+  listen: tcp://127.0.0.1:6001
+
+server:
+  command: php consumer.php
+  relay: pipes
+
+jobs:
+  pools:
+    default:
+      num_workers: 4
+    reports:
+      num_workers: 1
+  consume: ["emails", "reports"]
+  pipelines:
+    emails:
+      driver: memory
+      pool: default
+      config:
+        prefetch: 10
+    reports:
+      driver: memory
+      pool: reports
+      config:
+        prefetch: 10
+```
+
+{% endcode %}
+
+On `jobs.Push` and `jobs.PushBatch`, RR copies the pipeline's `pool` setting into the `pool` job header. This replaces any existing value. The consumer selects the named pool from the first header value.
+
+Treat `pool` as a reserved header. An unknown pool name causes a negative acknowledgment, even in single-pool mode. In multi-pool mode, a missing or empty `pool` header also causes a negative acknowledgment. A pool named `default` is not an automatic fallback.
+
+Producers that publish directly to a broker must supply the `pool` header. The pipeline setting alone does not route incoming jobs. Process existing jobs without this header before switching to named pools.
+
+{% hint style="warning" %}
+BoltDB `v6.0.0-beta.5` does not preserve the `pool` header in stored jobs. With jobs `v6.0.0-beta.10`, an RR instance that consumes BoltDB pipelines must retain `jobs.pool`; do not switch it to `jobs.pools`. This also affects newly published jobs, so draining old jobs does not remove the restriction.
+{% endhint %}
 
 ## PHP Client (Producer)
 
@@ -353,6 +406,8 @@ IP address, the user's token or session id, etc.
 
 Headers can only contain string values and are not serialized in any way during transmission, so be careful when
 specifying them.
+
+In jobs v6 beta, `pool` is [reserved for worker-pool routing](#named-worker-pools-v6-beta).
 
 In the case to add a new header to the task, you can use methods [similar to PSR-7](https://www.php-fig.org/psr/psr-7/).
 

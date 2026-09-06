@@ -2,10 +2,8 @@
 
 The `static` HTTP middleware serves static content using RoadRunner on the main HTTP plugin endpoint.
 
-To avoid a filesystem lookup on every request, the middleware caches file metadata and misses in memory with a short TTL (`10s` by default). A repeated request for the same path is then answered without touching the filesystem, so the overhead of enabling the middleware stays small. The cache trades a few seconds of staleness for that speed: a file added, changed, or removed on disk is picked up within one TTL. Set the TTLs to `0s` to check the filesystem on every request, or run `rr reset static` to flush the cache at once (for example, after a deploy).
-
 {% hint style="info" %}
-If there is no file to serve, RR forwards the request back to the PHP worker. Only `GET` and `HEAD` requests are served; every other method goes to the worker.
+If there is no file to serve, RR forwards the request to the PHP worker. The pinned static plugin, `v6.0.0-beta.5`, does not include the cache and prefix options described in the [development section](#development-cache-and-prefixes).
 {% endhint %}
 
 ## Enable HTTP middleware
@@ -18,24 +16,15 @@ To enable static content serving, use the configuration inside the HTTP section:
 version: "3"
 
 http:
-  # host and port separated by semicolon
+  # Host and port separated by a colon.
   address: 127.0.0.1:44933
   middleware: [ "static" ] # Add static to the list of middleware
   static:
     dir: "."
-    forbid: [ "" ]
+    forbid: [ ".php", ".htaccess" ]
     calculate_etag: false
     weak: false
-    allow: [ ".txt", ".php" ]
-    # Serve only request paths that start with one of these prefixes.
-    # Empty (the default) considers every request.
-    prefixes: [ "/assets/", "/build/" ]
-    # File metadata cache TTL. "0s" disables it. Default: 10s.
-    cache_ttl: 10s
-    # Miss cache TTL. "0s" disables it. Default: 10s.
-    cache_miss_ttl: 10s
-    # Maximum entries kept in each cache map. Default: 16384.
-    cache_max_entries: 16384
+    allow: [ ".txt", ".css", ".js" ]
     request:
       input: "custom-header"
     response:
@@ -46,18 +35,14 @@ http:
 
 Where:
 
-1. `dir`: path to the directory.
+1. `dir`: required path to an existing directory.
 2. `forbid`: file extensions that should not be served.
 3. `allow`: extensions that should be served (empty = serve all except forbidden). If an extension is present in both lists (allow and forbid), it is treated as forbidden.
 4. `calculate_etag`: enable etag calculation for the static file.
-5. `weak`: use a weak generator (`W/`). The weak etag is derived from the file size and modification time. If false, the whole file content is used to produce a strong CRC32 etag.
-6. `prefixes`: restrict serving to request paths that start with one of these prefixes. When empty (the default), every path is considered. A path that matches no prefix goes to the worker without a filesystem lookup. The match is a plain prefix, so include the trailing slash (`/assets/`) to scope it to a directory.
-7. `cache_ttl`: TTL for the file metadata cache (etag, content type, size, modification time). Active only when `calculate_etag` is enabled. `0s` disables it. Default: `10s`.
-8. `cache_miss_ttl`: TTL for the miss cache. A request whose path does not resolve to a file records a miss and skips the filesystem check for this duration, which removes the per-request lookup on dynamic routes that share the URL space with static files. `0s` disables it. Default: `10s`.
-9. `cache_max_entries`: upper bound on the number of entries in each cache map (metadata and miss). When a map is full, expired entries are evicted; if none can be freed, the middleware checks the filesystem instead. Default: `16384`.
-10. `request/response`: custom headers for the static files.
+5. `weak`: use a weak ETag (`W/`) when `calculate_etag` is enabled. In the pinned beta, this value depends only on the file name, not its contents. With `weak: false`, RR calculates a strong CRC32 ETag from the file contents.
+6. `request/response`: custom headers for the static files.
 
-To combine static content with other middleware, use the following sequence (static last, then headers and gzip):
+In v6 beta, put `static` after `gzip` and `headers` so they also apply to static responses. See [middleware order](./http.md#middleware-order) when migrating a v5 configuration.
 
 {% code title=".rr.yaml" %}
 
@@ -65,9 +50,9 @@ To combine static content with other middleware, use the following sequence (sta
 version: "3"
 
 http:
-  # host and port separated by semicolon
+  # Host and port separated by a colon.
   address: 127.0.0.1:44933
-  middleware: [ "static", "headers", "gzip" ]
+  middleware: [ "gzip", "headers", "static" ]
   # Settings for "headers" middleware.
   headers:
     cors:
@@ -80,10 +65,10 @@ http:
   # Settings for "static" middleware.
   static:
     dir: "."
-    forbid: [ "" ]
+    forbid: [ ".php", ".htaccess" ]
     calculate_etag: false
     weak: false
-    allow: [ ".txt", ".php" ]
+    allow: [ ".txt", ".css", ".js" ]
     request:
       input: "custom-header"
     response:
@@ -92,12 +77,55 @@ http:
 
 {% endcode %}
 
+## Development: cache and prefixes
+
+{% hint style="warning" %}
+This section requires a custom build that includes the untagged static change [030052b](https://github.com/roadrunner-server/static/commit/030052b). The currently pinned static plugin, `v6.0.0-beta.5`, does not include these options or the behavior changes in this section.
+{% endhint %}
+
+The development build serves only `GET` and `HEAD` requests. Other methods go to the PHP worker. It normalizes the URL path before checking prefixes and file extensions.
+
+{% code title=".rr.yaml" %}
+
+```yaml
+http:
+  address: 127.0.0.1:44933
+  middleware: [ "static" ]
+  static:
+    dir: "."
+    forbid: [ ".php", ".htaccess" ]
+    allow: [ ".txt", ".css", ".js" ]
+    calculate_etag: true
+    weak: false
+    prefixes: [ "/assets/", "/build/" ]
+    cache_ttl: 10s
+    cache_miss_ttl: 10s
+    cache_max_entries: 16384
+```
+
+{% endcode %}
+
+- `prefixes`: serve only normalized paths that start with a listed prefix. An empty list considers every path. Each prefix must start with `/`. Use a trailing slash, such as `/assets/`, to match a directory. Prefixes are not removed from the file path.
+- `cache_ttl`: cache file metadata, including the ETag and content type. This cache is active only when `calculate_etag` is enabled. The default is `10s`. An explicit `0s` disables it.
+- `cache_miss_ttl`: cache missing-file and directory results. The default is `10s`. An explicit `0s` disables it.
+- `cache_max_entries`: entry limit for each cache. The default is `16384`; zero selects the default. A full cache attempts to remove expired entries. If it cannot free space, RR serves the request without adding a new entry.
+
+Negative TTLs and negative entry limits are invalid.
+
+A positive cache hit still opens the file and reads its metadata. RR reuses cached metadata only when the file size and modification time match. It detects deleted files and changed metadata on the next request. A cached miss avoids the filesystem lookup. RR can continue to send requests for a newly created file to PHP until `cache_miss_ttl` expires.
+
+If a deployment preserves both file size and modification time, RR can reuse an old ETag until `cache_ttl` expires. Run `rr reset static` after such a deployment to clear both caches. Set both TTLs to `0s` to disable caching.
+
+In this development build, weak ETags use file size and modification time. Strong ETags use CRC32C and are not generated for empty files or files larger than 32 MiB. Treat ETags as opaque values rather than calculating them in a client.
+
 ## Fileserver plugin
 
 The Fileserver plugin serves static files. It works similarly to the `static` HTTP middleware and has extended functionality.
 The `static` middleware runs on the main HTTP endpoint, while the file server plugin uses a different port and serves only static files.
 
 ## File server configuration
+
+In v6 beta, startup fails if `address` is empty or `serve` has no entries. Each `prefix` must be nonempty and start with `/`.
 
 {% code title=".rr.yaml" %}
 
@@ -107,7 +135,7 @@ fileserver:
   #
   # Error on empty
   address: 127.0.0.1:10101
-  # Etag calculation. Request body CRC32.
+  # ETag calculation from the response body.
   #
   # Default: false
   calculate_etag: true
@@ -117,7 +145,7 @@ fileserver:
   # Default: false
   weak: false
 
-  # Enable body streaming for files more than 4KB
+  # Stream incoming request bodies.
   #
   # Default: false
   stream_request_body: true
@@ -125,7 +153,7 @@ fileserver:
   serve:
     # HTTP prefix
     #
-    # Error on empty
+    # Required. Must start with a forward slash.
     - prefix: "/foo"
 
       # Directory to serve
@@ -145,7 +173,7 @@ fileserver:
 
       # The value for the Cache-Control HTTP-header. Units: seconds
       #
-      # Default: 10 seconds
+      # Default: 0 (no Cache-Control header)
       max_age: 10
 
       # Enable range requests

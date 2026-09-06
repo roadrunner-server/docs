@@ -41,7 +41,7 @@ jobs:
         project_id: test
         topic: rrTopic1
         dead_letter_topic: "dead-letter-topic"
-        max_delivery_attempts: 3
+        max_delivery_attempts: 10
 ```
 
 {% endcode %}
@@ -66,14 +66,24 @@ from `pipe1` have been processed.
 
 ### Dead letter topic
 
-`dead_letter_topic` - optional, string. Should be used with `max_delivery_attempts`. If the Pub/Sub service attempts to deliver a message but the subscriber can't acknowledge it, Pub/Sub can forward the undeliverable message to a dead-letter topic. For more information, see: [link](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic)
+`dead_letter_topic`: Optional topic ID. Use it with `max_delivery_attempts` to configure forwarding of messages that cannot be acknowledged. See [Pub/Sub dead-letter topics](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic).
 
 ### Max delivery attempts
 
-`max_delivery_attempts` - optional, int. Should be used with `dead_letter_topic`. The maximum number of delivery attempts for a message. For more information, see: [link](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic)
+`max_delivery_attempts`: Optional delivery-attempt setting for dead-letter forwarding. RoadRunner defaults to `10` when `dead_letter_topic` is set. See [Pub/Sub dead-letter configuration](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic).
+
+## Subscriptions
+
+The v6 beta can reuse existing topics and subscriptions. The pipeline name is the subscription ID. Keep the project, topic, and pipeline names unchanged during an upgrade to use the same subscription.
+
+The v6 beta applies `dead_letter_topic` and `max_delivery_attempts` when it creates subscriptions for both YAML pipelines and dynamically declared pipelines. These settings do not update an existing subscription. Use Pub/Sub administration to change an existing subscription's dead-letter policy. Do not delete a subscription with pending messages just to apply new settings.
+
+## Pause and Resume
+
+In the v6 beta, pausing a pipeline cancels its receive operation and stops new message pulls. Publishing remains available while paused. Jobs already received by RoadRunner can still complete. Resume starts receiving from the same subscription again.
 
 ## Limitations
 
 1. TLS is not supported at the moment.
-2. Metrics are not supported at the moment.
+2. Use Google Pub/Sub monitoring for queue counts. In the v6 beta, RR statistics return pipeline identity only. Zero counts and `ready: false` do not report the broker's actual state.
 3. Telemetry and Authentication are not supported at the moment. Use `insecure: true` to test this driver.

@@ -1,16 +1,16 @@
 # gRPC Interceptors
 
-RoadRunner gRPC plugin supports custom unary interceptors.
+The RoadRunner gRPC plugin supports custom unary interceptors in both v5.3.0 and v6.
 
-Use interceptors when you want to add cross-cutting behavior around RPC calls, such as:
+Use an interceptor to add processing before or after an RPC call, such as:
 
 - request/response logging,
-- auth checks,
+- authentication checks,
 - rate limiting,
 - custom metrics.
 
 {% hint style="info" %}
-At the moment, RoadRunner supports unary gRPC interceptors (`grpc.UnaryServerInterceptor`).
+The plugin supports only unary interceptors (`grpc.UnaryServerInterceptor`). Streaming RPCs, including [server reflection](./grpc.md#server-reflection), do not call these interceptors.
 {% endhint %}
 
 ## Interceptor contract
@@ -49,13 +49,13 @@ grpc:
     - "proto/helloworld.proto"
 
   interceptors:
-    - "sample-grpc-interceptor"
+    - "custom-grpc-interceptor"
 ```
 
 {% endcode %}
 
 {% hint style="warning" %}
-Make sure every name in `grpc.interceptors` matches a registered interceptor plugin name.
+Each name in `grpc.interceptors` must match the `Name()` of a registered interceptor plugin. RR fails to start if a configured interceptor is missing.
 {% endhint %}
 
 ## Execution order
@@ -77,138 +77,11 @@ Execution order will be:
 
 `first -> second -> third -> handler`
 
-## Example plugin
+## Build a custom binary
 
-Ready-to-use example code is available in the samples repository:
+Include your interceptor plugin in a [custom RR build](../customization/build.md). Use plugin versions compatible with the v6 beta. Listing an interceptor in `.rr.yaml` does not add its code to the binary.
 
-- [gRPC interceptor sample](https://github.com/roadrunner-server/samples/tree/master/grpc_interceptor)
-
-## Build a custom RoadRunner binary with interceptor
-
-### Build options
-
-#### Build with Velox
-
-Use [Velox](../customization/build.md) when you want to build RoadRunner from a `velox.toml` configuration.
-
-{% code title="velox.toml" %}
-
-```toml
-[roadrunner]
-ref = "v2025.1.5"
-
-[github]
-[github.token]
-token = "${RT_TOKEN}"
-
-[github.plugins]
-appLogger = { ref = "v5.0.2", owner = "roadrunner-server", repository = "app-logger" }
-logger = { ref = "v5.0.2", owner = "roadrunner-server", repository = "logger" }
-lock = { ref = "v5.0.2", owner = "roadrunner-server", repository = "lock" }
-rpc = { ref = "v5.0.2", owner = "roadrunner-server", repository = "rpc" }
-server = { ref = "v5.0.2", owner = "roadrunner-server", repository = "server" }
-grpc = { ref = "v5.0.2", owner = "roadrunner-server", repository = "grpc" }
-grpcInterceptor = { ref = "master", owner = "roadrunner-server", repository = "samples", folder = "grpc_interceptor" }
-
-[log]
-level = "info"
-mode = "production"
-```
-
-{% endcode %}
-
-{% code %}
-
-```bash
-go install github.com/roadrunner-server/velox/v2025/cmd/vx@latest
-vx build -c velox.toml -o .
-```
-
-{% endcode %}
-
-The binary is created as `./rr`.
-
-#### Build with RoadRunner
-
-Use this option when you build directly from the RoadRunner repository.
-
-##### Clone RoadRunner
-
-{% code %}
-
-```bash
-git clone https://github.com/roadrunner-server/roadrunner.git
-cd roadrunner
-```
-
-{% endcode %}
-
-##### Add interceptor package
-
-You can either:
-
-- copy sample code into your project, or
-- import the sample package directly.
-
-To import the sample package directly:
-
-{% code %}
-
-```bash
-go get github.com/roadrunner-server/samples/grpc_interceptor@latest
-```
-
-{% endcode %}
-
-##### Register plugin in container
-
-Edit `container/plugins.go` and add your interceptor plugin to the plugin list:
-
-{% code title="container/plugins.go" %}
-
-```go
-import (
-    grpcPlugin "github.com/roadrunner-server/grpc/v5"
-    grpcInterceptor "github.com/roadrunner-server/samples/grpc_interceptor"
-)
-
-func Plugins() []any {
-    return []any{
-        // ...
-        &grpcInterceptor.Plugin{},
-        &grpcPlugin.Plugin{},
-        // ...
-    }
-}
-```
-
-{% endcode %}
-
-##### Build binary
-
-{% code %}
-
-```bash
-make build
-```
-
-{% endcode %}
-
-The binary is created as `./rr`.
-
-### Configure interceptor in `.rr.yaml`
-
-Use the plugin name returned by `Name()`:
-
-{% code title=".rr.yaml" %}
-
-```yaml
-grpc:
-  interceptors:
-    - "sample-grpc-interceptor"
-```
-
-{% endcode %}
+For an interceptor that reads protobuf descriptors, see the [registry-based example](./protoreg.md#example-grpc-interceptor). Use the plugin's `Name()` in `grpc.interceptors`.
 
 ### Run and verify
 

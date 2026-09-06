@@ -64,16 +64,34 @@ server:
 
 In this example, when RoadRunner starts a PHP worker, it will set the `APP_RUNTIME` environment variable to `prod`.
 
+Values in `server.env` override inherited environment values in the worker processes. They do not change the RoadRunner process environment. Use `server.on_init.env` separately for the [initialization command](../plugins/server.md#server-initialization).
+
 {% hint style="warning" %}
-All environment variable keys will be automatically converted to uppercase.
+Keys in `server.env` are automatically converted to uppercase.
 {% endhint %}
 
 ## Dotenv
 
-RoadRunner supports reading environment variables from `.env` files, which are typically used to store sensitive or
-environment-specific variables outside your codebase.
+Use the root `envfile` setting to load a file before environment variable expansion in the main configuration and included files:
 
-To read environment variables from an `.env` file, you can use the `--dotenv` CLI option when starting RoadRunner.
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+envfile: env/.env
+
+logs:
+  level: ${RR_LOG_LEVEL:-info}
+```
+
+{% endcode %}
+
+With config plugin v6, `envfile` no longer requires experimental mode. Its path is relative to the main configuration file's directory, not the process working directory. In this example, a main configuration at `/var/www/.rr.yaml` loads `/var/www/env/.env`.
+
+The file supplies variables that are not already present in the RoadRunner process environment. It does not replace existing values. For example, an exported `RR_LOG_LEVEL=error` takes precedence over `RR_LOG_LEVEL=info` in the file. A missing or unreadable file stops startup.
+
+The existing `--dotenv` CLI option also remains available:
 
 {% code %}
 

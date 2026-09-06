@@ -63,6 +63,14 @@ identical.
 
 ### Interval
 
-`interval`: The interval (in seconds) between checks for the lifetime of the
-value in the cache. The meaning and behavior is similar to that used in the
-case of the memory driver.
+`interval`: The time in seconds between expiration checks. Expired entries can remain readable until the next check.
+
+## Persistence
+
+Values remain in the database after a RoadRunner restart. Expiration timestamps are kept only in memory and are lost at restart. This limitation applies to both v5 and the v6 beta. Reapply expiration timestamps from application data after startup if needed. Use [Redis](./redis.md) when expiration must survive a RoadRunner restart.
+
+Upgrading from v5 to the v6 beta does not require a database format conversion. Stop RoadRunner before backing up the database file.
+
+## Write Errors
+
+In the v6 beta, `kv.Set` and `kv.Delete` return database commit errors through RPC. Handle these errors before treating a write or deletion as successful.

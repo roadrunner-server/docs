@@ -252,11 +252,17 @@ specifications and proxies these events to the PHP worker.
 To determine what proxy method was called inside the PHP, RR adds a `type` : `endpoint` metadata. For example, if
 the `Subscribe` method was called, RR will add `type`:`subscribe` metadata to the worker's context.
 
+The proxy supports the unary events listed below. Unidirectional and bidirectional subscription streams are not implemented.
+
 ### RPC
 
 You may also use RPC methods to communicate with Centrifugo server. RR follows the
 official [Centrifugo proto API](https://github.com/centrifugal/centrifugo/blob/master/internal/apiproto/api.proto).
 Official documentation available [here](https://centrifugal.dev/docs/server/server_api#grpc-api)
+
+{% hint style="warning" %}
+The v6 plugin no longer exposes `centrifuge.RateLimit`. Remove calls to this RPC before upgrading. The plugin does not provide a replacement method.
+{% endhint %}
 
 ### Proxy events
 
@@ -268,7 +274,10 @@ With the incoming payload, RoadRunner also adds the type of the proxied request 
 - `publish`: Publish proxy request.
 - `rpc`: RPC proxy request.
 - `subrefresh`: Subscription refresh proxy request.
+- `notifycacheempty`: Notify cache empty proxy request (`NotifyCacheEmpty`).
 - `notifychannelstate`: Notify channel state proxy request.
+
+Before enabling `NotifyCacheEmpty` in Centrifugo, verify that the PHP DTO package and worker request handler support this method. RoadRunner forwards the event with `type: notifycacheempty`; an older PHP client can reject the request type.
 
 ## Metrics
 

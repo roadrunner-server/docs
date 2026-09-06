@@ -200,7 +200,7 @@ To make it easy to use the Lock proto API in PHP, we provide
 a [GitHub repository](https://github.com/roadrunner-php/roadrunner-api-dto), that contains all the generated
 PHP DTO classes proto files, making it easy to work with these files in your PHP application.
 
-- [API](https://buf.build/roadrunner-server/api/file/main:lock/v1beta1/lock.proto)
+- [Lock protobuf API](https://github.com/roadrunner-server/api/blob/25217e9/roadrunner/api/lock/v1/lock.proto)
 
 ### RPC API
 

@@ -22,6 +22,16 @@ composer require spiral/goridge
 
 {% endcode %}
 
+## v6 compatibility
+
+The v6 plugin beta still uses Goridge with Go `net/rpc`. Keep the existing TCP or Unix listener address and `plugin.Method` calls. No Connect client migration is required.
+
+The Go transport, `goridge/v4 v4.0.0-beta.3`, no longer supports MessagePack. PHP clients that select a MessagePack codec must switch to a supported codec, even if their PHP Goridge version still offers MessagePack. The server supports JSON, protobuf, Gob, and raw bytes. Use JSON for JSON RPC arguments and protobuf for methods that accept protobuf DTOs.
+
+The Go module version does not change the frame protocol version. The base header, payload-length encoding, CRC calculation, and frame version remain compatible. This does not add a new frame-size limit or make MessagePack calls compatible.
+
+RoadRunner protobuf source, generated Go bindings, and Go plugin contracts now have separate repositories. This relocation alone does not require a PHP worker-loop rewrite. See [plugin migration](../customization/plugin.md#v6-migration) for the Go imports and DTO exceptions.
+
 ## Configuration
 
 You can change the RPC port from the default (`127.0.0.1:6001`) using the following configuration:
@@ -134,12 +144,13 @@ the RPC Go definitions for these plugins in the following repositories:
 
 You can use `Spiral\Goridge\RPC\AsyncRPCInterface` and an implementation with multiple relays to offer non-blocking I/O for RoadRunner communication.
 
-The interface provides the following new methods:
- - `callIgnoreResponse(string $method, mixed $payload): void` - Invoke the remote RoadRunner service method using the given payload (free form) non-blocking and ignore the response.
- - `callAsync(string $method, mixed $payload): int` - Invokes the specified method with the specified payload and returns an integer identifier that can be used to retrieve the response when it's ready.
- - `hasResponse(int $seq): bool, getResponse(int $seq, mixed $options = null): mixed`
- - `hasResponses(array $seqs): array`
- - `getResponses(array $seqs, mixed $options = null): iterable` - methods to check for and retrieve one or more results of executed requests.
+The interface provides these methods:
+
+- `callIgnoreResponse(string $method, mixed $payload): void` - Invoke the method without waiting for its response.
+- `callAsync(string $method, mixed $payload): int` - Invoke the method and return an identifier for its response.
+- `hasResponse(int $seq): bool, getResponse(int $seq, mixed $options = null): mixed`
+- `hasResponses(array $seqs): array`
+- `getResponses(array $seqs, mixed $options = null): iterable` - Retrieve responses for the supplied identifiers.
 
 The `callIgnoreResponse` method can be used to invoke RPC methods without waiting for a response. If you don't need a response, this can greatly improve performance. For example, consider sending metric data.
 

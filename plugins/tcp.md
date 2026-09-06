@@ -1,5 +1,11 @@
 # TCP
 
+{% hint style="warning" %}
+The default RoadRunner build with v6 plugins no longer includes the TCP plugin. The [TCP plugin repository](https://github.com/roadrunner-server/tcp) remains available. This removal does not affect `tcp://` transport for RPC or worker relays.
+{% endhint %}
+
+This page is a reference for [custom builds](../customization/build.md) that explicitly include a compatible TCP plugin. A `tcp` configuration section does not load a missing plugin. Before upgrading a TCP workload, verify that the target binary includes the plugin and starts the required listeners.
+
 The RoadRunner TCP plugin helps you handle TCP requests. You can use this plugin to make your own servers like an SMTP
 server, and send TCP requests directly to PHP workers for handling.
 

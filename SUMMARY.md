@@ -9,6 +9,7 @@
 - [Configuration](intro/config.md)
 - [Contributing](intro/contributing.md)
 - [Upgrade and Compatibility](intro/compatibility.md)
+- [v3 Migration](intro/v3-migration.md)
 
 ## 👷 PHP Worker
 
@@ -76,6 +77,7 @@
 - [BoltDB](queues/boltdb.md)
 - [Kafka](queues/kafka.md)
 - [NATS](queues/nats.md)
+- [NSQ](queues/nsq.md)
 - [SQS](queues/sqs.md)
 
 ## 🕸️ HTTP

@@ -421,10 +421,12 @@ grpc:
     key: "server-key.pem"
     cert: "server-cert.pem"
     root_ca: "rootCA.pem"
-    client_auth_type: request_client_cert
+    client_auth_type: require_and_verify_client_cert
 ```
 
 {% endcode %}
+
+`require_and_verify_client_cert` requires a client certificate signed by a trusted CA. `request_client_cert` only requests a certificate; it does not require or verify one.
 
 Options for the `client_auth_type` are:
 
@@ -433,6 +435,26 @@ Options for the `client_auth_type` are:
 - `verify_client_cert_if_given`
 - `require_and_verify_client_cert`
 - `no_client_certs`
+
+## Server reflection
+
+The gRPC plugin in `v6.0.0-beta.6` enables server reflection on the gRPC listen port. Both the v1 and v1alpha reflection APIs are available without an enable flag.
+
+Without a descriptor registry, reflection lists registered services but cannot return the file and message descriptors for PHP services. For those descriptors, add [protoreg](./protoreg.md#server-reflection) to a [custom RR build](../customization/build.md). Configure it with the same service definitions used by `grpc.proto`. The stock beta does not include `protoreg`.
+
+For a listener without TLS, list services with:
+
+{% code %}
+
+```bash
+grpcurl -plaintext 127.0.0.1:9001 list
+```
+
+{% endcode %}
+
+{% hint style="warning" %}
+Reflection uses streaming RPCs. Authentication in `grpc.interceptors` applies only to unary RPCs and does not protect reflection. Restrict network access to the gRPC port or require [verified client certificates](#mtls). The plugin has no configuration option to disable reflection.
+{% endhint %}
 
 ## Health Checking
 
@@ -550,8 +572,8 @@ grpc:
   # This option is optional. Default value: infinity.
   max_connection_age: 0s
 
-  # MaxConnectionAgeGrace is an additive period after MaxConnectionAge after
-  #	which the connection will be forcibly closed.
+  # Time allowed for active RPCs to finish after max_connection_age.
+  # Zero or omitted means unlimited grace.
   max_connection_age_grace: 0s
 
   # Maximal concurrent streams count.
@@ -613,6 +635,21 @@ grpc:
 
 {% endcode %}
 
+### Connection age grace
+
+In v6 beta, `max_connection_age_grace` controls how long active RPCs can continue after the connection reaches `max_connection_age`. Zero or omitted grace means unlimited time. Set a finite grace to close the connection after that period.
+
+{% code title=".rr.yaml" %}
+
+```yaml
+grpc:
+  max_connection_age: 5m
+  max_connection_age_grace: 30s
+```
+
+{% endcode %}
+
+The v5 plugin used `max_connection_age` as the grace period and ignored `max_connection_age_grace`. To preserve that behavior, explicitly set both values to the same duration.
 
 ## OTLP support in the `gRPC` plugin: `[>=2023.3.8]`
 

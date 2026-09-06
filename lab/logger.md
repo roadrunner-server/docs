@@ -1,11 +1,9 @@
 # Logger
 
-Logger Plugin is responsible for collecting logs from server plugins and PHP application workers' `STDERR` and
-displaying them in the RoadRunner `STDERR`/`STDOUT`. It comes with a variety of options that allow you to customize the
-way your application logs are collected and displayed.
+The logger plugin writes logs from RoadRunner plugins and PHP workers to standard error, standard output, or files. The `logs` section controls the format, minimum level, and output destinations.
 
 {% hint style="info" %}
-PHP workers are internally, mapped to a logger with an INFO log level severity. Use `channels` to map the `server` plugin (responsible for PHP workers) log level to at least `info`:
+PHP worker standard error is logged at `info` level through the `server` channel. Set that channel to `info` or `debug` to retain worker output when the root level is higher:
 
 {% code title=".rr.yaml" %}
 
@@ -13,11 +11,10 @@ PHP workers are internally, mapped to a logger with an INFO log level severity. 
 version: "3"
 
 logs:
-  encoding: console # default value
-  level: error # mapped to all plugins
-  mode: "production" # mapped to all plugins
+  mode: production
+  level: error
   channels:
-    server: # mapped to only server plugin
+    server:
       mode: production
       level: info
 ```
@@ -39,39 +36,58 @@ logs:
 
 {% endcode %}
 
-There are three available modes:
+| Mode | Output |
+| --- | --- |
+| `production` | JSON records with `time`, `level`, `msg`, and structured attributes. |
+| `development` | Key/value text without console colors. This is the default mode. |
+| `raw` | The message only. Attributes and groups are discarded. |
+| `off`, `none` | No output from this logger. Channel overrides can still enable their own output. |
 
-1. `production` - This mode uses logger settings that are optimized for production usage.
-2. `development` - This mode is enabled by default and is designed for use during application development. In
-   development mode, DPanicLevel logs panic, console colors are used, and logs are written to standard error. Sampling
-   is disabled, and stack traces are automatically included on logs of WarnLevel and above.
-3. `raw` - This mode displays messages as raw output without any formatting. This mode is useful in production
-   environments where you need to parse logs programmatically.
+Unknown modes use the same text format as `development`.
 
-{% hint style="info" %}
-Use `production` mode in production environments. It is optimized for production usage.
-{% endhint %}
+Logger plugin v6 production records use a `time` string in RFC3339 format with up to nanosecond precision. Level names use uppercase, such as `INFO`. In v5, production records used a numeric `ts` value in epoch nanoseconds and lowercase levels. Update log parsers for these changes. Development output also changes from the v5 colored console format to key/value text.
+
+Example v6 production record:
+
+```json
+{"time":"2026-08-17T12:00:00.123Z","level":"INFO","msg":"worker output","logger":"server"}
+```
 
 ### Encoding
 
-Logger supports two types of encoding, `console` and `json`. By default, `console` encoding is used, which outputs logs
-in a friendly format. JSON encoding, on the other hand, returns messages in a JSON Structured logging format. This
-format presents log messages as JSON objects with key-value pairs representing each log message field, making them more
-machine-readable and easier to process programmatically. JSON encoding is also better suited for production usage.
+V6 ignores the `encoding` setting. Remove it from the root and channel configurations. Use `mode: production` for JSON or `mode: development` for text.
+
+### Custom Format
+
+Use `format` to select a custom text format. It takes precedence over `mode`, except that `off` and `none` still disable the logger. The `time_format` setting uses a [Go time layout](https://pkg.go.dev/time#Layout). Its default is RFC3339, and it applies only to `%time%` in a custom format.
 
 {% code title=".rr.yaml" %}
 
 ```yaml
 logs:
-  encoding: console
+  level: info
+  format: "%time% [%level%] %logger% %message% %attrs%"
+  time_format: "2006-01-02 15:04:05"
 ```
 
 {% endcode %}
 
+| Placeholder | Value |
+| --- | --- |
+| `%time%` | Record time, using `time_format`. |
+| `%level%` | Level name, such as `INFO`. |
+| `%message%` | Log message. |
+| `%logger%` | Logger name. |
+| `%attrs%` | Attributes as space-separated `key=value` pairs. |
+| `%source_file%` | Go source file path. |
+| `%source_line%` | Go source line number. |
+| `%source_func%` | Go function name. |
+
+Unknown placeholders remain unchanged. When `%logger%` is present, `%attrs%` omits the `logger` attribute. Custom formats do not escape message or attribute text. Use production mode when you need JSON encoding.
+
 ### Level
 
-The level is used to specify the logging level. This means that only log messages with a severity level will be sent to
-this channel. Available levels include `panic`, `error`, `warn`, `info`, and `debug`.
+The `level` setting is the minimum severity to emit. Supported values are `debug`, `info`, `warn`, and `error`. The value `warning` also selects `warn`. Values are case-insensitive.
 
 {% code title=".rr.yaml" %}
 
@@ -83,13 +99,12 @@ logs:
 {% endcode %}
 
 {% hint style="info" %}
-The default level is `debug`.
+In v6, an empty or unknown level selects `debug`, including in production and raw channels. Values such as `panic`, `dpanic`, and `fatal` are not supported. Replace these v5 values with a supported level; they do not disable logging or fail configuration validation.
 {% endhint %}
 
 ### Output
 
-By default, RoadRunner sends logs to `STDERR`. However, you can configure RoadRunner to send logs to `STDOUT` by using
-the output key.
+The logger writes to standard error by default. The `output` list accepts `stderr`, `stdout`, and file paths. The logger writes each enabled record to every destination in the list. Paths are file paths, not URLs.
 
 {% code title=".rr.yaml" %}
 
@@ -102,35 +117,27 @@ logs:
 
 ### Error Output
 
-You can configure a separate output destination for error-level logs. By default, error logs are sent to `STDERR`.
-
-{% code title=".rr.yaml" %}
-
-```yaml
-logs:
-  error_output: [ stderr ]
-```
-
-{% endcode %}
+All enabled levels of a logger use the same output destinations. V6 ignores `err_output`. In v5, this setting controlled internal logger errors, not error-level records. Remove it from your configuration. The `error_output` key is not supported.
 
 ### Line Endings
 
-It allows configuring custom line endings for the logger. By default, the plugin uses `\n` as the line ending. Note that the `\n` is a forced default. This means that if the value is empty, RoadRunner will still use `\n`. So no empty line endings are allowed.
+Custom formats append `\n` by default. Set `line_ending` to change it. To append nothing, set `skip_line_ending: true`. This takes precedence over `line_ending`. An empty `line_ending` without `skip_line_ending` still selects `\n`.
 
 {% code title=".rr.yaml" %}
 
 ```yaml
 logs:
+  format: "%message%"
   line_ending: "\r\n"
 ```
 
 {% endcode %}
 
+These settings require a nonempty `format`. Standard production and development handlers append `\n`. Standard raw mode appends `\n` only when the message does not already end with it.
+
 ### Channels
 
-In addition, you can configure each plugin log messages individually using the `channels` section. It allows you to
-customize the logger settings for each plugin independently. You can disable logging for a particular plugin or change
-its log mode and output destination.
+Use `channels` to configure a plugin logger separately. A channel configuration replaces the root settings for that plugin. Omitted channel settings use their own defaults, not the root values. Plugins without a channel override use the root logger.
 
 {% code title=".rr.yaml" %}
 
@@ -138,76 +145,38 @@ its log mode and output destination.
 version: "3"
 
 logs:
-  encoding: console # default value
-  level: info
-  mode: none # disable server logging. Also, `off` can be used.
+  mode: none
   channels:
     http:
       mode: production
+      level: info
       output: [ http.log ]
 ```
 
 {% endcode %}
 
-## File Logger
+If a channel output cannot be opened, the logger reports the error through the root logger and uses the root settings for that channel. A disabled root logger hides this error. Check the root configuration when a channel file is missing. A root-output open error fails initialization.
 
-It is possible to redirect channels or the entire log output to a file. To use the file logger, you need to set
-the `file_logger_options.log_output` option to the filename where you want to write the logs.
+## File Output
 
-### Entire log
-
-{% code title=".rr.yaml" %}
-
-```yaml
-logs:
-  mode: development
-  file_logger_options:
-    log_output: "test.log"
-    max_size: 10
-    max_age: 24
-    max_backups: 10
-    compress: true
-```
-
-{% endcode %}
-
-### Channel
-
-You can also redirect a specific channel to a file. To do this, you need to specify the channel name in the `channels`
+Use a file path in `output` to write logs to a file. The plugin creates the file if needed and appends to an existing file. Create its parent directory before starting RoadRunner.
 
 {% code title=".rr.yaml" %}
 
 ```yaml
 logs:
-  mode: development
-  level: debug
-  channels:
-    http:
-      file_logger_options:
-        log_output: "test.log"
-        max_size: 10
-        max_age: 24
-        max_backups: 10
-        compress: true
+  mode: production
+  level: info
+  output: ["rr.log"]
 ```
 
 {% endcode %}
 
-### Available options
+V6 removes `file_logger_options`. Replace the v5 `file_logger_options.log_output` setting with an entry in `output`. For a channel, use `logs.channels.<name>.output` as shown above.
 
-1. `log_output`: Filename is the file to write logs to in the same directory. It uses `processname-lumberjack.log` in
-   `os.TempDir()` if empty.
-2. `max_size`: is the maximum size in megabytes of the log file before it gets rotated. It defaults to 100 megabytes.
-3. `max_age`: is the maximum number of days to retain old log files based on the timestamp encoded in their filename.
-   Note that a day is defined as 24 hours and may not exactly correspond to calendar days due to daylight savings, leap
-   seconds, etc. The default is not to remove old log files based on age.
-4. `max_backups`: is the maximum number of old log files to retain. The default is to retain all old log files (though
-   MaxAge may still cause them to get deleted.)
-5. `compress`: determines if the rotated log files should be compressed using gzip. The default is not to perform
-   compression.
-6. `log_ending`: line ending to use in the logger. Default is new line - `\n`.
+There is no built-in log rotation, backup retention, or compression in v6. The v5 `max_size`, `max_age`, `max_backups`, and `compress` settings have no effect. The plugin does not reopen files after external rotation. Send logs to stdout or stderr and let a service manager, container runtime, or log collector manage rotation.
 
-### Startup logs
+## Startup Logs
 
 {% code %}
 
@@ -220,6 +189,8 @@ logs:
 
 These logs are not controlled by the logs configuration section. They are emitted directly by the RoadRunner core and can be turned off using the `-s` or `--silent` CLI option.
 
-## ZapLogger
+## Go Loggers
 
-Feel free to register your own [ZapLogger](https://github.com/uber-go/zap) extensions.
+V6 uses Go's [log/slog](https://pkg.go.dev/log/slog) instead of Zap. Named loggers return `*slog.Logger`. Use a `slog.Handler` for custom output.
+
+The plugin closes its root and channel file outputs during `Stop`. If you call `Config.BuildLogger()` directly, close each resource in the returned `BuildResult.Closers`. If you construct a `Log` with `NewLogger`, call `Log.Close()` to close its channel outputs.

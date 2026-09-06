@@ -37,7 +37,7 @@ service:
     remain_after_exit: true
     service_name_in_log: false
     env:
-      - foo: "BAR"
+      foo: "BAR"
     restart_sec: 1
 ```
 
@@ -57,10 +57,13 @@ The following are the available configuration settings for each service:
 | **timeout_stop_sec**  | The maximum allowed time to wait for the process to stop.                                                                                                                                                                                                                                                                      |
 | **remain_after_exit** | If set to `true`, the process will remain after exit. For example, if you need to restart the process every 10 seconds, exec_timeout should be set to `10s`, and `remain_after_exit` should be set to `true`. Note that if you kill the process from outside and `remain_after_exit` is `true`, the process will be restarted. |
 | restart_sec           | The delay between process stop and restart. The default value is 30 seconds.                                                                                                                                                                                                                                                   |
-| service_name_in_log   | If set to `true`, the service name will be shown in the log in the form `%plugin%.%service_name%`. The default value is `false`.                                                                                                                                                                                               |
+| service_name_in_log   | If `true`, adds a `service` log attribute with the service name. The logger name remains `service`. The default is `false`.                                                                                                                                                                                                    |
 | env                   | Environment variables to pass to the underlying process from the config.                                                                                                                                                                                                                                                       |
 | user                  | Username (not UID) for the Service process. An empty value means to use the RR process user.                                                                                                                                                                                                                                   |
+
 Services will be started when RoadRunner starts and will be stopped when RoadRunner stops.
+
+Service plugin v5 used `service_name_in_log` to change the logger name to `service.NAME`. In v6, update log filters to use the separate `service` attribute. Use production mode or a custom [logger format](../lab/logger.md#custom-format) with `%attrs%` to retain that attribute; raw mode discards it.
 
 ## PHP client
 
@@ -150,6 +153,12 @@ try {
 
 To restart a service, use the `restart` method:
 
+In v6, restart calls stop for each old process before starting replacements. It is not a rolling or atomic restart. Plan for an interval with no running process in that service.
+
+{% hint style="warning" %}
+In `v6.0.0-beta.8`, a service with `remain_after_exit: true` can start replacements before old processes finish if an automatic restart occurred earlier. Do not rely on `service.Restart` for exclusive process replacement in this case.
+{% endhint %}
+
 {% code title="app.php" %}
 
 ```php
@@ -167,6 +176,8 @@ try {
 ```
 
 {% endcode %}
+
+If a replacement fails to start, RoadRunner requests a stop for replacements that already started and removes the service from its registry. It does not restore the old processes. Fix the reported startup error. Then call `create` with the required service settings. Another `restart` call cannot recover a service that is no longer registered.
 
 #### Terminating a Service
 
@@ -223,4 +234,4 @@ To make it easy to use the Service proto API in PHP, we provide
 a [GitHub repository](https://github.com/roadrunner-php/roadrunner-api-dto), that contains all the generated
 PHP DTO classes proto files, making it easy to work with these files in your PHP application.
 
-- [API](https://github.com/roadrunner-server/api/blob/master/proto/service/v1/service.proto)
+- [Service protobuf API](https://github.com/roadrunner-server/api/blob/25217e9/roadrunner/api/service/v1/service.proto)

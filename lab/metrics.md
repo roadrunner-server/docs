@@ -70,6 +70,10 @@ The HTTP metrics provided by the metrics plugin include:
 - `rr_http_uptime_seconds` - Plugin uptime in seconds.
 - `rr_http_no_free_workers_total` - Total number of NoFreeWorkers errors.
 
+The request counter and duration histogram have a `status` label. In the v6 Prometheus middleware, a body write without an explicit HTTP status records `status="200"` instead of `status="-1"`. Update queries that use the old value. Metric names and label keys do not change.
+
+The duration histogram still includes downstream request execution. The shorter middleware spans described in [OpenTelemetry](otel.md) do not change histogram duration.
+
 ### gRPC Metrics
 
 The gRPC metrics provided by the metrics plugin include:
@@ -95,6 +99,8 @@ The JOBS metrics provided by the metrics plugin include:
 
 - `rr_jobs_jobs_err` - Number of jobs that failed while processing in the worker.
 - `rr_jobs_jobs_ok` - Number of successfully processed jobs.
+- `rr_jobs_jobs_requeue` - Number of jobs requeued by worker responses.
+- `rr_jobs_push_ok` - Number of successful job pushes.
 - `rr_jobs_push_err` - Number of jobs that failed to push.
 - `rr_jobs_push_latency` - Histogram that represents the latency for pushed operation. Available filters: driver, job (
   pipeline), source.
@@ -102,6 +108,10 @@ The JOBS metrics provided by the metrics plugin include:
   job (pipeline), source.
 - `rr_jobs_push_latency_count` - Histogram that represents the latency for pushed operation and the number of processed
   jobs for the metric. Available filters: driver, job (pipeline), source.
+
+The v6 Jobs plugin exports `rr_jobs_jobs_ok`, `rr_jobs_jobs_err`, `rr_jobs_push_ok`, and `rr_jobs_push_err` as counters instead of gauges. Their names do not change. Use `rate()` or `increase()` for dashboards that measure changes over time.
+
+Failed and requeued worker responses no longer increment `rr_jobs_jobs_ok`. They increment `rr_jobs_jobs_err` or the new `rr_jobs_jobs_requeue` counter instead. Update success-rate queries to keep these outcomes separate. The job outcome counters measure processing attempts, not unique jobs.
 
 ### Temporal Metrics
 
@@ -297,7 +307,7 @@ the `Spiral\RoadRunner\Metrics\Metrics` class in PHP.
 
 #### Add
 
-Method is used to add a new metric to the declared collector.
+Add a value to a declared gauge or counter. A negative counter increment returns an RPC error. Use a gauge for values that must decrease.
 
 {% code %}
 

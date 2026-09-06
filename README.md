@@ -25,9 +25,9 @@ of your web applications.
 
 RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https://www.php-fig.org/psr/psr-17) compatible HTTP and `HTTP(S)/2/3/fCGI` servers and can be used to replace classic Nginx+FPM setups with much greater performance and flexibility. `HTTP(S)/2/3/fCGI` servers as just one of its many available plugins, but its capabilities extend far beyond:
 
-- Queue drivers: RabbitMQ, Kafka, SQS, Beanstalk, NATS, In-Memory.
+- Queue drivers: RabbitMQ, Kafka, SQS, Beanstalk, NATS, Google Pub/Sub, BoltDB, and In-Memory. The v6 beta build also includes [NSQ](queues/nsq.md).
 - KV drivers: Redis, Memcached, BoltDB, In-Memory.
-- OpenTelemetry protocol support (`gRPC`, `http`, `jaeger`).
+- OTLP trace export over gRPC or HTTP.
 - Workflows engine via [Temporal](https://temporal.io)
 - `gRPC` server. For increased speed, the `protobuf` extension can be used.
 - `HTTP(S)/2/3` and `fCGI` server features **automatic TLS management**, **103 Early Hints** support and middleware like: Static, Headers, gzip, prometheus (metrics), send (x-sendfile), OTEL, proxy_ip_parser, etc.
@@ -38,6 +38,8 @@ RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https:/
 - Embedded supervisor for your PHP workers with execution, max working time, and memory TTLs.
 - Compatible with Windows, WSL2, FreeBSD, GNU/Linux, etc.
 - And more 😉
+
+See [v3 Migration](intro/v3-migration.md) for changes in the v6 plugin beta line and the matching development builds.
 
 If you have a feature request in mind, you can check
 out [GitHub issues](https://github.com/roadrunner-server/roadrunner/issues) page. Here you'll find a list of open

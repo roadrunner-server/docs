@@ -21,7 +21,7 @@ http:
       # If `allowed_origin_regex` option is set, the content of `allowed_origin` is ignored
       allowed_origin_regex: "^http://foo"
       allowed_headers: "*"
-      allowed_methods: "GET,POST,PUT,DELETE"
+      allowed_methods: "GET, POST, PUT, DELETE"
       allow_credentials: true
       exposed_headers: "Cache-Control,Content-Language,Content-Type,Expires,Last-Modified,Pragma"
       max_age: 600
@@ -35,6 +35,8 @@ http:
 
 > Make sure to declare "headers" middleware.
 
+In v6 beta, `allowed_origin`, `allowed_methods`, `allowed_headers`, and `exposed_headers` ignore whitespace around each comma-separated value. For example, `"GET, POST"` selects both methods.
+
 {% hint style="info" %}
 Since RoadRunner v2023.2.0, the following changes were made:
 
@@ -47,6 +49,8 @@ Since RoadRunner v2023.2.0, the following changes were made:
 ## Custom headers for response or request
 
 You can control additional headers for outgoing responses and headers to be added to requests sent to your application.
+
+Put `headers` before `static` in the v6 middleware list to apply headers to static responses. See [middleware order](./http.md#middleware-order).
 
 {% code title=".rr.yaml" %}
 

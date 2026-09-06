@@ -27,11 +27,12 @@ can change the address to any IP address and port number of your choice.
 To access the health check, use the following URL: `http://127.0.0.1:2114/health`. This URL will return the health status of all plugins that are enabled and support health probes. To specify a particular plugin, you need to use the `plugin` query parameter: `http://127.0.0.1:2114/health?plugin=http`. In that case, the health status of the `http` plugin will be returned.
 
 {% hint style="info" %}
-You can specify multiple plugins by separating them with a comma. For example, to check the health status of both the
-http and grpc plugins, you can use the following URL: http://127.0.0.1:2114/health?plugin=http&plugin=grpc.
+Repeat the `plugin` query parameter to check multiple plugins: `http://127.0.0.1:2114/health?plugin=http&plugin=grpc`. Names that do not support the check are skipped.
 {% endhint %}
 
-The health check endpoint will return `HTTP 200` if there is at least one worker ready to serve requests. If there are no workers ready to service requests, the endpoint will return `HTTP 503` (or your unavailable status code, which can be set via configuration of the plugin). If there are any other errors, the endpoint will also return `HTTP 503` (or your unavailable status code). The `status` plugin also returns a payload with a list of checked plugins and errors, if any, in the following format:
+The `/health` endpoint calls each selected plugin's health check. For worker-pool checks, an active worker can be busy with a request. Use `/ready` to check for idle workers.
+
+If a checked plugin reports a status of `500` or higher, the HTTP response uses `unavailable_status_code` (`503` by default). The JSON response lists the checked plugins and their reported status or errors:
 
 ```json
 [
@@ -52,9 +53,7 @@ The health check endpoint will return `HTTP 200` if there is at least one worker
 
 To access the readiness check, use the following URL: `http://127.0.0.1:2114/ready`.
 
-The readiness check endpoint will return `HTTP 200` if there is at least one worker ready to take the request (i.e., not
-currently busy with another request). If there is no worker ready or all workers are busy, the endpoint will return
-`HTTP 503` status code (you can override this with the `unavailable_status_code` option).
+For worker-pool checks, `/ready` returns `HTTP 200` when each checked plugin has at least one idle worker. If a checked pool has no ready workers, including when all workers are busy, the endpoint returns `unavailable_status_code` (`503` by default).
 
 Like the health check, you can target a specific plugin using the `plugin` query parameter:
 
@@ -62,8 +61,7 @@ Like the health check, you can target a specific plugin using the `plugin` query
 - `http://127.0.0.1:2114/ready?plugin=grpc`
 
 {% hint style="info" %}
-You can specify multiple plugins by separating them with a comma. For example:
-`http://127.0.0.1:2114/ready?plugin=http&plugin=grpc`.
+Repeat the `plugin` query parameter to check multiple plugins: `http://127.0.0.1:2114/ready?plugin=http&plugin=grpc`.
 {% endhint %}
 
 The response format is the same JSON structure as the `/health` endpoint.
@@ -86,10 +84,15 @@ status:
 
 {% endcode %}
 
+## Graceful Shutdown
+
+During graceful shutdown, `/health` returns `200`. The `/ready` and `/jobs` endpoints return `unavailable_status_code` (`503` by default). These responses contain the text `service is shutting down`, not the usual JSON report.
+
+Use `/health` for liveness and `/ready` for readiness. This lets the process finish its current work after readiness checks stop new traffic.
+
 ## Check Timeout
 
-The status plugin uses a timeout when checking the status of plugins. By default, this timeout is **60 seconds**. You
-can customize it using the `check_timeout` option:
+Set `check_timeout` to an integer number of seconds. The default is `60`. This value sets the status server's HTTP request and header read timeouts. It does not set a deadline for `Status()`, `Ready()`, or `JobsState()` execution.
 
 {% code title=".rr.yaml" %}
 
@@ -98,7 +101,7 @@ version: "3"
 
 status:
   address: 127.0.0.1:2114
-  check_timeout: 30s
+  check_timeout: 30
 ```
 
 {% endcode %}
@@ -108,11 +111,25 @@ status:
 In addition to checking the health status of the workers, you can also examine the pipelines in the Jobs plugin using
 the following URL: http://127.0.0.1:2114/jobs
 
-This URL will return the status of the pipelines in the Jobs plugin. The output will be in the following format:
+This endpoint returns a JSON array of pipeline states:
 
-```log
-plugin: jobs: pipeline: test-1 | priority: 13 | ready: true | queue: test-1 | active: 0 | delayed: 0 | reserved: 0 | driver: memory | error:  
+```json
+[
+    {
+        "pipeline": "test-1",
+        "priority": 13,
+        "ready": true,
+        "queue": "test-1",
+        "active": 0,
+        "delayed": 0,
+        "reserved": 0,
+        "driver": "amqp",
+        "error_message": ""
+    }
+]
 ```
+
+If the Jobs plugin is absent, `/jobs` returns `unavailable_status_code`. The handler passes the HTTP request context to `JobsState()` so the check can respond to request cancellation.
 
 ## Use cases
 
@@ -120,9 +137,7 @@ The health check endpoint serves the following purposes:
 
 ### Kubernetes Readiness and Liveness Probes
 
-In Kubernetes, you can use readiness and liveness probes to check the health of your application. It can be used as a
-readiness or liveness probe to ensure that your application is ready to serve requests. You can configure Kubernetes to
-check the health check endpoint and take appropriate action if the endpoint returns an error.
+Configure the liveness probe to use `/health` and the readiness probe to use `/ready`. Busy workers can fail readiness without failing liveness. During shutdown, readiness fails while liveness remains successful.
 
 **Read more [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)**
 

@@ -54,6 +54,10 @@ composer require spiral/roadrunner-http nyholm/psr7
 
 ### Application
 
+{% hint style="warning" %}
+The Go example below uses v4 plugins and the legacy `sdk/v4` pool API. It is not a v6 build recipe. For a v6 build, apply the [plugin import and contract migration](../customization/plugin.md#v6-migration) and test the Lambda adapter with the selected RoadRunner version.
+{% endhint %}
+
 We can create a simple application to demonstrate how it works:
 
 1. You need three files: `main.go` with the `Endure` container:

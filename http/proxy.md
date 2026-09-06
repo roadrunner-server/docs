@@ -1,18 +1,12 @@
 # Proxy IP parser
 
-This middleware resolves the real client IP from proxy headers when a request arrives
-through a trusted subnet. By default it consults, in order: `Forwarded`, `X-Forwarded-For`,
-`X-Real-IP`, `True-Client-IP`, and `CF-Connecting-IP`. The set and order of headers can be
-customized with `trusted_headers`.
+This middleware gets the client address from HTTP forwarding headers when the request comes from a trusted proxy. In v6, `trusted_headers` selects the headers and their order.
 
 ## Description
 
-When the immediate peer is within one of the `trusted_subnets`, the middleware resolves the
-client IP from the configured headers — the first non-empty match wins — and sets it as
-`RemoteAddr`. Otherwise `RemoteAddr` is left unchanged.
+When the immediate peer is within `trusted_subnets`, the middleware uses the first nonempty parsed header value as `RemoteAddr`. Otherwise, it leaves `RemoteAddr` unchanged. This setting controls trust in forwarding headers; it does not block incoming connections.
 
-The middleware is active only when `trusted_subnets` is configured; without it, forwarding
-headers are never trusted.
+Add `proxy_ip_parser` to `http.middleware` and configure a nonempty `http.trusted_subnets` list to enable it. An omitted or empty subnet list disables it. Each subnet must use CIDR notation, such as `127.0.0.1/32` or `::1/128`.
 
 ## Usage
 
@@ -25,16 +19,8 @@ http:
   middleware: [ "proxy_ip_parser" ] # Middleware
   uploads:
     forbid: [ ".php", ".exe", ".bat" ]
-  trusted_subnets: # Trusted addresses in CIDR format
-    [
-      "10.0.0.0/8",
-      "127.0.0.0/8",
-      "172.16.0.0/12",
-      "192.168.0.0/16",
-      "::1/128",
-      "fc00::/7",
-      "fe80::/10"
-    ]
+  # Replace this with the immediate proxy's actual CIDR.
+  trusted_subnets: [ "127.0.0.1/32" ]
   pool:
     num_workers: 2
     allocate_timeout: 60s
@@ -45,27 +31,31 @@ http:
 
 ## Trusted headers
 
-`trusted_headers` is an ordered allowlist of the headers used to resolve the client IP. The
-middleware checks them in order and uses the first non-empty value; headers that are not
-listed are ignored, and custom headers are supported. When `trusted_headers` is omitted, the
-default order is used: `Forwarded`, `X-Forwarded-For`, `X-Real-IP`, `True-Client-IP`,
-`CF-Connecting-IP`.
+`http.trusted_headers` is an ordered allowlist. The middleware ignores headers that are not listed. It removes whitespace around configured header names, compares names without case sensitivity, and removes duplicate names.
 
-For example, to trust only `X-Real-IP` and Cloudflare's `CF-Connecting-IP` while ignoring
-`X-Forwarded-*`:
+An omitted, empty, or all-blank list uses the default order: `Forwarded`, `X-Forwarded-For`, `X-Real-IP`, `True-Client-IP`, `CF-Connecting-IP`. An empty header list does not disable trust. If a header produces no parsed value, the middleware tries the next header. For example, a `Forwarded` value without `for=` does not prevent use of `X-Forwarded-For`.
+
+The following example trusts only `X-Real-IP` and `CF-Connecting-IP`:
 
 {% code title=".rr.yaml" %}
 
 ```yaml
 http:
-  trusted_subnets: [ "10.0.0.0/8", "127.0.0.0/8" ]
+  middleware: [ "proxy_ip_parser" ]
+  trusted_subnets: [ "10.20.0.10/32" ]
   trusted_headers: [ "X-Real-IP", "CF-Connecting-IP" ]
 ```
 
 {% endcode %}
 
 {% hint style="info" %}
-`X-Forwarded-For` uses the left-most address from its comma-separated list, and `Forwarded`
-is parsed per [RFC 7239](https://datatracker.ietf.org/doc/html/rfc7239) (`for=`). All other
-headers, including custom ones, are taken verbatim.
+`X-Forwarded-For` uses the first value before a comma. `Forwarded` uses the first `for=` value and removes its surrounding quotes. All other headers, including custom headers, are used without changing their values.
 {% endhint %}
+
+{% hint style="warning" %}
+The parser does not validate that a selected header value is an IP address. Trust only proxy addresses you control. Configure each trusted proxy to overwrite the selected headers so a client cannot supply the address used by the application.
+{% endhint %}
+
+## PROXY protocol
+
+HTTP forwarding headers are separate from the TCP PROXY protocol. The pinned HTTP beta does not support PROXY protocol. For custom development builds, see [Development: PROXY protocol](./http.md#development-proxy-protocol).

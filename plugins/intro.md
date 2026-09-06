@@ -18,12 +18,13 @@ development process. Some of the most notable plugins include:
 - [**Server**](./server.md): Core server functionality and lifecycle management.
 - [**Service**](./service.md): Start and monitor services like a supervisor.
 - [**Locks**](./locks.md): Distributed locking mechanisms for concurrency control.
-- [**TCP**](./tcp.md): High-performance TCP server for custom networking solutions.
 - [**Metrics**](../lab/metrics.md): Application-level metrics and monitoring.
 - [**KV**](../kv/overview-kv.md): Key-value store interface for storage and retrieval of data.
 - [**Jobs**](../queues/overview-queues.md): Background job processing and management.
 - [**HealthChecks**](../lab/health.md): Health monitoring and reporting for system components.
 - [**OpenTelemetry (OTEL)**](../lab/otel.md): Distributed tracing and observability with OpenTelemetry integration.
+
+The [TCP plugin](tcp.md) is no longer in the default RoadRunner container. Its reference applies to custom builds that explicitly include it.
 
 ## Custom plugins
 

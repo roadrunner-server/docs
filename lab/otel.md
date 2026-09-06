@@ -1,10 +1,10 @@
 # OpenTelemetry
 
-RoadRunner offers OTEL (OpenTelemetry) plugin, which provides a unified standard for tracing, logging, and metrics
-information. This plugin allows you to send tracing data from RoadRunner to tracing collectors
-like [New Relic](https://newrelic.com/), [Zipkin](https://zipkin.io), [Jaeger](https://www.jaegertracing.io/),
-[Datadog](https://www.datadoghq.com/), and more.
-Starting with `v2023.3`, the `Jaeger` exporter is deprecated. Please use `OTLP` instead: [docs](https://www.jaegertracing.io/docs/1.49/architecture/).
+The RoadRunner OpenTelemetry (OTEL) plugin exports tracing data to an OTLP receiver, standard output, or standard error.
+
+{% hint style="warning" %}
+The v6 plugin rejects `exporter: zipkin`. The native Jaeger exporter is also unavailable. Use `exporter: otlp` and an OTLP receiver instead. A Zipkin `/api/v2/spans` endpoint cannot receive OTLP data.
+{% endhint %}
 
 ![OpenTelemetry](https://user-images.githubusercontent.com/773481/213914208-cd944ca8-f218-4baf-8a54-5a4e42a1ed40.jpg)
 
@@ -12,12 +12,7 @@ Starting with `v2023.3`, the `Jaeger` exporter is deprecated. Please use `OTLP` 
 Read more about OpenTelemetry on the [official site](https://opentelemetry.io/).
 {% endhint %}
 
-The OpenTelemetry plugin is designed to integrate with various tracing collectors to provide end-to-end tracing of
-requests across multiple services. The plugin is built to support the OpenTelemetry standard, which provides a unified
-way of collecting telemetry data across various languages and frameworks.
-
-The plugin supports tracing, logging, and metrics data, but currently only tracing information is stable and safe to use
-in production.
+This page describes trace export. For Prometheus metrics, see [Metrics](metrics.md).
 
 ## Configuration
 
@@ -38,14 +33,17 @@ otel:
   insecure: true
   compress: false
   exporter: otlp
+  client: grpc
   endpoint: 127.0.0.1:4317
 ```
+
 {% endcode %}
 
 {% hint style="info" %}
-Note, that you may also use OTEL envs in the `OTEL` plugin configuration using [Shell-Parameter-Expansion](https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html) syntax. For example:
+You can use environment variables in the configuration with [shell parameter expansion](https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html). This example leaves `client` and `endpoint` unset so the OTLP exporter can use its environment configuration.
 
 {% code title=".rr.yaml" %}
+
 ```yaml
 version: "3"
 
@@ -56,10 +54,11 @@ otel:
     service_version: "${OTEL_SERVICE_VERSION:-1.0.0}"
   insecure: "${OTEL_EXPORTER_OTLP_INSECURE:-true}"
   exporter: "${OTEL_TRACES_EXPORTER:-otlp}"
-  endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-127.0.0.1:4317}"
-
 ```
+
 {% endcode %}
+
+When `client` is unset, `OTEL_EXPORTER_OTLP_TRACES_PROTOCOL` takes precedence over `OTEL_EXPORTER_OTLP_PROTOCOL`. Supported values are `grpc` and `http/protobuf`. When `endpoint` is unset, the SDK reads its OTLP endpoint environment variables. For example, use `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` with `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318`.
 
 {% endhint %}
 
@@ -73,28 +72,32 @@ collector. The `http` plugin requires the `otel` middleware to be added to the m
 ```yaml .rr.yaml
 http:
   address: 127.0.0.1:15389
-  middleware: [ gzip, otel ]
+  middleware: [ otel, gzip ]
 ```
 
 {% endcode %}
 
+Requests pass through the middleware list from left to right. Put `otel` before the middleware you want to trace. In this example, the HTTP server span starts before `gzip` runs.
+
+Middleware spans with kind `Internal` measure the middleware's own work. They exclude downstream request time. The HTTP `Server` span covers the full request.
+
 **The `otel` section of the configuration file contains the following options:**
 
-| Option              | Description                                                                                                                                                                                         |
-|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **insecure**        | a boolean that determines whether to use insecure endpoints (HTTP/HTTPS) or insecure gRPC. The default value is `false`.                                                                            |                                                                                                                                                                                                        |
-| **compress**        | a boolean that determines whether to use gzip to compress the spans. The default value is `false`.                                                                                                  |
-| **exporter**        | a string that provides functionality to emit telemetry to consumers. Possible values are `otlp` (used for New Relic, Datadog, Jaeger), `zipkin`, `stdout` or `stderr`. The default value is `otlp`. |
-| **custom_url**      | a string that is used for the http client to override the default URL. The default value is `empty`.                                                                                                |
-| **client**          | a string that determines the client to send the spans. Possible values are http and grpc. The default value is `http`.                                                                              |
-| **endpoint**        | a string that specifies the consumer's endpoint. The default value is `127.0.0.1:4318`.                                                                                                             |
-| **service_name**    | a string that specifies the user's service name. The default value is `RoadRunner`.                                                                                                                 |
-| **service_version** | a string that specifies the user's service version. The default value is `1.0.0`.                                                                                                                   |
-| **headers**         | a key-value map that contains user-defined headers. The `api-key` for New Relic should be here.                                                                                                     |
-| **resource**        | a key-value map that contains OTEL resource (https://github.com/open-telemetry/opentelemetry-specification/blob/v1.25.0/specification/resource/semantic_conventions/README.md)                      |
+| Option | Description |
+| -------- | ------------- |
+| **insecure** | Use an OTLP connection without TLS. The configuration default is `false`. |
+| **compress** | Compress exported spans with gzip. The configuration default is `false`. |
+| **exporter** | Trace exporter: `otlp`, `stdout`, or `stderr`. The default is `otlp`. |
+| **custom_url** | Override the HTTP request path, for example `/v1/traces`. This option does not set the receiver address. |
+| **client** | OTLP transport: `http` or `grpc`. If unset, the plugin checks the protocol environment variables and defaults to `http`. |
+| **endpoint** | OTLP receiver address as `host:port`, without a scheme or path. If unset, the SDK uses its environment configuration or transport default. |
+| **service_name** | Deprecated. Use `resource.service_name`. The default resource value is `RoadRunner`. |
+| **service_version** | Deprecated. Use `resource.service_version`. The default resource value is `1.0.0`. |
+| **headers** | Headers sent to the OTLP receiver, such as an `api-key` header. |
+| **resource** | Service attributes: `service_name`, `service_version`, `service_namespace`, and `service_instance_id`. |
 
 {% hint style="warning" %}
-The OpenTelementy OTLP endpoint can be used with 2 different ports: `4318` and `4317`, [docs](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/). In general, port `4317` is used for the `gRPC` traces (with the `gRPC` OTLP client). While port `4318` is used for the `http` OTLP client. Keep in mind that having a `gRPC` collector with an `http`  endpoint will cause a send error.
+Match `client` to the receiver protocol. OTLP normally uses port `4317` for `grpc` and port `4318` for `http`. For example, `client: http` requires an HTTP receiver such as `endpoint: 127.0.0.1:4318`. See the [OTLP exporter configuration](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/).
 {% endhint %}
 
 ## Collector
@@ -136,7 +139,7 @@ Read more about the OpenTelemetry Collector on the [official site](https://opent
 The collector is started with the `otel-collector-config.yml` configuration file, which specifies how the collector
 should receive, process, and export the tracing data.
 
-Here is an example configuration file that sends data to Zipkin and Datadog:
+This configuration belongs to the Collector, not RoadRunner. RoadRunner sends OTLP data to the Collector. The Collector can then use its own exporters, including Zipkin when supported by the installed Collector distribution.
 
 {% code title="otel-collector-config.yml" %}
 
