@@ -4,17 +4,12 @@ RoadRunner can run PHP as an AWS Lambda function.
 
 ## PHP Worker
 
-The PHP worker does not require any specific configuration to run inside a Lambda function. We can use the default snippet with
-an internal counter to demonstrate how workers are reused:
+Use PHP `8.5` with the `sockets` extension and Composer 2. This worker returns an HTTP response for each invocation:
 
 {% code title="handler.php" %}
 
 ```php
 <?php
-/**
- * @var Goridge\RelayInterface $relay
- */
-use Spiral\Goridge;
 use Spiral\RoadRunner;
 
 ini_set('display_errors', 'stderr');
@@ -54,9 +49,7 @@ composer require 'spiral/roadrunner-http:^4.1' nyholm/psr7
 
 ### Application
 
-{% hint style="warning" %}
-The Go example below uses v4 plugins and the legacy `sdk/v4` pool API. It is not a v6 build recipe. For a v6 build, apply the [plugin import and contract migration](../customization/plugin.md#v6-migration) and test the Lambda adapter with the selected RoadRunner version.
-{% endhint %}
+The application uses v6 plugins, `pool/v2`, `goridge/v4`, and the HTTP protobuf messages from `api-go/v6`. Its RoadRunner module versions match the [RoadRunner source build](../intro/install.md#build-from-source). The adapter follows the protobuf request and response structure in the [AWS Lambda example](https://github.com/roadrunner-server/aws-lambda).
 
 We can create a simple application to demonstrate how it works:
 
@@ -73,14 +66,13 @@ import (
   "log/slog"
   "os"
   "os/signal"
-  "sync"
   "syscall"
   "time"
 
-  "github.com/roadrunner-server/config/v4"
+  "github.com/roadrunner-server/config/v6"
   "github.com/roadrunner-server/endure/v2"
-  "github.com/roadrunner-server/logger/v4"
-  "github.com/roadrunner-server/server/v4"
+  "github.com/roadrunner-server/logger/v6"
+  "github.com/roadrunner-server/server/v6"
 )
 
 //go:embed .rr.yaml
@@ -93,9 +85,8 @@ func main() {
   cont := endure.New(slog.LevelError)
 
   cfg := &config.Plugin{
-    Version:   "2024.1.0",
+    Version:   "lambda-v6",
     Timeout:   time.Second * 30,
-    Prefix:    "rr",
     Type:      "yaml",
     ReadInCfg: rrYaml,
   }
@@ -121,31 +112,20 @@ func main() {
   }
 
   sig := make(chan os.Signal, 1)
-  signal.Notify(sig, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+  signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+  defer signal.Stop(sig)
 
-  wg := &sync.WaitGroup{}
-  wg.Add(1)
-
-  go func() {
-    defer wg.Done()
-    for {
-      select {
-      case e := <-ch:
-        err = cont.Stop()
-        if err != nil {
-          log.Println(e.Error.Error())
-        }
-      case <-sig:
-        err = cont.Stop()
-        if err != nil {
-          log.Println(err.Error())
-        }
-        return
-      }
+  select {
+  case e := <-ch:
+    if e != nil {
+      log.Println(e.Error)
     }
-  }()
+  case <-sig:
+  }
 
-  wg.Wait()
+  if err := cont.Stop(); err != nil {
+    log.Println(err)
+  }
 }
 ```
 
@@ -153,9 +133,9 @@ func main() {
 
 2. `plugin.go` with the plugin implementation:
 
-The adapter uses API Gateway HTTP API payload format `2.0` and the JSON protocol supported by [`spiral/roadrunner-http` 4.1](https://github.com/roadrunner-php/http/blob/v4.1.0/src/HttpWorker.php). HTTP metadata goes in `Payload.Context`. Raw body bytes go in `Payload.Body`. The adapter returns base64 response bodies so API Gateway can restore text and binary data. Form bodies remain raw; the PHP application must parse them if needed.
+The adapter uses API Gateway HTTP API payload format `2.0` and the HTTP protobuf protocol. It encodes `http/v1.Request` in `Payload.Context` and sends raw body bytes in `Payload.Body`. It decodes response metadata as `http/v1.Response`. The adapter returns base64 response bodies so API Gateway can restore text and binary data. Form bodies remain raw; the PHP application must parse them if needed.
 
-The execution context sets a 10-second budget for worker acquisition and the initial response. A nonzero `Supervisor.ExecTTL` gives each stream read a separate 10-second timeout. Cleanup cancels the execution context and drains the result channel. A stream read already in progress can continue until its timeout expires. The SDK then kills the worker, reaps the process, and starts a replacement. The handler reserves 10 seconds for cleanup plus a 1-second margin before the Lambda deadline. If too little time remains, the handler returns an error without executing PHP. To allow the full execution budget, set the Lambda timeout above 21 seconds, for example 30 seconds, with additional time for initialization and response delivery.
+The execution context sets a 10-second budget for worker acquisition and the initial response. A nonzero `Supervisor.ExecTTL` gives each stream read a separate 10-second timeout. Cleanup cancels the execution context and drains the result channel. A stream read already in progress can continue until its timeout expires. The pool then kills the worker, reaps the process, and starts a replacement. The handler reserves 10 seconds for cleanup plus a 1-second margin before the Lambda deadline. If too little time remains, the handler returns an error without executing PHP. To allow the full execution budget, set the Lambda timeout above 21 seconds, for example 30 seconds, with additional time for initialization and response delivery.
 
 {% code title="plugin.go" %}
 
@@ -165,23 +145,24 @@ package main
 import (
   "context"
   "encoding/base64"
+  "log/slog"
   "net/http"
   "net/url"
   "strings"
   "sync"
   "time"
 
-  "github.com/goccy/go-json"
+  httpV1 "github.com/roadrunner-server/api-go/v6/http/v1"
   "github.com/roadrunner-server/errors"
-  "github.com/roadrunner-server/goridge/v3/pkg/frame"
-  "github.com/roadrunner-server/sdk/v4/pool"
-  "github.com/roadrunner-server/sdk/v4/worker"
+  "github.com/roadrunner-server/goridge/v4/pkg/frame"
+  "github.com/roadrunner-server/pool/v2/pool"
+  "github.com/roadrunner-server/pool/v2/worker"
 
   "github.com/aws/aws-lambda-go/events"
   "github.com/aws/aws-lambda-go/lambda"
-  "github.com/roadrunner-server/sdk/v4/payload"
-  poolImp "github.com/roadrunner-server/sdk/v4/pool/static_pool"
-  "go.uber.org/zap"
+  "github.com/roadrunner-server/pool/v2/payload"
+  poolImp "github.com/roadrunner-server/pool/v2/pool/static_pool"
+  "google.golang.org/protobuf/proto"
 )
 
 const (
@@ -191,7 +172,7 @@ const (
 
 type Plugin struct {
   mu      sync.Mutex
-  log     *zap.Logger
+  log     *slog.Logger
   srv     Server
   pldPool sync.Pool
   wrkPool Pool
@@ -199,7 +180,7 @@ type Plugin struct {
 
 // Logger plugin
 type Logger interface {
-  NamedLogger(name string) *zap.Logger
+  NamedLogger(name string) *slog.Logger
 }
 
 type Pool interface {
@@ -219,7 +200,7 @@ type Pool interface {
 
 // Server creates workers for the application.
 type Server interface {
-  NewPool(ctx context.Context, cfg *pool.Config, env map[string]string, _ *zap.Logger) (*poolImp.Pool, error)
+  NewPool(ctx context.Context, cfg *pool.Config, env map[string]string, _ *slog.Logger) (*poolImp.Pool, error)
 }
 
 func (p *Plugin) Init(srv Server, log Logger) error {
@@ -228,7 +209,7 @@ func (p *Plugin) Init(srv Server, log Logger) error {
   p.pldPool = sync.Pool{
     New: func() any {
       return &payload.Payload{
-        Codec:   frame.CodecJSON,
+        Codec:   frame.CodecProto,
         Context: make([]byte, 0, 100),
         Body:    make([]byte, 0, 100),
       }
@@ -245,9 +226,8 @@ func (p *Plugin) Serve() chan error {
   p.mu.Lock()
   defer p.mu.Unlock()
 
-  var err error
-  p.wrkPool, err = p.srv.NewPool(context.Background(), &pool.Config{
-    NumWorkers:      4,
+  workers, err := p.srv.NewPool(context.Background(), &pool.Config{
+    NumWorkers:      1,
     AllocateTimeout: time.Second * 20,
     DestroyTimeout:  time.Second * 20,
     StreamTimeout:   time.Second,
@@ -259,6 +239,7 @@ func (p *Plugin) Serve() chan error {
     errCh <- errors.E(op, err)
     return errCh
   }
+  p.wrkPool = workers
 
   go func() {
     // register handler
@@ -311,11 +292,20 @@ func (p *Plugin) handler() func(ctx context.Context, request events.APIGatewayV2
       headers.Set("Cookie", strings.Join(request.Cookies, "; "))
     }
 
-    cookies := make(map[string]string)
+    cookies := make(map[string]*httpV1.HeaderValue)
     for _, cookie := range (&http.Request{Header: headers}).Cookies() {
       if value, err := url.QueryUnescape(cookie.Value); err == nil {
-        cookies[cookie.Name] = value
+        cookies[cookie.Name] = &httpV1.HeaderValue{Value: [][]byte{[]byte(value)}}
       }
+    }
+
+    protoHeaders := make(map[string]*httpV1.HeaderValue, len(headers))
+    for name, values := range headers {
+      header := &httpV1.HeaderValue{}
+      for _, value := range values {
+        header.Value = append(header.Value, []byte(value))
+      }
+      protoHeaders[name] = header
     }
 
     host := headers.Get("Host")
@@ -327,15 +317,15 @@ func (p *Plugin) handler() func(ctx context.Context, request events.APIGatewayV2
       uri += "?" + request.RawQueryString
     }
 
-    metadata, err := json.Marshal(map[string]any{
-      "remoteAddr": request.RequestContext.HTTP.SourceIP,
-      "protocol":   request.RequestContext.HTTP.Protocol,
-      "method":     request.RequestContext.HTTP.Method,
-      "uri":        uri,
-      "headers":    headers,
-      "cookies":    cookies,
-      "rawQuery":   request.RawQueryString,
-      "parsed":     false,
+    metadata, err := proto.Marshal(&httpV1.Request{
+      RemoteAddr: request.RequestContext.HTTP.SourceIP,
+      Protocol:   request.RequestContext.HTTP.Protocol,
+      Method:     request.RequestContext.HTTP.Method,
+      Uri:        uri,
+      Header:     protoHeaders,
+      Cookies:    cookies,
+      RawQuery:   request.RawQueryString,
+      Parsed:     false,
     })
     if err != nil {
       return events.APIGatewayV2HTTPResponse{Body: "", StatusCode: 500}, nil
@@ -381,22 +371,23 @@ func (p *Plugin) handler() func(ctx context.Context, request events.APIGatewayV2
       }
     }
 
-    var responseMetadata struct {
-      Status  int                 `json:"status"`
-      Headers map[string][]string `json:"headers"`
-    }
-    err = json.Unmarshal(r.Context, &responseMetadata)
+    var responseMetadata httpV1.Response
+    err = proto.Unmarshal(r.Context, &responseMetadata)
     if err != nil || responseMetadata.Status < 100 || responseMetadata.Status >= 600 {
       return events.APIGatewayV2HTTPResponse{Body: "", StatusCode: 500}, nil
     }
 
     response := events.APIGatewayV2HTTPResponse{
-      StatusCode:      responseMetadata.Status,
+      StatusCode:      int(responseMetadata.Status),
       Headers:         make(map[string]string, len(responseMetadata.Headers)),
       Body:            base64.StdEncoding.EncodeToString(r.Body),
       IsBase64Encoded: true,
     }
-    for name, values := range responseMetadata.Headers {
+    for name, header := range responseMetadata.Headers {
+      values := make([]string, 0, len(header.GetValue()))
+      for _, value := range header.GetValue() {
+        values = append(values, string(value))
+      }
       if strings.EqualFold(name, "Set-Cookie") {
         response.Cookies = append(response.Cookies, values...)
       } else {
@@ -446,21 +437,34 @@ endure:
 
 Here you can take full advantage of RoadRunner: you can include any plugin here and configure it with the embedded config (within reasonable limits).
 
-Build the binary with a supported Go release that includes current security fixes. If your project has no `go.mod`, run `go mod init example.com/lambda` from the project root.
+Use Go `1.27.1`. If your project has no `go.mod`, run `go mod init example.com/lambda` from the project root. Select the dependencies before building:
 
-The build uses `-mod=readonly` because Composer's `vendor` directory does not contain Go modules. AWS Lambda requires an executable named [`bootstrap`](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-bootstrap) at the root of the deployment package. To build and package your Lambda function, run these commands from the project root:
+```bash
+go get github.com/aws/aws-lambda-go@v1.55.0 \
+  github.com/roadrunner-server/api-go/v6@v6.0.0-beta.14 \
+  github.com/roadrunner-server/config/v6@v6.0.0-beta.4 \
+  github.com/roadrunner-server/endure/v2@v2.6.2 \
+  github.com/roadrunner-server/errors@v1.5.0 \
+  github.com/roadrunner-server/goridge/v4@v4.0.0-beta.3 \
+  github.com/roadrunner-server/logger/v6@v6.0.0-beta.4 \
+  github.com/roadrunner-server/pool/v2@v2.0.0-beta.1 \
+  github.com/roadrunner-server/server/v6@v6.0.0-beta.7 \
+  google.golang.org/protobuf@v1.36.12
+```
+
+The build uses `-mod=readonly` because Composer's `vendor` directory does not contain Go modules. AWS Lambda requires an executable named [`bootstrap`](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-bootstrap) at the root of the deployment package. Include a Linux PHP `8.5` executable named `php` and its shared libraries in `lib/`, built for Amazon Linux 2023 and `x86_64`. Run these commands from the project root:
 
 {% code title="build.sh" %}
 
 ```bash
 go mod tidy
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=readonly -trimpath -ldflags "-s" -o bootstrap main.go plugin.go
-zip main.zip * -r
+zip -r main.zip bootstrap php lib handler.php vendor
 ```
 
 {% endcode %}
 
-You can now upload the function and connect it to an API Gateway HTTP API with payload format `2.0`. For a direct Lambda test, use an API Gateway v2 HTTP request event, not a string event. API Gateway v2 omits the custom-domain API mapping prefix from `rawPath`; this adapter uses the path supplied in the event.
+Use the Lambda `provided.al2023` runtime and `x86_64` architecture. Upload the package and connect it to an API Gateway HTTP API with payload format `2.0`. For a direct Lambda test, use an API Gateway v2 HTTP request event, not a string event. API Gateway v2 omits the custom-domain API mapping prefix from `rawPath`; this adapter uses the path supplied in the event.
 
 ## Repository with the full example
 

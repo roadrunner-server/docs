@@ -6,8 +6,6 @@ Velox builds a RoadRunner binary from the plugins listed in `velox.toml`. Use it
 **Velox v3 is untagged.** This guide requires development revision `6b71101ce0080143b4927cf2d84ab0ba02189b67`, not a released Velox binary. The example uses RR development source with v6 beta plugins. Use the pinned installation command below.
 {% endhint %}
 
-For an existing v5 build, see the [Velox v2025.1.7 configuration](https://github.com/roadrunner-server/velox/blob/v2025.1.7/velox.toml). That release uses the older format and does not support the configuration below.
-
 ## Configuration
 
 This TOML configuration pins the RR commit and plugin versions. The plugin tags match the requirements in the [pinned RR source](https://github.com/roadrunner-server/roadrunner/blob/b0cccd917f001b6584eafdc04ad6ba69a97cbb69/go.mod).

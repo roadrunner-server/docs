@@ -7,17 +7,17 @@ program.
 
 Here's an example of how to embed RoadRunner into a Go program with an HTTP handler:
 
-Import the RoadRunner library into your Go project. Replace `REVISION` with the tag or commit you want to embed. For v6 plugins, select a RoadRunner revision that uses v6 plugin modules; do not assume that `@latest` selects that revision.
+Use Go `1.27.1`. Import the RoadRunner library at the same revision as the [source installation guide](../intro/install.md#build-from-source):
 
-{% code title="main.go" %}
+{% code title="Install the library" %}
 
 ```bash
-go get github.com/roadrunner-server/roadrunner/v2025/lib@REVISION
+go get github.com/roadrunner-server/roadrunner/v2025/lib@b0cccd917f001b6584eafdc04ad6ba69a97cbb69
 ```
 
 {% endcode %}
 
-The library import remains `roadrunner/v2025/lib`. `NewRR` returns `(*RR, error)`. Use matching plugin versions and the [v6 plugin contracts](plugin.md#v6-migration); the embedding lifecycle below is unchanged.
+The library imports v6 plugins and uses the [v6 plugin contracts](plugin.md#v6-migration). `NewRR` returns `(*RR, error)`.
 
 ## Create an RR instance
 

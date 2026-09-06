@@ -153,11 +153,13 @@ In this example, we will demonstrate how to use RoadRunner with Nginx in a Docke
 
 ### Dockerfile
 
+Build the [local v6 RoadRunner image](docker.md#build-the-roadrunner-image) before building this application image.
+
 {% code title="docker/app/Dockerfile" %}
 
-```docker
-FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/roadrunner-server/roadrunner:latest as roadrunner
-FROM --platform=${TARGETPLATFORM:-linux/amd64} php:8.3-alpine
+```dockerfile
+FROM roadrunner:v6-b0cccd9 AS roadrunner
+FROM php:8.5-cli-alpine
 
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
 COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
@@ -176,12 +178,6 @@ ENTRYPOINT ["rr"]
 ```
 
 {% endcode %}
-
-{% hint style="warning" %}
-
-Consider using the direct version in production. The `latest` image tag might be used in development environments only.
-
-{% endhint %}
 
 ### RoadRunner configuration
 
@@ -258,11 +254,9 @@ Do not forget the `composer.json` file:
 
 ```json
 {
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require": {
     "nyholm/psr7": "^1.8",
-    "spiral/roadrunner-http": "^3.0",
+    "spiral/roadrunner-http": "^4.1",
     "spiral/goridge": "^4.0"
   }
 }

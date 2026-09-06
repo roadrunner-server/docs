@@ -1,106 +1,56 @@
-# RoadRunner — Installation
+# RoadRunner Installation
 
-There are several ways to install RoadRunner, depending on your needs and preferences.
+Build RoadRunner with v6 plugins from revision [`b0cccd917f001b6584eafdc04ad6ba69a97cbb69`](https://github.com/roadrunner-server/roadrunner/tree/b0cccd917f001b6584eafdc04ad6ba69a97cbb69). This revision and its plugin dependencies are the target for these guides.
 
-## Pre-built Binaries
+## Requirements
 
-The simplest way to get the latest version of RoadRunner is to download one of the pre-built release binaries, which are
-available for various operating systems, including macOS, Linux, FreeBSD, and Windows. You can find these binaries on
-the GitHub [releases page](https://github.com/roadrunner-server/roadrunner/releases).
+- Go `1.27.1` for the source build.
+- PHP `8.5` with the `sockets` extension for the examples.
+- Composer 2 for PHP dependencies.
+- `curl` and `tar` to download and extract the source archive.
 
-To install RoadRunner, just download the appropriate archive from the releases page and extract it into your desired
-application directory.
+Check the installed versions and PHP extensions:
+
+```bash
+go version
+php --version
+php --modules
+composer --version
+```
+
+## Build From Source
+
+Run these commands from your application directory. The build uses the plugin versions in the downloaded `go.mod` and produces `./rr` for the host operating system and architecture.
+
+```bash
+curl --fail --location --output rr-source.tar.gz \
+  https://github.com/roadrunner-server/roadrunner/archive/b0cccd917f001b6584eafdc04ad6ba69a97cbb69.tar.gz
+mkdir rr-source
+tar -xzf rr-source.tar.gz --strip-components=1 -C rr-source
+CGO_ENABLED=0 go -C rr-source build -mod=readonly -trimpath \
+  -ldflags "-s -X github.com/roadrunner-server/roadrunner/v2025/internal/meta.version=dev-b0cccd9" \
+  -o ../rr ./cmd/rr
+./rr --version
+```
+
+Inspect the compiled module versions with `go version -m ./rr`. Keep the source revision and `go.sum` with your build inputs. To select a different set of plugins, use the [Velox build guide](../customization/build.md).
 
 ## Docker
 
-If you prefer to use RoadRunner inside a Docker container, you can use the official RoadRunner Docker
-image `ghcr.io/roadrunner-server/roadrunner:latest`.
-
-{% hint style="info" %}
-More information about available tags can be
-found [here](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner).
-{% endhint %}
-
-**Here is an example of usage:**
-
-```dockerfile
-FROM php:8.x-cli
-COPY --from=ghcr.io/roadrunner-server/roadrunner:2025.X.X /usr/bin/rr /usr/local/bin/rr
-
-# Install and configure your application
-# ...
-
-CMD rr serve -c .rr.yaml
-```
-
-{% hint style="warning" %}
-Don't forget to replace `2025.X.X` with the desired version of RoadRunner.
-{% endhint %}
+Use the [Docker source build](../app-server/docker.md#build-the-roadrunner-image) to create a local RoadRunner image from the same revision. That guide also shows how to copy the binary into a PHP application image.
 
 ## Composer
 
-If you use Composer to manage your PHP dependencies, you can install the `spiral/roadrunner-cli` package to download the
-latest version of RoadRunner to your project's root directory.
-
-**Install the package**
-
-```terminal
-composer require spiral/roadrunner-cli
-```
-
-Run the following command to download the latest version of RoadRunner:
-
-```terminal
-./vendor/bin/rr get-binary
-```
-
-The server binary will be available at the root of your project.
-
-{% hint style="warning" %}
-The `php-curl` and `php-zip` extensions are required to download RoadRunner automatically.
-The `php-sockets` extension needs to be installed to run RoadRunner.
-Check your installed extensions with `php --modules`.
-{% endhint %}
-
-## Debian Package
-
-For Debian-based operating systems such as **Ubuntu**, **Mint**, and **MX**, you can download the `.deb` package from
-the RoadRunner GitHub releases page and install it using dpkg.
-
-**Just run the following commands:**
+Install the PHP packages needed by your worker. For an HTTP worker, run:
 
 ```bash
-wget https://github.com/roadrunner-server/roadrunner/releases/download/v2024.X.X/roadrunner-2024.X.X-linux-amd64.deb
-sudo dpkg -i roadrunner-2024.X.X-linux-amd64.deb
+composer require spiral/roadrunner-http nyholm/psr7
 ```
 
-{% hint style="warning" %}
-Don't forget to replace `2024.X.X` with the desired version of RoadRunner.
-{% endhint %}
-
-## macOS package using [Homebrew](https://brew.sh/):
-```terminal
-brew install roadrunner
-```
-
-## Windows using [Chocolatey](https://community.chocolatey.org/):
-```bash
-choco install roadrunner
-```
-
-## CURL
-
-You can also install RoadRunner using curl and the `download-latest.sh` script from the RoadRunner GitHub repository.
-
-**Just run the following commands:**
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf  https://raw.githubusercontent.com/roadrunner-server/roadrunner/master/download-latest.sh | sh
-```
+Composer installs the PHP libraries. The source build above supplies the RoadRunner binary.
 
 ## What's Next?
 
-After you have installed RoadRunner, you can proceed to the next steps and configure it for your needs.
-
-1. [RoadRunner — Configuration](./config.md).
-2. [Developer Mode](../php/developer.md).
+1. [Quick Start Guide](quick-start.md).
+2. [RoadRunner Configuration](config.md).
+3. [Developer Mode](../php/developer.md).
