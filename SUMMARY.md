@@ -87,6 +87,7 @@
 - [X-Sendfile](http/sendfile.md)
 - [Streaming](http/resp-streaming.md)
 - [gzip](http/gzip.md)
+- [zstd](http/zstd.md)
 
 ## ⚡️ gRPC
 

@@ -36,7 +36,8 @@ http:
   # Optional, default: false
   raw_body: false
 
-  # Middleware for the HTTP plugin; order is important. Allowed values are: "headers", "gzip", "static", "sendfile", [SINCE 2.6] -> "new_relic", [SINCE 2.6] -> "http_metrics", [SINCE 2.7] -> "cache"
+  # Middleware for the HTTP plugin; order is important. Allowed values are: "headers", "gzip", "zstd", "static", "sendfile", [SINCE 2.6] -> "new_relic", [SINCE 2.6] -> "http_metrics", [SINCE 2.7] -> "cache"
+  # The "zstd" middleware requires a build that includes the zstd plugin.
   #
   # Default value: []
   middleware: [ "headers", "gzip" ]

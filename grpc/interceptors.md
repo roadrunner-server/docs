@@ -21,8 +21,8 @@ Your plugin must implement this interface:
 
 ```go
 type Interceptor interface {
-	UnaryServerInterceptor() grpc.UnaryServerInterceptor
-	Name() string
+    UnaryServerInterceptor() grpc.UnaryServerInterceptor
+    Name() string
 }
 ```
 
@@ -168,17 +168,17 @@ Edit `container/plugins.go` and add your interceptor plugin to the plugin list:
 
 ```go
 import (
-	grpcPlugin "github.com/roadrunner-server/grpc/v5"
-	grpcInterceptor "github.com/roadrunner-server/samples/grpc_interceptor"
+    grpcPlugin "github.com/roadrunner-server/grpc/v5"
+    grpcInterceptor "github.com/roadrunner-server/samples/grpc_interceptor"
 )
 
 func Plugins() []any {
-	return []any{
-		// ...
-		&grpcInterceptor.Plugin{},
-		&grpcPlugin.Plugin{},
-		// ...
-	}
+    return []any{
+        // ...
+        &grpcInterceptor.Plugin{},
+        &grpcPlugin.Plugin{},
+        // ...
+    }
 }
 ```
 
