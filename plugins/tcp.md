@@ -125,6 +125,27 @@ tcp:
 - `pool`: Configuration for the PHP worker pool for the TCP servers. See
 https://docs.roadrunner.dev/docs/php-worker/pool for available parameters.
 
+### Development: Unix Sockets
+
+The development TCP plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) on each named server. Keep the worker command and pool configuration from the preceding example:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+tcp:
+  servers:
+    local:
+      addr: "unix:///run/roadrunner/tcp.sock"
+      unix_socket:
+        mode: "0660"
+    network:
+      addr: "tcp://127.0.0.1:8889"
+```
+
+{% endcode %}
+
+`unix_socket` applies only to the named server that contains it. Do not set it on a TCP address or at the `tcp` root. The plugin still requires a custom RoadRunner build.
+
 ## PHP client
 
 The RoadRunner TCP plugin comes with a convenient PHP package that simplifies the process of integrating the plugin with

@@ -582,6 +582,23 @@ grpc:
 
 {% endcode %}
 
+### Development: Unix Socket
+
+The development gRPC plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes). Keep the other gRPC settings from the preceding example:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+grpc:
+  listen: "unix:///run/roadrunner/grpc.sock"
+  unix_socket:
+    mode: "0660"
+```
+
+{% endcode %}
+
+Configure clients to use the same Unix socket. These options do not change gRPC TLS credentials or worker credentials.
+
 ### Connection age grace
 
 In v6 beta, `max_connection_age_grace` controls how long active RPCs can continue after the connection reaches `max_connection_age`. Zero or omitted grace means unlimited time. Set a finite grace to close the connection after that period.

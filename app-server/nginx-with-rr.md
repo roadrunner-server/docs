@@ -55,6 +55,33 @@ Consider using `fastcgi_pass` instead of `proxy_pass`: Using the `fastcgi_pass` 
 performance in certain configurations.
 {% endhint %}
 
+#### Development: Unix Socket
+
+The development HTTP plugin can give Nginx group access to a FastCGI socket without changing application file permissions:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+http:
+  fcgi:
+    address: "unix:///run/roadrunner/fcgi.sock"
+    unix_socket:
+      mode: "0660"
+      gid: 2000
+```
+
+{% endcode %}
+
+Replace the `fastcgi_pass` directive in the Nginx example with:
+
+```nginx
+fastcgi_pass unix:/run/roadrunner/fcgi.sock;
+```
+
+Replace `2000` with the numeric group shared by RoadRunner and the Nginx worker processes. A non-root RoadRunner process must belong to this group to set the socket group. Nginx workers must also belong to this group to connect through the group permissions. The socket owner stays unchanged because `uid` is omitted.
+
+Create the parent directory first. RoadRunner needs permission to create the socket there. Nginx needs search permission, not write permission, on every parent directory. See [Unix socket attributes](../intro/config.md#unix-socket-attributes) for availability and startup access limits. The Docker example below does not include this development feature or a shared socket directory.
+
 ### Proxy
 
 RoadRunner can be configured to listen for HTTP requests on a specific port.

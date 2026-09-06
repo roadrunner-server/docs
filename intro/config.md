@@ -10,14 +10,50 @@ as <https://onlineyamltools.com/convert-yaml-to-json>.
 
 ## Configuration reference
 
-The most recent configuration reference with all available options can be found in the `.rr.yaml` file in the RoadRunner
-GitHub repository:
+Use the configuration reference for the RoadRunner revision you build. The following file matches the snapshot used by the [installation guide](install.md):
 
-- [**.rr.yaml**](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml)
+- [**.rr.yaml**](https://github.com/roadrunner-server/roadrunner/blob/b0cccd917f001b6584eafdc04ad6ba69a97cbb69/.rr.yaml)
 
 {% hint style="warning" %}
 We use dots as level separators, e.g.: `http.pool`, you can't use dots in section names, queue names, etc. You can find out more about it [here](https://github.com/roadrunner-server/roadrunner/issues/1529).
 {% endhint %}
+
+## Unix Socket Attributes
+
+{% hint style="warning" %}
+Development only. These options require a build that includes the corresponding v6 plugin changes. RoadRunner `v2025.1.15` and the beta dependencies selected by the installation guide do not include them. See [Development Changes](v3-migration.md#development-changes).
+{% endhint %}
+
+Configure each filesystem Unix listener separately. Omit its options object to keep the existing socket defaults.
+
+| Options object | Listener address |
+| --- | --- |
+| `http.unix_socket` | `http.address`, including H2C |
+| `http.fcgi.unix_socket` | `http.fcgi.address` |
+| `rpc.unix_socket` | `rpc.listen` |
+| `grpc.unix_socket` | `grpc.listen` |
+| `tcp.servers.<name>.unix_socket` | `tcp.servers.<name>.addr` |
+| `centrifuge.proxy_socket` | `centrifuge.proxy_address`, the incoming proxy listener |
+| `fileserver.unix_socket` | `fileserver.address` |
+| `server.relay_socket` | `server.relay`, the worker communication listener |
+
+All objects use the same optional fields:
+
+| Field | Meaning |
+| --- | --- |
+| `mode` | Quoted octal string from `"0000"` through `"0777"`. Omitted or empty means no mode change. |
+| `uid` | Numeric socket owner ID. Omit it to keep the default owner. |
+| `gid` | Numeric socket group ID. Omit it to keep the default group. |
+
+UID and GID must be integers from `0` through `4294967294` that fit the platform's Go `int` type. Zero is an explicit ID, not an omitted value. Account names, booleans, fractional numbers, and empty ID strings are invalid. An unset environment variable used for an ID causes a configuration error; omit the field or provide a valid value.
+
+These options require a filesystem `unix://` address on Linux, macOS, or FreeBSD. They do not apply to TCP addresses such as `0.0.0.0:8000`, the `pipes` worker relay, Windows, or Linux abstract sockets. They do not change RoadRunner or PHP worker credentials, the process umask, or application file permissions.
+
+Create the parent directory before startup. RoadRunner needs permission to create the socket there. Clients need search (`x`) permission on every parent directory. The process also needs permission to apply the requested ownership changes. An unprivileged socket owner can change the socket group only to a group to which its process belongs.
+
+Ownership is applied before mode, after the socket starts listening. Clients can connect before these operations finish. The settings specify final attributes, not access control during startup. Existing directory permissions and umask must restrict initial access. Parent directories must prevent untrusted path replacement. If an attribute change fails, RoadRunner closes that listener and reports the error.
+
+See [Nginx group access](../app-server/nginx-with-rr.md#development-unix-socket) for a FastCGI example.
 
 ## Configuration file
 

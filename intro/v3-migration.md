@@ -91,6 +91,7 @@ These changes are not in the beta dependencies selected by the RR snapshot above
 
 | Component | Pending change |
 | --- | --- |
+| Unix sockets | Optional [mode, owner, and group settings](config.md#unix-socket-attributes) for HTTP, FastCGI, RPC, gRPC, named TCP servers, Centrifuge proxy listeners, Fileserver, and worker relays. Requires the corresponding plugin changes with `tcplisten v1.6.0`. Existing defaults remain unchanged. |
 | HTTP | [PROXY protocol support](https://github.com/roadrunner-server/http/commit/8bebd3b) for plain HTTP and HTTPS listeners. It requires trusted proxy addresses and changes how load balancers and readiness checks connect. See the [development configuration](../http/http.md#development-proxy-protocol). |
 | Static | [Prefix and cache controls](https://github.com/roadrunner-server/static/commit/030052b), normalized path checks, and revised ETags. Positive hits still open and stat files; cached misses can delay newly created files. See [Static files](../http/static.md). |
 | Pool | [Allocation and shutdown fixes](https://github.com/roadrunner-server/pool/commit/2ae6f57): retry acquisition after scale-up, cancel spawning during shutdown, reap failed or late workers, and correct supervisor state transitions. Do not assume beta.1 contains these fixes. |

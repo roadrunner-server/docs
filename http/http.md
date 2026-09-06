@@ -547,6 +547,29 @@ http:
 
 {% endcode %}
 
+## Development: Unix Sockets
+
+The development HTTP plugin supports independent [Unix socket attributes](../intro/config.md#unix-socket-attributes) for plain HTTP and FastCGI:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+http:
+  address: "unix:///run/roadrunner/http.sock"
+  unix_socket:
+    mode: "0600"
+  fcgi:
+    address: "unix:///run/roadrunner/fcgi.sock"
+    unix_socket:
+      mode: "0660"
+```
+
+{% endcode %}
+
+`http.unix_socket` also applies when H2C uses the plain HTTP listener. It does not configure FastCGI, HTTPS, HTTP/3, or ACME challenge listeners. Keep `http.fcgi.unix_socket` separate. PROXY protocol still requires TCP and cannot be used on these Unix listeners.
+
+See [Nginx group access](../app-server/nginx-with-rr.md#development-unix-socket) to let a web server connect without changing application file permissions.
+
 ## Development: PROXY protocol
 
 {% hint style="warning" %}

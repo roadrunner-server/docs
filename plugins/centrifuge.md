@@ -132,6 +132,23 @@ For example:
 endpoint address of roadrunner server with activated centrifuge plugin.
 {% endhint %}
 
+### Development: Unix Socket
+
+The development Centrifuge plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) for its incoming proxy listener:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+centrifuge:
+  proxy_address: "unix:///run/roadrunner/centrifuge.sock"
+  proxy_socket:
+    mode: "0660"
+```
+
+{% endcode %}
+
+Configure Centrifugo to connect to the same Unix socket. `proxy_socket` does not configure `grpc_api_address` or the TLS client used for outgoing API calls.
+
 ### PHP worker example
 
 This worker authenticates one configured service account with a bearer token. Set `APP_CENTRIFUGO_USER` to that account's ID in the RoadRunner process environment. Generate a token with the following command:

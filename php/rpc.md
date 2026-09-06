@@ -47,6 +47,23 @@ rpc:
 
 {% endcode %}
 
+### Development: Unix Socket
+
+The development RPC plugin can set [Unix socket attributes](../intro/config.md#unix-socket-attributes) independently of worker credentials:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+rpc:
+  listen: "unix:///run/roadrunner/rpc.sock"
+  unix_socket:
+    mode: "0600"
+```
+
+{% endcode %}
+
+Direct clients must use the same listener address. PHP workers can read it through the environment-based client shown below. Keep RPC permissions separate from sockets used by a web server.
+
 ## Connecting to RoadRunner
 
 Once you have installed Goridge, you can connect to the RoadRunner server. To do so, create an instance of

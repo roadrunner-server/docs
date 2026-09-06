@@ -121,7 +121,7 @@ In this development build, weak ETags use file size and modification time. Stron
 ## Fileserver plugin
 
 The Fileserver plugin serves static files. It works similarly to the `static` HTTP middleware and has extended functionality.
-The `static` middleware runs on the main HTTP endpoint, while the file server plugin uses a different port and serves only static files.
+The `static` middleware runs on the main HTTP endpoint. The Fileserver plugin uses a separate listener and serves only static files.
 
 ## File server configuration
 
@@ -188,6 +188,24 @@ fileserver:
       cache_duration: 10
       max_age: 10
       bytes_range: true
+```
+
+{% endcode %}
+
+### Development: Unix Socket
+
+The development Fileserver plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes). These options belong to `fileserver`, not `http.static`:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+fileserver:
+  address: "unix:///run/roadrunner/files.sock"
+  unix_socket:
+    mode: "0660"
+  serve:
+    - prefix: "/"
+      root: "public"
 ```
 
 {% endcode %}

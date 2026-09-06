@@ -71,6 +71,24 @@ processes. It does not require any network connections or external libraries, ma
 Use `on_init.user` option to execute the on_init command under a different user.
 {% endhint %}
 
+### Development: Unix Relay
+
+The development server plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) for the shared worker relay:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+server:
+  command: "php worker.php"
+  relay: "unix:///run/roadrunner/relay.sock"
+  relay_socket:
+    mode: "0600"
+```
+
+{% endcode %}
+
+`relay_socket` controls only the socket file. It does not select the [worker user](#worker-user) or `on_init.user`. Its permissions must allow the configured workers to connect. Omit this object when using the default `pipes` relay or TCP.
+
 ### Server initialization
 
 The `on_init` section is used for application initialization or warming up before starting workers. It allows you to set
