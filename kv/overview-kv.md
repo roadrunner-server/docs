@@ -291,9 +291,11 @@ use Spiral\Goridge\RPC\RPC;
 use Spiral\RoadRunner\KeyValue\Factory;
 use Spiral\RoadRunner\KeyValue\Serializer\IgbinarySerializer;
 
-$storage = (new Factory($rpc)
+$rpc = RPC::create('tcp://127.0.0.1:6001');
+
+$storage = (new Factory($rpc))
     ->withSerializer(new IgbinarySerializer())
-    ->select('storage');
+    ->select('example');
 ```
 
 {% endcode %}
@@ -331,13 +333,14 @@ After generating the keypair, you can use it to encrypt and decrypt the data.
 use Spiral\Goridge\RPC\RPC;
 use Spiral\RoadRunner\KeyValue\Factory;
 use Spiral\RoadRunner\KeyValue\Serializer\SodiumSerializer;
-use Spiral\RoadRunner\KeyValue\Serializer\DefaultSerializer;
 
-$storage = new Factory($rpc);
-    ->select('storage');
+$rpc = RPC::create('tcp://127.0.0.1:6001');
+
+$storage = (new Factory($rpc))
+    ->select('example');
 
 // Encrypted serializer
-$key = file_get_contents(__DIR__ . '/path/to/keypair.key');
+$key = file_get_contents(__DIR__ . '/keypair.key');
 $encrypted = new SodiumSerializer($storage->getSerializer(), $key);
 
 // Storing public data

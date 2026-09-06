@@ -262,9 +262,10 @@ final class AsyncCache
     public function commitAsync(): bool
     {
         try {
-            $this->rpc->getResponses($this->responses, Response::class);
-        } catch (ServiceException $e) {
-            // ...
+            foreach ($this->rpc->getResponses($this->responses, Response::class) as $response) {
+                // Read each response to detect RPC errors.
+            }
+        } catch (ServiceException) {
             return false;
         } finally {
             $this->responses = [];
@@ -292,6 +293,8 @@ final class AsyncCache
 ```
 
 {% endcode %}
+
+`getResponses()` returns a lazy iterator. `commitAsync()` returns `true` only after it reads all responses. It returns `false` on the first server-side RPC error; other exceptions propagate. It does not undo completed operations or read the remaining responses after an error.
 
 Usage:
 

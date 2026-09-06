@@ -261,6 +261,7 @@ Do not forget the `composer.json` file:
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
+    "nyholm/psr7": "^1.8",
     "spiral/roadrunner-http": "^3.0",
     "spiral/goridge": "^4.0"
   }

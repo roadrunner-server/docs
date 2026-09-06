@@ -104,10 +104,11 @@ Common Jobs settings:
   is then blocked until the workers have processed all the jobs in it. **Lower number means higher priority.**
 
 {% hint style="info" %}
-Blocked PQ means that you can push the job into the driver, but RoadRunner
-will not read that job until PQ is empty. If RoadRunner is running
-with jobs in the PQ, they won't be lost because jobs are not removed from the driver's
-driver queue until after Ack.
+A full PQ blocks further inserts. Publishing can continue if the driver has capacity.
+
+The PQ does not guarantee recovery after a crash. Recovery depends on the driver's persistence, broker retention, and acknowledgment settings. The memory driver loses jobs when RoadRunner stops. Auto-ack can acknowledge a job before PHP processes it.
+
+Kafka pipelines with a configured consumer group use partition offset commits. A later acknowledgment can cause unfinished earlier records in the same partition to be skipped after a crash. See [Kafka acknowledgments](./kafka.md#acknowledgments).
 {% endhint %}
 
 - `pool`: All settings in this section are similar to the worker pool settings

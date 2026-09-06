@@ -303,8 +303,9 @@ func (cfg *Config) InitDefaults() {
 
 ## Serving
 
-Create `Serve` and `Stop` methods in your structure to let RoadRunner start and stop your service. You may also use the
-context from the `Stop` method to let RR force your plugin to stop after a specified timeout in the configuration.
+Endure calls `Serve()` synchronously. Start blocking work in a goroutine owned by the plugin, then return an error channel promptly. A blocking `Serve()` prevents the remaining plugins from starting and prevents container shutdown.
+
+`Stop(ctx)` must stop the service cooperatively and respect the context deadline. The `endure.grace_period` setting determines this deadline. Endure does not terminate plugin goroutines when the deadline expires.
 
 {% code title=".rr.yaml" %}
 
@@ -321,6 +322,8 @@ endure:
 
 ### Plugin
 
+This example starts a local HTTP server. Its `Stop` method uses `http.Server.Shutdown(ctx)` to wait for active requests until the context expires.
+
 {% code title="plugin.go" %}
 
 ```go
@@ -328,37 +331,41 @@ package custom
 
 import (
     "context"
+    "net/http"
 )
 
-type Plugin struct{}
+type Plugin struct {
+    server *http.Server
+}
+
+func (s *Plugin) Init() error {
+    s.server = &http.Server{
+        Addr:    "127.0.0.1:8088",
+        Handler: http.NotFoundHandler(),
+    }
+    return nil
+}
 
 func (s *Plugin) Serve() chan error {
-    const op = errors.Op("custom_plugin_serve")
     errCh := make(chan error, 1)
 
-    err := s.DoSomeWork()
-    if err != nil {
-        errCh <- errors.E(op, err)
-        return errCh
-    }
+    go func() {
+        if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+            errCh <- err
+        }
+    }()
 
-    return nil
+    return errCh
 }
 
 func (s *Plugin) Stop(ctx context.Context) error {
-    return s.stopServing()
-}
-
-func (s *Plugin) DoSomeWork() error {
-    return nil
+    return s.server.Shutdown(ctx)
 }
 ```
 
 {% endcode %}
 
-The `Serve` method is thread-safe. It runs in a separate goroutine managed by the `Endure` container.
-One note is that you should unblock it when calling `Stop` on the container.
-Otherwise, the service will be killed after the timeout (which can be set in Endure).
+`http.ErrServerClosed` is the normal result of HTTP shutdown, so the example does not send it to Endure. Other errors are sent through the buffered channel. Endure does not make plugin code thread-safe; the plugin must synchronize access to shared state.
 
 ## Collecting dependencies at runtime
 

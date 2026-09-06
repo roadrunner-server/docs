@@ -48,7 +48,7 @@ kv:
       dial_timeout: 0
 
       # Optional section.
-      # Default: 0 (equivalent to the default value of 3 retries)
+      # Default: 0 (3 command retries after the initial attempt).
       max_retries: 0
 
       # Optional section.
@@ -175,8 +175,7 @@ disables idle timeout check.
 
 ### Retries
 
-`max_retries`: Maximum number of retries before giving up. Specifying `0` is equivalent to the default (`3` attempts).
-If you need to specify an infinite number of connection attempts, specify the value `-1`.
+`max_retries`: Maximum number of command retries after the initial attempt. A value of `0` selects the default of three retries. A value of `-1` disables command retries. It does not enable unlimited connection attempts.
 
 `min_retry_backoff`: Minimum backoff between each retry. Must be in the format of a "numeric value" + "time format
 suffix". A value of `0` is equivalent to a timeout of 8 milliseconds (`8ms`). A value of `-1` disables backoff.

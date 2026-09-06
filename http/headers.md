@@ -17,9 +17,9 @@ http:
   # ...
   headers:
     cors:
-      allowed_origin: "*"
+      allowed_origin: "https://foo.example.com"
       # If `allowed_origin_regex` option is set, the content of `allowed_origin` is ignored
-      allowed_origin_regex: "^http://foo"
+      allowed_origin_regex: "^https://foo[.]example[.]com$"
       allowed_headers: "*"
       allowed_methods: "GET, POST, PUT, DELETE"
       allow_credentials: true
@@ -34,6 +34,8 @@ http:
 {% endcode %}
 
 > Make sure to declare "headers" middleware.
+
+Replace the example origin in both settings with your trusted origin. Keep `^` and `$` in the regex. Use `[.]` to match literal dots. Do not use `allowed_origin: "*"` with `allow_credentials: true`.
 
 In v6 beta, `allowed_origin`, `allowed_methods`, `allowed_headers`, and `exposed_headers` ignore whitespace around each comma-separated value. For example, `"GET, POST"` selects both methods.
 

@@ -43,7 +43,7 @@ RUN composer install --optimize-autoloader --no-dev
 COPY ./app .
 
 # Run the RoadRunner server
-CMD ./rr serve -c .rr.yaml
+CMD ["/usr/local/bin/rr", "serve", "-c", ".rr.yaml"]
 ```
 
 {% endcode %}

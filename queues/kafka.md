@@ -301,6 +301,16 @@ jobs:
 
 {% endcode %}
 
+## Acknowledgments
+
+In Kafka `v5.2.5` and `v6.0.0-beta.7`, pipelines with `group_options.group_id` set mark acknowledged records for automatic offset commits. A commit advances the consumer group's position for a partition. RR does not wait for all earlier records in that partition to complete.
+
+{% hint style="warning" %}
+Workers can complete jobs out of order. If offset `101` is acknowledged while offset `100` is unfinished in the same partition, a commit can advance the group to `102`. After a crash, the group then skips offset `100`, although that job was not acknowledged. Do not assume that every unacknowledged job will be delivered again.
+{% endhint %}
+
+Direct partition consumption without `group_options` does not use these consumer-group commits.
+
 ## Direct Partitions (v6 Beta)
 
 The Kafka v6 beta line (`v6.0.0-beta.7`) applies `consumer_options.consume_partitions` to the client. Kafka `v5.2.5` accepted this setting but did not apply it.

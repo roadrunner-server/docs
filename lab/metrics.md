@@ -160,6 +160,9 @@ Prometheus. To do this, you need to register collectors in your configuration fi
 ```yaml
 version: "3"
 
+rpc:
+  listen: tcp://127.0.0.1:6001
+
 metrics:
   address: 127.0.0.1:2112
   collect:
@@ -183,18 +186,21 @@ You can also use tagged (labels) metrics to group values:
 ```yaml
 version: "3"
 
+rpc:
+  listen: tcp://127.0.0.1:6001
+
 metrics:
   address: 127.0.0.1:2112
   collect:
     registered_users:
-      type: histogram
+      type: counter
       help: "Total registered users."
       labels: [ "type", "is_admin" ]
 ```
 
 {% endcode %}
 
-In the example below we will show you how to send metrics into `registered_users` collector.
+Choose either the basic configuration or this labeled configuration for `registered_users`. Every update to the labeled collector must include two label values, in the order `type`, `is_admin`.
 
 ### PHP client
 
@@ -218,7 +224,7 @@ composer require spiral/roadrunner-metrics
 After the installation, you can create an instance of the `Spiral\RoadRunner\Metrics\Metrics` class, which will allow
 you to use the available class methods.
 
-**Here is an example:**
+Use the [basic configuration](#application-metrics) for this example. Its collector has no labels:
 
 {% code title="metrics.php" %}
 
@@ -247,7 +253,7 @@ grouping, and aggregating the data.
 - **Simplified querying:** You can use labels to filter and aggregate your metric data, making it easier to extract
   meaningful insights from the data.
 
-You can also specify labels for your metrics by passing an array of labels to the `add` method:
+Use the [tagged configuration](#tagged-metrics) for this call. Pass one value for `type` and one for `is_admin`, in that order:
 
 {% code title="metrics.php" %}
 
@@ -283,7 +289,7 @@ $metrics->add('earned_money', 100_000_000);
 
 {% endcode %}
 
-You can also declare labeled metrics:
+You can also declare the labeled collector in PHP instead of YAML. For this example, remove `registered_users` from `metrics.collect` before starting RoadRunner. A declaration does not change the labels of an existing collector. Use the two-label `add()` call above after this declaration:
 
 {% code title="metrics.php" %}
 

@@ -47,7 +47,7 @@ Name this file `handler.php` and put it in the root of your project. Make sure t
 {% code %}
 
 ```bash
-composer require spiral/roadrunner-http nyholm/psr7
+composer require 'spiral/roadrunner-http:^4.1' nyholm/psr7
 ```
 
 {% endcode %}
@@ -153,6 +153,10 @@ func main() {
 
 2. `plugin.go` with the plugin implementation:
 
+The adapter uses API Gateway HTTP API payload format `2.0` and the JSON protocol supported by [`spiral/roadrunner-http` 4.1](https://github.com/roadrunner-php/http/blob/v4.1.0/src/HttpWorker.php). HTTP metadata goes in `Payload.Context`. Raw body bytes go in `Payload.Body`. The adapter returns base64 response bodies so API Gateway can restore text and binary data. Form bodies remain raw; the PHP application must parse them if needed.
+
+The execution context sets a 10-second budget for worker acquisition and the initial response. A nonzero `Supervisor.ExecTTL` gives each stream read a separate 10-second timeout. Cleanup cancels the execution context and drains the result channel. A stream read already in progress can continue until its timeout expires. The SDK then kills the worker, reaps the process, and starts a replacement. The handler reserves 10 seconds for cleanup plus a 1-second margin before the Lambda deadline. If too little time remains, the handler returns an error without executing PHP. To allow the full execution budget, set the Lambda timeout above 21 seconds, for example 30 seconds, with additional time for initialization and response delivery.
+
 {% code title="plugin.go" %}
 
 ```go
@@ -160,6 +164,10 @@ package main
 
 import (
   "context"
+  "encoding/base64"
+  "net/http"
+  "net/url"
+  "strings"
   "sync"
   "time"
 
@@ -178,6 +186,7 @@ import (
 
 const (
   pluginName string = "lambda"
+  executionTimeout = 10 * time.Second
 )
 
 type Plugin struct {
@@ -241,6 +250,10 @@ func (p *Plugin) Serve() chan error {
     NumWorkers:      4,
     AllocateTimeout: time.Second * 20,
     DestroyTimeout:  time.Second * 20,
+    StreamTimeout:   time.Second,
+    Supervisor: &pool.SupervisorConfig{
+      ExecTTL: executionTimeout,
+    },
   }, nil, nil)
   if err != nil {
     errCh <- errors.E(op, err)
@@ -268,12 +281,62 @@ func (p *Plugin) Stop(ctx context.Context) error {
 
 func (p *Plugin) handler() func(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
   return func(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
-    requestJSON, err := json.Marshal(request)
-    if err != nil {
-      return events.APIGatewayV2HTTPResponse{Body: "", StatusCode: 500}, nil
+    deadline := time.Now().Add(executionTimeout)
+    if d, ok := ctx.Deadline(); ok {
+      d = d.Add(-executionTimeout - time.Second)
+      if d.Before(deadline) {
+        deadline = d
+      }
+    }
+    ctx, cancel := context.WithDeadline(ctx, deadline)
+    defer cancel()
+    if err := ctx.Err(); err != nil {
+      return events.APIGatewayV2HTTPResponse{}, err
     }
 
-    ctxJSON, err := json.Marshal(ctx)
+    body := []byte(request.Body)
+    if request.IsBase64Encoded {
+      var err error
+      body, err = base64.StdEncoding.DecodeString(request.Body)
+      if err != nil {
+        return events.APIGatewayV2HTTPResponse{StatusCode: 400}, nil
+      }
+    }
+
+    headers := make(http.Header, len(request.Headers))
+    for name, value := range request.Headers {
+      headers.Set(name, value)
+    }
+    if len(request.Cookies) != 0 {
+      headers.Set("Cookie", strings.Join(request.Cookies, "; "))
+    }
+
+    cookies := make(map[string]string)
+    for _, cookie := range (&http.Request{Header: headers}).Cookies() {
+      if value, err := url.QueryUnescape(cookie.Value); err == nil {
+        cookies[cookie.Name] = value
+      }
+    }
+
+    host := headers.Get("Host")
+    if host == "" {
+      host = request.RequestContext.DomainName
+    }
+    uri := "https://" + host + request.RawPath
+    if request.RawQueryString != "" {
+      uri += "?" + request.RawQueryString
+    }
+
+    metadata, err := json.Marshal(map[string]any{
+      "remoteAddr": request.RequestContext.HTTP.SourceIP,
+      "protocol":   request.RequestContext.HTTP.Protocol,
+      "method":     request.RequestContext.HTTP.Method,
+      "uri":        uri,
+      "headers":    headers,
+      "cookies":    cookies,
+      "rawQuery":   request.RawQueryString,
+      "parsed":     false,
+    })
     if err != nil {
       return events.APIGatewayV2HTTPResponse{Body: "", StatusCode: 500}, nil
     }
@@ -281,36 +344,64 @@ func (p *Plugin) handler() func(ctx context.Context, request events.APIGatewayV2
     pld := p.getPld()
     defer p.putPld(pld)
 
-    pld.Body = requestJSON
-    pld.Context = ctxJSON
+    pld.Body = body
+    pld.Context = metadata
 
-    re, err := p.wrkPool.Exec(ctx, pld, nil)
+    stopCh := make(chan struct{})
+    re, err := p.wrkPool.Exec(ctx, pld, stopCh)
     if err != nil {
       return events.APIGatewayV2HTTPResponse{Body: "", StatusCode: 500}, nil
     }
+    defer func() {
+      // StreamCancel uses ctx. ExecTTL bounds a stream read already in progress.
+      cancel()
+      close(stopCh)
+      for range re {
+      }
+    }()
 
     var r *payload.Payload
 
     select {
-    case pl := <-re:
+    case <-ctx.Done():
+      return events.APIGatewayV2HTTPResponse{}, ctx.Err()
+    case pl, ok := <-re:
+      if !ok || pl == nil {
+        return events.APIGatewayV2HTTPResponse{Body: "worker empty response", StatusCode: 500}, nil
+      }
       if pl.Error() != nil {
         return events.APIGatewayV2HTTPResponse{Body: "", StatusCode: 500}, nil
       }
-      // streaming is not supported
-      if pl.Payload().Flags&frame.STREAM != 0 {
+      r = pl.Payload()
+      if r == nil {
+        return events.APIGatewayV2HTTPResponse{Body: "worker empty response", StatusCode: 500}, nil
+      }
+      if r.Flags&frame.STREAM != 0 {
         return events.APIGatewayV2HTTPResponse{Body: "streaming is not supported", StatusCode: 500}, nil
       }
-
-      // assign the payload
-      r = pl.Payload()
-    default:
-      return events.APIGatewayV2HTTPResponse{Body: "worker empty response", StatusCode: 500}, nil
     }
 
-    var response events.APIGatewayV2HTTPResponse
-    err = json.Unmarshal(r.Body, &response)
-    if err != nil {
+    var responseMetadata struct {
+      Status  int                 `json:"status"`
+      Headers map[string][]string `json:"headers"`
+    }
+    err = json.Unmarshal(r.Context, &responseMetadata)
+    if err != nil || responseMetadata.Status < 100 || responseMetadata.Status >= 600 {
       return events.APIGatewayV2HTTPResponse{Body: "", StatusCode: 500}, nil
+    }
+
+    response := events.APIGatewayV2HTTPResponse{
+      StatusCode:      responseMetadata.Status,
+      Headers:         make(map[string]string, len(responseMetadata.Headers)),
+      Body:            base64.StdEncoding.EncodeToString(r.Body),
+      IsBase64Encoded: true,
+    }
+    for name, values := range responseMetadata.Headers {
+      if strings.EqualFold(name, "Set-Cookie") {
+        response.Cookies = append(response.Cookies, values...)
+      } else {
+        response.Headers[name] = strings.Join(values, ", ")
+      }
     }
     return response, nil
   }
@@ -355,18 +446,21 @@ endure:
 
 Here you can take full advantage of RoadRunner: you can include any plugin here and configure it with the embedded config (within reasonable limits).
 
-To build and package your Lambda function, run:
+Build the binary with a supported Go release that includes current security fixes. If your project has no `go.mod`, run `go mod init example.com/lambda` from the project root.
+
+The build uses `-mod=readonly` because Composer's `vendor` directory does not contain Go modules. AWS Lambda requires an executable named [`bootstrap`](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-bootstrap) at the root of the deployment package. To build and package your Lambda function, run these commands from the project root:
 
 {% code title="build.sh" %}
 
 ```bash
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s" -o bootstrap-amd64 main.go plugin.go
+go mod tidy
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=readonly -trimpath -ldflags "-s" -o bootstrap main.go plugin.go
 zip main.zip * -r
 ```
 
 {% endcode %}
 
-You can now upload and invoke your handler using a simple string event.
+You can now upload the function and connect it to an API Gateway HTTP API with payload format `2.0`. For a direct Lambda test, use an API Gateway v2 HTTP request event, not a string event. API Gateway v2 omits the custom-domain API mapping prefix from `rawPath`; this adapter uses the path supplied in the event.
 
 ## Repository with the full example
 

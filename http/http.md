@@ -55,9 +55,11 @@ http:
     # Default: ""
     dir: "/tmp"
 
-    # Deny files with the following extensions to upload.
+    # Deny uploads with these file extensions.
+    # Configure forbid or allow for your application's extension restrictions.
+    # Without either list, RR accepts all file extensions.
     #
-    # Default: [".php", ".exe", ".bat"]
+    # Default: []
     forbid: [ ".php", ".exe", ".bat", ".sh" ]
 
     # [SINCE 2.6] Allow files with the following extensions to upload
@@ -72,9 +74,10 @@ http:
     # feature disabling.
     cors:
       # Controls "Access-Control-Allow-Origin" header value (docs: https://mzl.la/2OgD4Qf).
+      # Replace this example with your application's trusted origin.
       #
       # Default: ""
-      allowed_origin: "*"
+      allowed_origin: "https://foo.example.com"
 
       # Controls "Access-Control-Allow-Headers" header value (docs: https://mzl.la/2OzDVvk).
       #
@@ -486,10 +489,12 @@ response.
 {% code title="script.php" %}
 
 ```php
-return $response->withAddedHeader('http2-push', '/test.js');
+return $response->withAddedHeader('Http2-Push', '/test.js');
 ```
 
 {% endcode %}
+
+In v6 beta, this virtual header requires the exact name `Http2-Push`.
 
 Note that the path of the resource must be related to the public application directory and must include `/` at the
 beginning.

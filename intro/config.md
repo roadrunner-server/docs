@@ -79,7 +79,7 @@ exec /var/www/rr \
   -w /var/www \
   -o http.pool.num_workers=${RR_NUM_WORKERS:-8} \
   -o http.pool.max_jobs=${RR_MAX_JOBS:-16} \
-  -o http.pool.supervisor.max_worker_memory=${RR_MAX_WORKER_MEMORY:-512}
+  -o http.pool.supervisor.max_worker_memory=${RR_MAX_WORKER_MEMORY:-512} \
   serve
 ```
 

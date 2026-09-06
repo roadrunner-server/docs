@@ -10,6 +10,12 @@ To begin, you need to download RR for your platform. Visit the [RR installation 
 
 RR requires PHP to run. If you don't have PHP installed, you can download it from the [official PHP website](https://www.php.net/downloads.php) and follow the installation instructions for your operating system.
 
+Install [Composer](https://getcomposer.org/download/). Enable the PHP `sockets` extension. Run this command in the project directory to install the worker dependencies:
+
+```bash
+composer require spiral/roadrunner-http nyholm/psr7
+```
+
 ## Step 3: Create a simple configuration
 
 Next, you need to create a simple configuration file for RR. Open a text editor and create a new file called `.rr.yaml`. Add the following content to the file:
@@ -87,6 +93,9 @@ Now start the server. You should have the following files in the current folder:
 
 - `.rr.yaml`
 - `psr-worker.php`
+- `composer.json`
+- `composer.lock`
+- `vendor/`
 - `rr` binary
 
 Then, open a terminal window in the current folder and run the following command:
