@@ -39,7 +39,7 @@ RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https:/
 - Compatible with Windows, WSL2, FreeBSD, GNU/Linux, etc.
 - And more 😉
 
-See [v3 Migration](intro/v3-migration.md) for changes in the v6 plugin beta line and the matching development builds.
+See [v3 Migration](intro/v3-migration.md) for the v5-to-v6 plugin changes and upgrade checks for RoadRunner v3.
 
 If you have a feature request in mind, you can check
 out [GitHub issues](https://github.com/roadrunner-server/roadrunner/issues) page. Here you'll find a list of open

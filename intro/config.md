@@ -21,7 +21,7 @@ We use dots as level separators, e.g.: `http.pool`, you can't use dots in sectio
 ## Unix Socket Attributes
 
 {% hint style="warning" %}
-Development only. These options require a build that includes the corresponding v6 plugin changes. RoadRunner `v2025.1.15` and the beta dependencies selected by the installation guide do not include them. See [Development Changes](v3-migration.md#development-changes).
+RoadRunner v3 supports these options through its v6 plugins. RoadRunner `v2025.1.15` does not include them. See [New Features](v3-migration.md#new-features).
 {% endhint %}
 
 Configure each filesystem Unix listener separately. Omit its options object to keep the existing socket defaults.

@@ -8,7 +8,7 @@ pipelines or for the for KV plugin and Jobs plugin. This is a boltdb limitation 
 the same file.
 
 {% hint style="warning" %}
-In `v6.0.0-beta.5`, stored jobs do not retain application headers, including the `pool` routing header. Use a single `jobs.pool`, not [named worker pools](overview-queues.md#named-worker-pools-v6-beta), when consuming BoltDB pipelines with jobs `v6.0.0-beta.10`. This restriction applies to new jobs as well as existing data.
+Stored jobs do not retain application headers, including the `pool` routing header. Use a single `jobs.pool` when consuming BoltDB pipelines. [Named worker pools](overview-queues.md#named-worker-pools) cannot route these jobs. This restriction applies to new jobs as well as existing data.
 {% endhint %}
 
 ## Configuration

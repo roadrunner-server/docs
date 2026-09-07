@@ -114,7 +114,7 @@ Kafka pipelines with a configured consumer group use partition offset commits. A
 - `pool`: All settings in this section are similar to the worker pool settings
   described on the [configuration page](https://roadrunner.dev/docs/intro-config).
 
-- `pools`: Named worker pools in jobs v6 beta. Use this instead of `pool`. See [Named Worker Pools](#named-worker-pools-v6-beta).
+- `pools`: Named worker pools in jobs v6. Use this instead of `pool`. See [Named Worker Pools](#named-worker-pools).
 
 - `consume`: Contains an array of the names of all queues specified in the
   `"pipelines"` section, which should be processed by the concierge specified in
@@ -128,9 +128,9 @@ Kafka pipelines with a configured consumer group use partition offset commits. A
 In jobs `v6.0.0-beta.10`, an explicit `jobs.pool` with omitted or zero `num_workers` creates only two pollers, even after the pool selects its default worker count. Set `jobs.pool.num_workers` to a value greater than zero. Setting `num_pollers` does not correct this.
 {% endhint %}
 
-### Named Worker Pools (v6 Beta)
+### Named Worker Pools
 
-The jobs v6 beta line (`v6.0.0-beta.10`) supports named worker pools. Jobs v5 does not support this configuration. Use `jobs.pools` instead of `jobs.pool`. Setting both is an error.
+Jobs v6 supports named worker pools. Jobs v5 does not support this configuration. Use `jobs.pools` instead of `jobs.pool`. Setting both is an error.
 
 Set each pipeline's `pool` to a configured pool name:
 
@@ -408,7 +408,7 @@ IP address, the user's token or session id, etc.
 Headers can only contain string values and are not serialized in any way during transmission, so be careful when
 specifying them.
 
-In jobs v6 beta, `pool` is [reserved for worker-pool routing](#named-worker-pools-v6-beta).
+In jobs v6, `pool` is [reserved for worker-pool routing](#named-worker-pools).
 
 In the case to add a new header to the task, you can use methods [similar to PSR-7](https://www.php-fig.org/psr/psr-7/).
 
