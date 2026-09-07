@@ -45,7 +45,9 @@ All objects use the same optional fields:
 | `uid` | Numeric socket owner ID. Omit it to keep the default owner. |
 | `gid` | Numeric socket group ID. Omit it to keep the default group. |
 
-UID and GID must be integers from `0` through `4294967294` that fit the platform's Go `int` type. Zero is an explicit ID, not an omitted value. Account names, booleans, fractional numbers, and empty ID strings are invalid. An unset environment variable used for an ID causes a configuration error; omit the field or provide a valid value.
+Use numeric UID and GID values from `0` through `4294967294` that fit the platform's Go `int` type. Zero is an explicit ID, not an omitted value. Account names are not supported.
+
+The configuration provider converts values before socket validation. Viper can convert booleans and fractional numbers to integer IDs. An unset or empty environment variable can become ID `0`, rather than cause an error. Set ID variables explicitly, or omit the fields to keep ownership unchanged.
 
 These options require a filesystem `unix://` address on Linux, macOS, or FreeBSD. They do not apply to TCP addresses such as `0.0.0.0:8000`, the `pipes` worker relay, Windows, or Linux abstract sockets. They do not change RoadRunner or PHP worker credentials, the process umask, or application file permissions.
 
