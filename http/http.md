@@ -568,6 +568,10 @@ http:
 
 `http.unix_socket` also applies when H2C uses the plain HTTP listener. It does not configure FastCGI, HTTPS, HTTP/3, or ACME challenge listeners. Keep `http.fcgi.unix_socket` separate. PROXY protocol still requires TCP and cannot be used on these Unix listeners.
 
+A socket options object does not enable a listener. Set its `address` to a filesystem Unix socket. Omit its socket options when the listener is disabled.
+
+During shutdown, the HTTP plugin closes the FastCGI listener. This stops new connections. It does not close FastCGI connections that the server already accepted.
+
 See [Nginx group access](../app-server/nginx-with-rr.md#development-unix-socket) to let a web server connect without changing application file permissions.
 
 ## Development: PROXY protocol

@@ -26,6 +26,8 @@ Development only. These options require a build that includes the corresponding 
 
 Configure each filesystem Unix listener separately. Omit its options object to keep the existing socket defaults.
 
+The configuration provider can discard an empty options object (`{}`). It then behaves like omission, including on TCP addresses or the `pipes` worker relay.
+
 | Options object | Listener address |
 | --- | --- |
 | `http.unix_socket` | `http.address`, including H2C |
@@ -50,6 +52,8 @@ Use numeric UID and GID values from `0` through `4294967294` that fit the platfo
 The configuration provider converts values before socket validation. Viper can convert booleans and fractional numbers to integer IDs. An unset or empty environment variable can become ID `0`, rather than cause an error. Set ID variables explicitly, or omit the fields to keep ownership unchanged.
 
 These options require a filesystem `unix://` address on Linux, macOS, or FreeBSD. They do not apply to TCP addresses such as `0.0.0.0:8000`, the `pipes` worker relay, Windows, or Linux abstract sockets. They do not change RoadRunner or PHP worker credentials, the process umask, or application file permissions.
+
+The plugin validates the decoded socket options during initialization, before it opens that listener. Invalid modes, out-of-range IDs, and incompatible listener addresses fail initialization. This validation does not check filesystem permissions.
 
 Create the parent directory before startup. RoadRunner needs permission to create the socket there. Clients need search (`x`) permission on every parent directory. The process also needs permission to apply the requested ownership changes. An unprivileged socket owner can change the socket group only to a group to which its process belongs.
 
