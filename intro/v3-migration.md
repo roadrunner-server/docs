@@ -16,13 +16,14 @@ Keep `version: "3"` in `.rr.yaml`. That value identifies the configuration forma
 | TCP plugin | The default RR build no longer includes the [TCP plugin](../plugins/tcp.md). A `tcp:` section cannot add it. This does not remove `tcp://` RPC transport. |
 | Centrifuge | Remove calls to `centrifuge.RateLimit`; the RPC has no replacement in the plugin. Check [Centrifuge](../plugins/centrifuge.md) and the DTO migration before updating direct clients. |
 | Job headers | `pool` is now a routing header. Rename application headers that use this name. External producers must supply a valid pool when [named worker pools](../queues/overview-queues.md#named-worker-pools) are enabled. |
+| AMQP (development/unreleased) | Move global broker settings to named connections. Set `config.connection` on every AMQP pipeline. Use nested exchange and queue settings without `config.version`. See [AMQP migration](#amqp-configuration-development). |
 | Environment files | A configured root `envfile` is now loaded without experimental mode. Supply the file or remove an unused setting; a missing file fails startup. See [Environment](../php/environment.md). |
 | gRPC reflection | Reflection is registered automatically. Unary interceptors do not protect its streams. Review network access and mTLS in [gRPC](../grpc/grpc.md#server-reflection). |
 
 ## New Features
 
 - [Jobs worker pools](../queues/overview-queues.md#named-worker-pools): assign pipelines to separate named pools. The existing single `jobs.pool` format remains available; do not configure it together with `jobs.pools`.
-- [AMQP version 2 configuration](../queues/amqp.md#version-2-configuration-recommended): separate exchange and queue settings, with controls for declaration and binding. Legacy flat configuration remains supported. Runtime `jobs.Declare` still uses flat keys.
+- [AMQP pipeline configuration](../queues/amqp.md#pipeline-configuration): separate exchange and queue settings, with controls for declaration and binding. The development configuration requires nested sections and named connections. Runtime `jobs.Declare` remains a flat string map.
 - [NSQ](../queues/nsq.md): a new bundled Jobs driver with topics, channels, discovery, acknowledgements, and delayed delivery. Its retry limit and lack of a dead-letter handoff require application failure handling.
 - [gRPC reflection](../grpc/grpc.md#server-reflection): v1 and v1alpha service listing. Full PHP-service descriptors require a [Protoreg plugin](../grpc/protoreg.md). Unary interceptors already existed in v5.3.0; they are not a new v6 feature.
 - [Trusted proxy headers](../http/proxy.md): select and order the forwarding headers that a trusted proxy may supply. An empty list restores the defaults; it does not disable header trust.
@@ -33,6 +34,16 @@ Keep `version: "3"` in `.rr.yaml`. That value identifies the configuration forma
 - [Static file controls](../http/static.md): configure URL prefixes, cache lifetimes, and cache limits. The middleware normalizes paths before access checks and uses revised ETags. Positive cache hits still open and stat files. Cached misses can delay newly created files.
 - [Zstd middleware](../http/zstd.md): add response compression with Zstandard. Include and register the plugin before selecting `http.middleware: ["zstd"]`.
 - [HTTP rate limiting](../http/rate-limiter.md): upcoming bundled middleware with global, IP, or header keys, bounded process-local state, and `429` responses with `Retry-After`. The pinned source build does not include it.
+
+## AMQP Configuration (Development)
+
+Named connections and nested-only static configuration are development/unreleased changes for the next major release. The pinned [RR source build](install.md) at `b0cccd9` uses AMQP `v6.0.0-beta.9` and includes neither change. That beta allowed both flat and nested static configuration. Select an AMQP dependency with both changes before using the new configuration.
+
+Move `amqp.addr` to `amqp.<name>.addr`. Move optional `amqp.tls` to `amqp.<name>.tls`. Each connection requires an explicit address. Every YAML AMQP pipeline requires `config.connection` with a configured name. Top-level `amqp.addr` and `amqp.tls` are not supported. There is no implicit default connection or localhost fallback.
+
+Keep root `version: "3"`. Remove AMQP `config.version`. Static AMQP configuration uses only nested `exchange` and `queue` sections. Scalar `exchange` or `queue` values fail to decode. Flat flags do not set nested values. Move old flat entity settings with the [AMQP migration table](../queues/amqp.md#migration).
+
+Runtime `jobs.Declare` stays a flat string map. Send `connection`, or use `queueHeaders: ['rr_connection' => 'brokerB']` with the existing PHP `AMQPCreateInfo` API. No PHP package change is required. See [AMQP runtime declarations](../queues/amqp.md#runtime--rpc-jobsdeclare) for precedence and reserved-key removal, and [named connections](../queues/amqp.md#named-connections-development) for separate consume and publish pipelines.
 
 ## Bug Fixes
 
