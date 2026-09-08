@@ -2,6 +2,8 @@
 
 HTTP plugin is used to pass `HTTP`/`HTTPS`/`fCGI`/`HTTP2(h2c)`/`HTTP3` requests to the PHP worker.
 
+The upcoming bundle adds [HTTP rate limiting](rate-limiter.md) with global, IP, or header keys. The pinned source build does not yet include this middleware; see its [availability](rate-limiter.md#availability).
+
 ## Configuration reference
 
 {% code title=".rr.yaml" %}
@@ -38,6 +40,7 @@ http:
 
   # Middleware names depend on the plugins in the build. Requests run left to right in v6.
   # The "zstd" middleware requires a build that includes the zstd plugin.
+  # The upcoming "rate_limiter" middleware uses http.rate_limiter settings.
   #
   # Default value: []
   middleware: [ "headers", "gzip" ]

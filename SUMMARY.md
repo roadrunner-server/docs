@@ -85,6 +85,7 @@
 - [Intro into HTTP](http/http.md)
 - [Headers and CORS](http/headers.md)
 - [Proxy IP parser](http/proxy.md)
+- [Rate limiter](http/rate-limiter.md)
 - [Static files](http/static.md)
 - [X-Sendfile](http/sendfile.md)
 - [Streaming](http/resp-streaming.md)
