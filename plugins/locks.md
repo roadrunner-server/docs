@@ -5,12 +5,68 @@ RPC protocol. By leveraging the benefits of using GO with PHP, it provides a lig
 acquire, release, and manage locks. With this plugin, you can easily manage critical sections of your application and 
 prevent race conditions, data corruption, and other synchronization issues that can occur in multiprocess environments.
 
-{% hint style="warning" %}
-RoadRunner lock plugin uses an in-memory storage to store information about locks at this moment. When multiple
-instances of RoadRunner are used, each instance will have its own in-memory storage for locks. As a result, if a
-process
-acquires a lock on one instance of RoadRunner, it will not be aware of the lock state on the other instances.
+{% hint style="info" %}
+The plugin has two lock backends. The in-memory backend is the default, and it keeps the lock state in one RoadRunner instance. The Redis backend shares locks between RoadRunner instances.
 {% endhint %}
+
+## Configuration
+
+Omit the `lock` section or set `driver: memory` to use the in-memory backend. Each RoadRunner instance then keeps its own lock state.
+
+Set `driver: redis` to share locks between RoadRunner instances:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+lock:
+  driver: redis
+  config:
+    addrs: ["127.0.0.1:6379"]
+    username: ""
+    password: ""
+    db: 0
+    master_name: ""
+    sentinel_password: ""
+    pool_size: 0
+    dial_timeout: 5s
+    read_timeout: 5s
+    write_timeout: 5s
+    tls:
+      root_ca: ""
+      cert: ""
+      key: ""
+```
+
+{% endcode %}
+
+The Redis backend requires Redis 7 or later. It uses the `go-redis` v9 client.
+
+A set `master_name` selects a failover client for any number of addresses. Without `master_name`, one address selects a standalone client, and two or more addresses select a cluster client. The `db` setting applies to a standalone client and to a failover client. A negative `db` is rejected at startup. A cluster client uses database 0 only. Without `master_name`, a non-zero `db` with more than one address is rejected at startup.
+
+Set `master_name` to use Redis Sentinel. The `addrs` list then holds the Sentinel addresses. Set `sentinel_password` when the Sentinel nodes need their own password.
+
+Set `pool_size` to size the connection pool for one Redis node. The client opens more connections when the pool is busy. The value `0` selects the `go-redis` default.
+
+The `dial_timeout`, `read_timeout`, and `write_timeout` settings accept Go durations, such as `5s`. Negative values are rejected at startup. Omitted timeouts use the Redis client defaults.
+
+Add the `tls` block to connect with TLS. Remove the block for a plaintext connection. An empty `root_ca` selects the system root certificates. Set `root_ca` to the PEM file of a private certificate authority. Set `cert` and `key` together to send a client certificate. The backend reads the pair for each handshake, so a renewed certificate needs no restart. The minimum protocol version is TLS 1.2.
+
+Write at least one key in the `tls` block. The configuration reader drops a block that has no keys, and the connection then stays plaintext. Write `root_ca: ""` for a server with a public certificate authority.
+
+The backend does not accept some keys of the [RoadRunner Redis plugin](../kv/redis.md). The `max_retries` key is absent, because a retry after a lost reply reports contention for a lock that the caller now holds. The `route_by_latency`, `route_randomly`, and `read_only` keys are absent, because the lock script writes and must run on the master. The `min_retry_backoff`, `max_retry_backoff`, `min_idle_conns`, `max_conn_age`, `pool_timeout`, `idle_timeout`, and `idle_check_freq` keys are absent as well.
+
+The `lock` section requires `driver: memory` or `driver: redis`. Invalid configuration and connection failures stop plugin initialization.
+
+The backend stores lock state under the fixed `rr:lock:` key prefix. The resource name is the namespace. Give resources unique names when different applications share one Redis server.
+
+### Redis lock behavior
+
+- `ForceRelease` removes all locks on the resource. It returns `Ok: true` only if it removed at least one lock.
+- Both backends refuse a second read lock with the same ID on the same resource. Use `UpdateTTL` to extend a held lock.
+- Contention, or an expired wait during an acquisition, returns `Ok: false`.
+- A failed Redis command, or a deadline that occurs during a Redis command, returns an RPC error. The lock state is then unknown. Call `Exists` or `Release` to find the state of the lock.
+- A `wait` of `0` on Redis makes one acquisition attempt, bounded by `read_timeout`, which is 5 seconds by default. The memory backend waits 1 millisecond instead.
+- Stored locks stay in Redis after a RoadRunner restart until release or expiry.
 
 ## PHP client
 
@@ -248,7 +304,7 @@ PHP DTO classes proto files, making it easy to work with these files in your PHP
 RoadRunner provides an RPC API, which allows you to manage locks in your applications using remote procedure calls. The 
 RPC API provides a set of methods that map to the available methods of the `RoadRunner\Lock\Lock` class in PHP.
 
-Raw RPC requests use microseconds for `Request.ttl` and `Request.wait`. For example, `wait: 5000000` allows an acquisition wait of five seconds. If `wait` is omitted or zero, the server uses a one-millisecond acquisition window, not an unlimited wait. PHP SDK arguments use seconds and are converted before the RPC call.
+Raw RPC requests use microseconds for `Request.ttl` and `Request.wait`. For example, `wait: 5000000` allows an acquisition wait of five seconds. An omitted or zero `wait` is not an unlimited wait. The memory backend then uses a one-millisecond acquisition window, and the Redis backend makes one acquisition attempt, bounded by `read_timeout`. PHP SDK arguments use seconds and are converted before the RPC call.
 
 For `Lock` and `LockRead`, require `Response.Ok == true` before accessing the resource. A completed RPC call with no error can still return `Ok == false`, including when the acquisition wait expires.
 
