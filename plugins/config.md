@@ -29,6 +29,12 @@ version: '3'
 Version numbers are strings, not numbers. For example, `version: "3"` is correct, but `version: 3` is not.
 {% endhint %}
 
+## Environment Files
+
+The root `envfile` setting loads a file before the config plugin expands environment variables. With config plugin v6, it no longer requires experimental mode. A setting that was ignored without experimental mode in v5 is now active.
+
+Remove an unused `envfile` setting. If you need it, supply the file it names. A missing or unreadable file stops initialization. See [Dotenv](../php/environment.md#dotenv) for configuration examples, relative paths, and environment precedence.
+
 ## Tips
 
 1. By default, `.rr.yaml` used as the configuration, located in the same directory with RR binary.

@@ -11,10 +11,10 @@ RoadRunner server.
 
 ### Worker types
 
-RoadRunner provides several plugins that use workers to receive requests,
-including [HTTP](https://github.com/roadrunner-php/http), [Jobs](https://github.com/roadrunner-php/jobs),
-[Centrifuge](https://github.com/roadrunner-php/centrifugo), [gRPC](https://github.com/roadrunner-php/grpc),
-[TCP](https://github.com/roadrunner-php/tcp), and [Temporal](https://legacy-documentation-sdks.temporal.io/php/workers).
+RoadRunner provides worker plugins for [HTTP](https://github.com/roadrunner-php/http), [Jobs](https://github.com/roadrunner-php/jobs), [Centrifuge](https://github.com/roadrunner-php/centrifugo), [gRPC](https://github.com/roadrunner-php/grpc), and [Temporal](../workflow/worker.md).
+
+[TCP workers](../plugins/tcp.md) require a custom build that includes the TCP plugin. The default RoadRunner container no longer includes it.
+
 You should choose the appropriate plugin based on the requirements of your application. In the examples below,
 we will explore the creation of an HTTP worker and a simple implementation of an entry point that can handle several
 types of requests.
@@ -136,8 +136,7 @@ composer require spiral/roadrunner-http spiral/roadrunner-jobs nyholm/psr7
 
 {% endcode %}
 
-Let's start by creating an enum to enumerate the possible operating modes of RoadRunner. In this example, we will only
-require the values **http** and **jobs**, but we will list all available modes:
+The following enum lists worker modes. The `Tcp` mode requires a custom build with the TCP plugin. This example uses only `Http` and `Jobs`.
 
 {% code title="RoadRunnerMode.php" %}
 

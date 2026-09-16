@@ -46,7 +46,11 @@ envfile: .env
 
 ### Support for the HTTP/3 server: `[>=2023.3.8]`
 
-In `v2023.3.8`, we added experimental support for an HTTP/3 server. It can work with the ACME provider to generate certificates for the HTTP/3 server automatically.
+In `v2023.3.8`, we added experimental support for an HTTP/3 server.
+
+{% hint style="warning" %}
+The pinned HTTP plugin, `v6.0.0-beta.10`, requires existing certificate and private key files in `http.http3.cert` and `http.http3.key`. The HTTP/3 listener does not use certificates from `http.ssl.acme`.
+{% endhint %}
 
 Sample `.rr.yaml` file:
 
@@ -67,39 +71,6 @@ http:
     address: 127.0.0.1:34555
     key: "localhost+2-key.pem"
     cert: "localhost+2.pem"
-```
-
-{% endcode %}
-
-Or if you use an ACME provider:
-
-{% code title=".rr.yaml" %}
-
-```yaml
-version: "3"
-
-server:
-  command: "php worker.php"
-  relay: pipes
-
-http:
-  address: 127.0.0.1:15389
-  pool:
-    num_workers: 2
-  http3:
-    address: 127.0.0.1:34555
-    key: "localhost+2-key.pem"
-    cert: "localhost+2.pem"
-  ssl:
-    acme:
-      certs_dir: rr_le_certs
-      email: you-email-here@email
-      alt_http_port: 80
-      alt_tlsalpn_port: 443
-      challenge_type: http-01
-      use_production_endpoint: false
-      domains:
-        - your-cool-domains.here
 ```
 
 {% endcode %}

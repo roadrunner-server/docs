@@ -7,6 +7,10 @@ Data in this driver is stored in the boltdb database file. You can't use the sam
 pipelines or for the for KV plugin and Jobs plugin. This is a boltdb limitation on simultaneous access of 2 processes to
 the same file.
 
+{% hint style="warning" %}
+Stored jobs do not retain application headers, including the `pool` routing header. Use a single `jobs.pool` when consuming BoltDB pipelines. [Named worker pools](overview-queues.md#named-worker-pools) cannot route these jobs. This restriction applies to new jobs as well as existing data.
+{% endhint %}
+
 ## Configuration
 
 {% code title=".rr.yaml" %}
@@ -71,3 +75,9 @@ Default: `rr.db`.
 ### Permissions
 
 `permissions` - Permissions for the boltdb database file. Default: `0755`.
+
+## Recovery
+
+Persisted jobs that were not acknowledged can be delivered again after a restart. This behavior also exists in v5. Workers must tolerate repeated deliveries.
+
+Keep the same database file when upgrading if you need to retain queued jobs. Stop RoadRunner before backing up the file. The v6 beta reads the existing v5 job format; no conversion is required.

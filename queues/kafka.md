@@ -14,6 +14,8 @@ Version `2023.2.0` update:
 
 ## Configuration
 
+For direct partition consumption, use the [v6 beta example](#direct-partitions-v6-beta) instead of the topics and group configuration below.
+
 {% code title=".rr.yaml" %}
 
 ```yaml
@@ -231,7 +233,8 @@ jobs:
 
           # topics: adds topics to consume
           #
-          # Default: empty (produces an error); possible to use regexp if `consume_regexp` is set to true.
+          # Default: empty. Required unless consume_partitions is set.
+          # Regex is supported when consume_regexp is true.
           topics: [ "foo", "bar", "^[a-zA-Z0-9._-]+$" ]
 
           # consume_regexp sets the client to parse all topics passed to `topics` as regular expressions.
@@ -256,35 +259,6 @@ jobs:
           #
           # Optional, default: 1.
           min_fetch_message_size: 1
-
-          # consume_partitions sets partitions to consume from directly and the offsets to start consuming those partitions from.
-          # This option is basically a way to explicitly consume from subsets of partitions in topics, or to consume at exact offsets.
-          #
-          # NOTE: This option is not compatible with group consuming and regex consuming.
-          #
-          # Optional, default: null
-          consume_partitions:
-
-            # Topic for consume_partitions
-            #
-            # At least one topic is required.
-            foo:
-
-              # Partition for the topic.
-              #
-              # At least one partition is required.
-              0:
-
-                # Partition offset.
-                #
-                # Required if all options are used. No default; error on empty.
-                # Possible values: AtEnd, At, AfterMilli, AtStart, Relative, WithEpoch
-                type: AtStart
-
-                # Value for the At, AfterMilli, Relative, and WithEpoch offsets.
-                #
-                # Optional, default: 0.
-                value: 1
 
           # consumer_offset sets the offset to start consuming from, or, if OffsetOutOfRange is seen while fetching,
           # to restart consuming from.
@@ -326,3 +300,53 @@ jobs:
 ```
 
 {% endcode %}
+
+## Acknowledgments
+
+In Kafka `v5.2.5` and `v6.0.0-beta.7`, pipelines with `group_options.group_id` set mark acknowledged records for automatic offset commits. A commit advances the consumer group's position for a partition. RR does not wait for all earlier records in that partition to complete.
+
+{% hint style="warning" %}
+Workers can complete jobs out of order. If offset `101` is acknowledged while offset `100` is unfinished in the same partition, a commit can advance the group to `102`. After a crash, the group then skips offset `100`, although that job was not acknowledged. Do not assume that every unacknowledged job will be delivered again.
+{% endhint %}
+
+Direct partition consumption without `group_options` does not use these consumer-group commits.
+
+## Direct Partitions (v6 Beta)
+
+The Kafka v6 beta line (`v6.0.0-beta.7`) applies `consumer_options.consume_partitions` to the client. Kafka `v5.2.5` accepted this setting but did not apply it.
+
+A nonempty `consumer_options.topics` list takes precedence: RR ignores `consume_partitions` in that case. For direct partition consumption, omit `topics` and `group_options`. Leave `consume_regexp` unset or `false`.
+
+This example consumes partition `0` of the existing `orders` topic, starting at offset `100`:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+server:
+  command: php consumer.php
+  relay: pipes
+
+kafka:
+  brokers: ["127.0.0.1:9092"]
+
+jobs:
+  pool:
+    num_workers: 2
+  consume: ["orders"]
+  pipelines:
+    orders:
+      driver: kafka
+      config:
+        consumer_options:
+          consume_partitions:
+            orders:
+              0:
+                type: At
+                value: 100
+```
+
+{% endcode %}
+
+Each topic maps partition numbers to offsets. The offset `type` is required: `At`, `AfterMilli`, `AtEnd`, `AtStart`, `Relative` or `WithEpoch`. The `value` defaults to `0` and is used by `At`, `AfterMilli`, `Relative` and `WithEpoch`.

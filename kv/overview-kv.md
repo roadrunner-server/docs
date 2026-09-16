@@ -59,6 +59,8 @@ To use the RoadRunner KV plugin, you need to define multiple key-value storages 
 configuration file. Each storage must have a `driver` that indicates the type of connection used by those storages. At
 the moment, four different types of drivers are available: `boltdb`, `redis`, `memcached`, and `memory`.
 
+In the v6 beta, an unknown driver name in `kv.<storage>.driver` stops RoadRunner startup with a `no such constructor was registered` error. The v5 driver skipped that storage instead. Check the driver name. Confirm that your RoadRunner binary includes the driver.
+
 {% hint style="info" %}
 The `memory` and `boltdb` drivers do not require additional binaries and are available immediately, while the others
 require additional setup. Please see the appropriate documentation for installing [Redis Server](https://redis.io/)
@@ -289,9 +291,11 @@ use Spiral\Goridge\RPC\RPC;
 use Spiral\RoadRunner\KeyValue\Factory;
 use Spiral\RoadRunner\KeyValue\Serializer\IgbinarySerializer;
 
-$storage = (new Factory($rpc)
+$rpc = RPC::create('tcp://127.0.0.1:6001');
+
+$storage = (new Factory($rpc))
     ->withSerializer(new IgbinarySerializer())
-    ->select('storage');
+    ->select('example');
 ```
 
 {% endcode %}
@@ -329,13 +333,14 @@ After generating the keypair, you can use it to encrypt and decrypt the data.
 use Spiral\Goridge\RPC\RPC;
 use Spiral\RoadRunner\KeyValue\Factory;
 use Spiral\RoadRunner\KeyValue\Serializer\SodiumSerializer;
-use Spiral\RoadRunner\KeyValue\Serializer\DefaultSerializer;
 
-$storage = new Factory($rpc);
-    ->select('storage');
+$rpc = RPC::create('tcp://127.0.0.1:6001');
+
+$storage = (new Factory($rpc))
+    ->select('example');
 
 // Encrypted serializer
-$key = file_get_contents(__DIR__ . '/path/to/keypair.key');
+$key = file_get_contents(__DIR__ . '/keypair.key');
 $encrypted = new SodiumSerializer($storage->getSerializer(), $key);
 
 // Storing public data
@@ -363,6 +368,8 @@ classes proto files, making it easy to work with these files in your PHP applica
 RoadRunner provides an RPC API, which allows you to manage key-value in your applications using remote procedure calls.
 The RPC API provides a set of methods that map to the available methods of the `Spiral\RoadRunner\KeyValue\Cache` class
 in PHP.
+
+Each request must name a configured storage. In the v6 beta, the `memory`, `redis`, and `memcached` drivers reject empty item lists for `Has`, `MGet`, `Set`, and `Delete`. The `memory` and `redis` drivers also reject empty `TTL` requests. Skip empty batches in direct RPC clients. `Clear` needs a storage name but no items.
 
 #### Has
 
@@ -403,6 +410,8 @@ func (r *rpc) MGet(in *kvv1.Request, out *kvv1.Response) error {}
 #### MExpire
 
 Sets the expiration time for one or more keys in the specified storage.
+
+The `timeout` field is an absolute RFC 3339 timestamp, not a duration in seconds. Read the [memory expiration warning](./memory.md#expiration) before sending deadlines near the current time.
 
 {% code %}
 

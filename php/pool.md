@@ -1,19 +1,22 @@
 # Worker pool
 
-RoadRunner uses a worker pool to manage the PHP workers (PHP CLI processes). Internally, the worker pool consists of a worker watcher used to control the workers—releasing, allocating, preventing zombie processes, resetting, destroying—and an internal stack responsible for manipulating (popping and pushing) already allocated workers.
+RoadRunner uses a worker pool to start PHP CLI processes, assign work, and replace stopped workers. The pool also handles worker reset and shutdown.
 
 The worker pool is not used in every RoadRunner plugin but only in the `http`, `gRPC`, `tcp`, `roadrunner-temporal`, `jobs`, and `centrifuge` plugins.
 
 Additionally, the worker pool contains an internal `supervisor` to control the execution TTL of the workers, overall TTL, and execution time limits.
 
-## Workers pool configuration:
+## Worker pool configuration
+
+The v6 plugin beta uses [pool/v2 v2.0.0-beta.1](https://github.com/roadrunner-server/pool/tree/v2.0.0-beta.1). The configuration below describes that version.
 
 {% code title=".rr.yaml" %}
 
 ```yaml
   # Workers pool settings.
   pool:
-    # Debug mode for the pool. In this mode, the pool will not pre-allocate the worker. A worker (only 1; num_workers ignored) will be allocated right after a request arrives.
+    # Start a fresh worker for each request. Do not pre-allocate workers.
+    # In debug mode, num_workers is ignored.
     #
     # Default: false
     debug: false
@@ -23,7 +26,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     # Default: empty
     command: "php my-super-app.php"
 
-    # How many worker processes will be started. Zero (or nothing) means the number of logical CPUs.
+    # Initial worker count, at most 500. Zero means the number of logical CPUs.
     #
     # Default: 0
     num_workers: 0
@@ -34,7 +37,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     max_jobs: 0
 
     # [2023.3.10]
-    # Maximum size of the internal requests queue. After reaching the limit, all additional requests would be rejected with error.
+    # Request admission limit. Concurrent requests can exceed this value.
     #
     # Default: 0 (no limit)
     max_queue_size: 0
@@ -44,7 +47,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     # Default: 60s
     allocate_timeout: 60s
 
-    # Timeout for the reset operation. Zero means 60s.
+    # Wait for active work before stopping workers during reset. Zero means 60s.
     #
     # Default: 60s
     reset_timeout: 60s
@@ -54,12 +57,12 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
     # Default: 60s
     stream_timeout: 60s
 
-    # Timeout for worker destroying before process killing. Zero means 60s.
+    # Wait for active work before stopping workers during shutdown. Zero means 60s.
     #
     # Default: 60s
     destroy_timeout: 60s
 
-    # Dynamic allocator settings.
+    # Dynamic allocator settings. Base and additional workers share a limit of 2048.
     #
     # Default: empty
     dynamic_allocator:
@@ -99,14 +102,20 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
 
 {% endcode %}
 
+## Timeouts and admission
+
+`allocate_timeout` limits worker allocation and the wait for a free worker. It does not limit PHP request execution. Set `supervisor.exec_ttl` to limit execution time. Without `exec_ttl`, canceling the caller's context does not stop normal pool execution in PHP.
+
+For a stream, `exec_ttl` applies separately to each read, not to the entire stream. `stream_timeout` applies to stream cancellation.
+
+`reset_timeout` and `destroy_timeout` limit the wait for active work before the pool starts stopping workers. They are not strict limits on the entire operation. A worker stop has its own ten-second grace period.
+
+`max_queue_size` checks the number of active pool `Exec` calls before another call is registered. This includes calls waiting for a worker and calls executing a request. Concurrent calls can pass the check together, so the value is not a strict queue-capacity guarantee. Zero disables the check.
+
 Tips and tricks:
 
 {% hint style="info" %}
-The worker pool has an internal queue that holds requests waiting for execution, which can be limited with the `pool.max_queue_size` option.
-{% endhint %}
-
-{% hint style="info" %}
-Workers can be dynamically scaled: [link](auto-scaling.md)
+See [automatic worker scaling](auto-scaling.md) for allocation batches, capacity limits, and timeout behavior.
 {% endhint %}
 
 {% hint style="info" %}

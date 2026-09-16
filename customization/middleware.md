@@ -63,9 +63,7 @@ func (p *Plugin) Name() string {
 {% endcode %}
 
 {% hint style="info" %}
-Middleware must correspond to the
-following [interface](https://github.com/roadrunner-server/http/blob/master/common/interfaces.go#L33) and
-be [named](https://github.com/roadrunner-server/endure/blob/master/container.go#L47).
+The plugin must implement the [HTTP middleware interface](https://github.com/roadrunner-server/http/blob/v6.0.0-beta.10/api/interfaces.go#L36-L40), including `Name() string`. See [plugin migration](plugin.md#v6-migration) for the v6 imports and shared contracts.
 {% endhint %}
 
 ## gRPC
@@ -75,12 +73,9 @@ authentication, rate limiting, and logging.
 
 To create a custom interceptor for gRPC requests in RoadRunner, follow these steps:
 
-1. Define a struct that implements the `Init()`, `Interceptor()`, and `Name()` methods. The `Init()` method is called
-   when the plugin is initialized, the `Interceptor()` method is called for each incoming gRPC request, and the `Name()`
-   method returns the name of the middleware/plugin.
+1. Define a struct with `Init()`, `UnaryServerInterceptor()`, and `Name()` methods. `UnaryServerInterceptor()` returns the interceptor used for incoming requests.
 
-2. In the `Interceptor()` method, perform any necessary processing on the incoming gRPC request, and then call the next
-   interceptor in the pipeline using the `handler(ctx, req)` method.
+2. Process the request in the returned function, then call `handler(ctx, req)` to continue execution.
 
 {% hint style="warning" %}
 RoadRunner supports `gRPC` interceptors since version `v2023.2.0`.
@@ -94,7 +89,9 @@ Here is an example:
 package middleware
 
 import (
-    "net/http"
+    "context"
+
+    "google.golang.org/grpc"
 )
 
 const PluginName = "interceptor"
@@ -107,7 +104,9 @@ func (p *Plugin) Init() error {
 }
 
 func (p *Plugin) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
-        // Do something and return interceptor
+    return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+        return handler(ctx, req)
+    }
 }
 
 // Middleware/plugin name.
@@ -119,37 +118,41 @@ func (p *Plugin) Name() string {
 {% endcode %}
 
 {% hint style="info" %}
-Interceptor must correspond to the
-following [interface](https://github.com/roadrunner-server/grpc/blob/master/common/interfaces.go#L14) and
-be [named](https://github.com/roadrunner-server/endure/blob/master/container.go#L47).
+The plugin must implement the [gRPC interceptor interface](https://github.com/roadrunner-server/grpc/blob/v6.0.0-beta.6/api/interfaces.go#L16-L19), including `Name() string`.
 {% endhint %}
 
-You can find a lot of examples here: [link](https://github.com/grpc-ecosystem/go-grpc-middleware). Keep in mind that, at
-the moment, RR supports only `UnaryServerInterceptor` gRPC interceptors.
+See [unary gRPC interceptors](../grpc/interceptors.md) for configuration and [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) for interceptor examples.
 
 ## PSR7 Attributes
 
-PSR7 attributes are a way of attaching metadata to an incoming HTTP request or response. The PSR7 specification defines
-a standard interface for HTTP messages, which includes the ability to set and retrieve attributes on both requests and
-responses.
+PSR-7 server request attributes hold metadata for request processing. They are not response attributes.
 
 Attributes can be used to store any kind of metadata that might be useful for processing the request or response. For
 example, you might use attributes to store information about the authenticated user, the user's IP address, or any other
 custom data that you want to attach to the request.
 
-The `Psr\Http\Message\ServerRequestInterface->getAttributes()` method can be used to retrieve attributes from an incoming HTTP request, while the `ResponseInterface->withAttribute()` method can be used to set attributes on an outgoing HTTP response.
+Use `Psr\Http\Message\ServerRequestInterface::getAttributes()` to read the attributes in PHP.
 
 You can safely pass values to a PHP application and retrieve attributes on the PHP side using the `Psr\Http\Message\ServerRequestInterface->getAttributes()` method through the [attributes](https://github.com/roadrunner-server/http/blob/master/attributes/attributes.go) package:
 
 {% code title="middleware.go" %}
 
 ```go
-func (s *Service) Middleware(next http.HandlerFunc) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
+import (
+    "net/http"
+
+    "github.com/roadrunner-server/http/v6/attributes"
+)
+
+func (p *Plugin) Middleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         r = attributes.Init(r)
-        attributes.Set(r, "key", "value")
+        if err := attributes.Set(r, "key", "value"); err != nil {
+            http.Error(w, "cannot set request attribute", http.StatusInternalServerError)
+            return
+        }
         next.ServeHTTP(w, r)
-    }
+    })
 }
 ```
 
@@ -162,37 +165,11 @@ the `getAttributes()` method. For example, the `nyholm/psr7` package provides a 
 
 ## Registering middleware
 
-You must register this service in the
-[container/plugins.go](https://github.com/roadrunner-server/roadrunner/blob/master/container/plugins.go) file to
-properly resolve dependencies:
+Include the middleware plugin in your RoadRunner binary. Follow [Building RoadRunner](build.md) for the Velox configuration and build steps.
 
-{% code title="plugin.go" %}
+If you maintain the Go entry point yourself, import the middleware module and add `&middleware.Plugin{}` to the existing plugin list in [container/plugins.go](https://github.com/roadrunner-server/roadrunner/blob/master/container/plugins.go). Keep the other required plugins in that list.
 
-```go
-package roadrunner
-
-import (
-    "middleware"
-)
-
-func Plugins() []any {
-    return []any {
-    // ...
-    
-    // middleware
-    &middleware.Plugin{},
-    
-    // ...
-}
-```
-
-{% endcode %}
-
-Or you can use the Velox tool to [build the RR binary](./build.md).
-
-You should also make sure you configure the middleware to be used via
-the [config or the command line](../intro/config.md). Otherwise, the plugin will be loaded, but the middleware will not
-be used with incoming requests.
+Then add the value returned by `Name()` to `http.middleware`. A plugin included in the binary does not handle HTTP requests until it is selected in this list.
 
 {% code title=".rr.yaml" %}
 
@@ -209,4 +186,3 @@ http:
 ### Writing a middleware for HTTP
 
 {% embed url="https://www.youtube.com/watch?v=f5fUSYaDKxo" %}
-

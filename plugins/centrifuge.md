@@ -50,11 +50,13 @@ quite feasible to run:
 {% code title=".rr.yaml" %}
 
 ```yaml
+version: "3"
+
 rpc:
   listen: tcp://127.0.0.1:6001
 
 server:
-  command: "php app.php"
+  command: "php centrifuge-worker.php"
   relay: pipes
 
 centrifuge:
@@ -107,7 +109,6 @@ For example:
   "allowed_origins": [
     "*"
   ],
-  "token_hmac_secret_key": "test",
   "proxy_publish": true,
   "proxy_subscribe": true,
   "allow_subscribe_for_client": true,
@@ -119,8 +120,6 @@ For example:
   "proxy_subscribe_timeout": "10s",
   "proxy_refresh_endpoint": "grpc://127.0.0.1:30000",
   "proxy_refresh_timeout": "10s",
-  "proxy_sub_refresh_endpoint": "grpc://127.0.0.1:30000",
-  "proxy_sub_refresh_timeout": "1s",
   "proxy_rpc_endpoint": "grpc://127.0.0.1:30000",
   "proxy_rpc_timeout": "10s"
 }
@@ -129,13 +128,40 @@ For example:
 {% endcode %}
 
 {% hint style="info" %}
-`proxy_connect_endpoint`, `proxy_publish_endpoint`, `proxy_subscribe_endpoint`, `proxy_refresh_endpoint`, `proxy_sub_refresh_endpoint`, `proxy_rpc_endpoint` -
+`proxy_connect_endpoint`, `proxy_publish_endpoint`, `proxy_subscribe_endpoint`, `proxy_refresh_endpoint`, `proxy_rpc_endpoint` -
 endpoint address of roadrunner server with activated centrifuge plugin.
 {% endhint %}
 
+### Development: Unix Socket
+
+The development Centrifuge plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) for its incoming proxy listener:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+centrifuge:
+  proxy_address: "unix:///run/roadrunner/centrifuge.sock"
+  proxy_socket:
+    mode: "0660"
+```
+
+{% endcode %}
+
+Configure Centrifugo to connect to the same Unix socket. `proxy_socket` does not configure `grpc_api_address` or the TLS client used for outgoing API calls.
+
 ### PHP worker example
 
-Here is an example of a PHP worker:
+This worker authenticates one configured service account with a bearer token. Set `APP_CENTRIFUGO_USER` to that account's ID in the RoadRunner process environment. Generate a token with the following command:
+
+```bash
+php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'
+```
+
+Set `APP_CENTRIFUGO_TOKEN` to the command output in the RoadRunner process environment. Give the token only to that account. Send it in the Centrifugo client's connection `data` as `{"token": "<token>"}`. Use WSS outside local tests. Do not put the token in public JavaScript or logs. The worker obtains the user ID from server configuration, not from client data. It rejects missing or incorrect credentials.
+
+Connections expire after five minutes. The refresh handler marks them as expired, so clients must reconnect and authenticate again. To revoke the token, replace it. Then restart RoadRunner. Existing connections remain valid until they expire or you disconnect them through the Centrifugo API.
+
+For multiple users, validate a separate credential for each user against your application's session or token store. The subscribe, publish, and RPC handlers below are examples, not per-channel authorization rules. Replace the sample admin and API credentials in the Centrifugo configuration before exposing the server.
 
 {% code title="centrifuge-worker.php" %}
 
@@ -149,6 +175,12 @@ use RoadRunner\Centrifugo\Payload;
 use RoadRunner\Centrifugo\Request;
 use RoadRunner\Centrifugo\Request\RequestFactory;
 use Spiral\RoadRunner\Worker;
+
+$authToken = (string) getenv('APP_CENTRIFUGO_TOKEN');
+$authUser = (string) getenv('APP_CENTRIFUGO_USER');
+if (strlen($authToken) < 64 || $authUser === '') {
+    throw new \RuntimeException('Configure APP_CENTRIFUGO_TOKEN and APP_CENTRIFUGO_USER.');
+}
 
 $worker = Worker::create();
 $requestFactory = new RequestFactory($worker);
@@ -171,11 +203,24 @@ while ($request = $centrifugoWorker->waitRequest()) {
         continue;
     }
 
+    if ($request instanceof Request\Connect) {
+        $token = $request->getData()['token'] ?? null;
+        if (!is_string($token) || !hash_equals($authToken, $token)) {
+            $request->error(1000, 'Invalid credentials.');
+            continue;
+        }
+
+        $request->respond(new Payload\ConnectResponse(
+            user: $authUser,
+            expireAt: time() + 300,
+        ));
+        continue;
+    }
+
     if ($request instanceof Request\Refresh) {
         try {
-            // Do something
             $request->respond(new Payload\RefreshResponse(
-                // ...
+                expired: true,
             ));
         } catch (\Throwable $e) {
             $request->error($e->getCode(), $e->getMessage());
@@ -191,8 +236,7 @@ while ($request = $centrifugoWorker->waitRequest()) {
                 // ...
             ));
 
-            // You can also disconnect connection
-            $request->disconnect('500', 'Connection is not allowed.');
+            // Use disconnect() instead of respond() to reject a connection.
         } catch (\Throwable $e) {
             $request->error($e->getCode(), $e->getMessage());
         }
@@ -207,8 +251,7 @@ while ($request = $centrifugoWorker->waitRequest()) {
                 // ...
             ));
 
-            // You can also disconnect connection
-            $request->disconnect('500', 'Connection is not allowed.');
+            // Use disconnect() instead of respond() to reject a connection.
         } catch (\Throwable $e) {
             $request->error($e->getCode(), $e->getMessage());
         }
@@ -218,12 +261,8 @@ while ($request = $centrifugoWorker->waitRequest()) {
 
     if ($request instanceof Request\RPC) {
         try {
-            $response = $router->handle(
-                new Request(uri: $request->method, data: $request->data),
-            ); // ['user' => ['id' => 1, 'username' => 'john_smith']]
-
             $request->respond(new Payload\RPCResponse(
-                data: $response
+                data: $request->getData(),
             ));
         } catch (\Throwable $e) {
             $request->error($e->getCode(), $e->getMessage());
@@ -252,11 +291,17 @@ specifications and proxies these events to the PHP worker.
 To determine what proxy method was called inside the PHP, RR adds a `type` : `endpoint` metadata. For example, if
 the `Subscribe` method was called, RR will add `type`:`subscribe` metadata to the worker's context.
 
+The proxy supports the unary events listed below. Unidirectional and bidirectional subscription streams are not implemented.
+
 ### RPC
 
 You may also use RPC methods to communicate with Centrifugo server. RR follows the
 official [Centrifugo proto API](https://github.com/centrifugal/centrifugo/blob/master/internal/apiproto/api.proto).
 Official documentation available [here](https://centrifugal.dev/docs/server/server_api#grpc-api)
+
+{% hint style="warning" %}
+The v6 plugin no longer exposes `centrifuge.RateLimit`. Remove calls to this RPC before upgrading. The plugin does not provide a replacement method.
+{% endhint %}
 
 ### Proxy events
 
@@ -268,7 +313,10 @@ With the incoming payload, RoadRunner also adds the type of the proxied request 
 - `publish`: Publish proxy request.
 - `rpc`: RPC proxy request.
 - `subrefresh`: Subscription refresh proxy request.
+- `notifycacheempty`: Notify cache empty proxy request (`NotifyCacheEmpty`).
 - `notifychannelstate`: Notify channel state proxy request.
+
+Before enabling `NotifyCacheEmpty` in Centrifugo, verify that the PHP DTO package and worker request handler support this method. RoadRunner forwards the event with `type: notifycacheempty`; an older PHP client can reject the request type.
 
 ## Metrics
 

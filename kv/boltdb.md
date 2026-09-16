@@ -28,10 +28,6 @@ kv:
       permissions: 0777
 
       # Optional section.
-      # Default: "rr"
-      bucket: "rr"
-
-      # Optional section.
       # Default: 60
       interval: 60
 ```
@@ -49,20 +45,25 @@ own at startup. Note that this must be an existing directory, otherwise a "The s
 error will occur, indicating that the full database pathname is invalid. Might be a full path with
 file: `/foo/bar/rr1.db`. Default: `rr.db`.
 
+Use a separate database file for each KV storage. Each storage opens the file with an exclusive lock. Sharing a file between storage instances causes startup to fail.
+
+Both v5 and the v6 beta use the fixed internal bucket `default`. The driver does not support a `bucket` configuration option.
+
 ### Permissions
 
 `permissions`: The file permissions in UNIX format of the database file, set at the time of its creation. If the file
 already exists, the permissions will not be changed.
 
-### Bucket
-
-`bucket`: The bucket name. You can create several boltdb connections by specifying different buckets and in this case
-the data stored in one bucket will
-not intersect with the data stored in the other, even if the database file and other settings are completely
-identical.
-
 ### Interval
 
-`interval`: The interval (in seconds) between checks for the lifetime of the
-value in the cache. The meaning and behavior is similar to that used in the
-case of the memory driver.
+`interval`: The time in seconds between expiration checks. Expired entries can remain readable until the next check.
+
+## Persistence
+
+Values remain in the database after a RoadRunner restart. Expiration timestamps are kept only in memory and are lost at restart. This limitation applies to both v5 and the v6 beta. Reapply expiration timestamps from application data after startup if needed. Use [Redis](./redis.md) when expiration must survive a RoadRunner restart.
+
+Upgrading from v5 to the v6 beta does not require a database format conversion. Stop RoadRunner before backing up the database file.
+
+## Write Errors
+
+In the v6 beta, `kv.Set` and `kv.Delete` return database commit errors through RPC. Handle these errors before treating a write or deletion as successful.

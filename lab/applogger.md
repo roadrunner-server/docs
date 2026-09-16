@@ -1,17 +1,10 @@
 # Application logger
 
-The RoadRunner server has a useful `app-logger` plugin that allows users to send logs from their applications to the
-RoadRunner server using an RPC interface. This plugin is enabled by default and does not require any additional
-configurations. It can be used to observe all application and server logs in one place. This is especially useful when
-debugging and monitoring applications.
-
-{% hint style="info" %}
-It will send raw messages to the RoadRunner `STDERR`
-{% endhint %}
+The app-logger plugin accepts log messages over RPC. Level-based methods use the `app` logger channel. The `log()` method writes directly to RoadRunner's standard error.
 
 ## Configuration
 
-The `logs` section in the RoadRunner configuration file allows you to configure logging behavior for their application.
+Configure the `app` channel in the `logs` section to select the output format and minimum level:
 
 {% code title=".rr.yaml" %}
 
@@ -22,21 +15,20 @@ rpc:
 logs:
   channels:
     app:
+      mode: production
       level: info
 ```
 
 {% endcode %}
 
 {% hint style="warning" %}
-To interact with the RoadRunner app-logger plugin, you will need to have the RPC defined in the rpc configuration
-section. You can refer to the documentation page [here](../php/rpc.md) to learn more about the configuration.
+Configure [RPC](../php/rpc.md#configuration) to use app-logger.
 {% endhint %}
 
-The `level` key is used to specify the logging level for this channel. This means that only log messages with a severity
-level of info or higher will be sent to this channel.
+This example emits JSON records at `info` level or higher and filters out `debug`. These settings do not control raw log calls.
 
 {% hint style="info" %}
-Read more about logging in the [Logging — Logger](./logger.md) section.
+See [Logger](./logger.md) for v6 formats, levels, and output destinations.
 {% endhint %}
 
 ## PHP client
@@ -81,7 +73,7 @@ $logger->error('Houston, we have a problem!');
 {% endcode %}
 
 {% hint style="info" %}
-You can refer to the documentation page [here](../php/rpc.md) to learn more about creating the RPC connection.
+See [RPC connections](../php/rpc.md) for connection setup.
 {% endhint %}
 
 ### Available methods
@@ -92,75 +84,28 @@ You can refer to the documentation page [here](../php/rpc.md) to learn more abou
 - `warning(string): void`: Sends a warning log message to the server
 - `log(string): void`: Sends a log message directly to the `STDERR` of the server
 
+### Raw Output
+
+The raw RPC methods `app.Log` and `app.LogWithContext` bypass logger levels, formats, and output settings, including `logs.channels.app`. This differs from selecting the logger's `raw` mode, which still uses the configured level and destinations.
+
+With app-logger v6, `app.Log` appends LF (`\n`) only when the message does not already end with LF. `app.LogWithContext` uses the same rule when there are no attributes. V5 wrote these messages without adding a line ending. Update consumers that depended on concatenated messages without line endings.
+
+With attributes, `app.LogWithContext` writes the message, a space, comma-separated `key:value` pairs, and LF. It preserves newlines inside the message. Send the raw RPC message without a trailing newline if you need the attributes on the same line. V6 also retains the complete final attribute value instead of removing its last byte as v5 did.
+
 ## API
 
 ### RPC API
 
-RoadRunner provides an RPC API, which allows you to manage app-logger in your applications using remote
-procedure calls. The RPC API provides a set of methods that map to the available methods of
-the `RoadRunner\Logger\Logger`class in PHP.
+The string methods accept a message and a boolean reply placeholder. Call them by their registered RPC names:
 
-{% hint style="info" %}
-All methods accept a `string` (which will be log message) as a first argument and a `bool` placeholder for the second
-arg.
-{% endhint %}
+| Method | Output |
+| --- | --- |
+| `app.Error` | Error-level record through the `app` logger. |
+| `app.Info` | Info-level record through the `app` logger. |
+| `app.Warning` | Warning-level record through the `app` logger. |
+| `app.Debug` | Debug-level record through the `app` logger. |
+| `app.Log` | Raw standard error output. |
 
-#### Error
+Each method also has a `WithContext` variant, such as `app.InfoWithContext`. These methods accept `LogEntry` and a `Response` placeholder from `github.com/roadrunner-server/api-go/v6/applogger/v1`. The entry carries the message and `LogAttrs` key/value pairs.
 
-Method sends an `error` log message with the specified message to the RoadRunner server.
-
-{% code %}
-
-```go
-func (r *RPC) Error(in string, _ *bool) error {}
-```
-
-{% endcode %}
-
-#### Info
-
-Method sends an `info` log message with the specified message to the RoadRunner server.
-
-{% code %}
-
-```go
-func (r *RPC) Info(in string, _ *bool) error {}
-```
-
-{% endcode %}
-
-#### Warning
-
-Method sends a `warning` log message with the specified message to the RoadRunner server.
-
-{% code %}
-
-```go
-func (r *RPC) Warning(in string, _ *bool) error {}
-```
-
-{% endcode %}
-
-#### Debug
-
-Method sends a `debug` log message with the specified message to the RoadRunner server.
-
-{% code %}
-
-```go
-func (r *RPC) Debug(in string, _ *bool) error {}
-```
-
-{% endcode %}
-
-#### Log
-
-Method sends a log message with the specified message directly to the `STDERR` of the RoadRunner server.
-
-{% code %}
-
-```go
-func (r *RPC) Log(in string, _ *bool) error {}
-```
-
-{% endcode %}
+The plugin's Go RPC receiver is no longer exported as `app.RPC`. Custom containers obtain it through `Plugin.RPC()`; PHP RPC method names are unchanged.

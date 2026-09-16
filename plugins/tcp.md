@@ -1,5 +1,11 @@
 # TCP
 
+{% hint style="warning" %}
+The default RoadRunner build with v6 plugins no longer includes the TCP plugin. The [TCP plugin repository](https://github.com/roadrunner-server/tcp) remains available. This removal does not affect `tcp://` transport for RPC or worker relays.
+{% endhint %}
+
+This page is a reference for [custom builds](../customization/build.md) that explicitly include a compatible TCP plugin. A `tcp` configuration section does not load a missing plugin. Before upgrading a TCP workload, verify that the target binary includes the plugin and starts the required listeners.
+
 The RoadRunner TCP plugin helps you handle TCP requests. You can use this plugin to make your own servers like an SMTP
 server, and send TCP requests directly to PHP workers for handling.
 
@@ -118,6 +124,27 @@ tcp:
 
 - `pool`: Configuration for the PHP worker pool for the TCP servers. See
 https://docs.roadrunner.dev/docs/php-worker/pool for available parameters.
+
+### Development: Unix Sockets
+
+The development TCP plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) on each named server. Keep the worker command and pool configuration from the preceding example:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+tcp:
+  servers:
+    local:
+      addr: "unix:///run/roadrunner/tcp.sock"
+      unix_socket:
+        mode: "0660"
+    network:
+      addr: "tcp://127.0.0.1:8889"
+```
+
+{% endcode %}
+
+`unix_socket` applies only to the named server that contains it. Do not set it on a TCP address or at the `tcp` root. The plugin still requires a custom RoadRunner build.
 
 ## PHP client
 

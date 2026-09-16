@@ -39,6 +39,16 @@ $factory->run();
 
 Read more about Temporal configuration and usage on the [official website](https://docs.temporal.io/develop/php/core-application#run-a-dev-worker).
 
+## Dynamic Workflows
+
+A dynamic workflow handles workflow types that have no named registration in that SDK worker. Register at most one dynamic workflow per worker. Multiple dynamic registrations cause worker initialization to fail.
+
+Use a PHP SDK with dynamic workflow support. The SDK must set the `dynamic` field to `true` in the workflow registration metadata. This is a worker registration option, not a RoadRunner YAML setting.
+
+## Worker Recovery
+
+After an activity worker exits, the pool replaces that worker without an explicit activity-pool reset. A workflow-worker exit still triggers a full reset and clears the sticky workflow cache so Temporal can replay workflow history.
+
 ## Multi-worker environment
 To serve both HTTP and Temporal from the same worker, use the `getMode()` option of `Environment`:
 

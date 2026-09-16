@@ -18,6 +18,8 @@ To enable Xdebug in your application, set the environment variable `XDEBUG_SESSI
 {% code title=".rr.yaml" %}
 
 ```yaml
+version: "3"
+
 rpc:
    listen: tcp://127.0.0.1:6001
 
@@ -54,6 +56,8 @@ php -dvariables_order=EGPCS artisan octane:start --max-requests=250 --server=roa
 
 ## Xdebug for RoadRunner in Docker
 
+Build the [local v6 RoadRunner image](../app-server/docker.md#build-the-roadrunner-image) before building the application image below.
+
 First, create a `docker-compose.yml` file in your project root, or copy the `environment` and `extra_hosts` sections into your existing `docker-compose.yml`:
 
 {% code title="docker-compose.yml" %}
@@ -81,11 +85,13 @@ services:
 
 {% endcode %}
 
-Next, create a `.rr.yaml` file in your project root or copy the following content:
+Create `api/public/` for the static middleware. Put the PHP worker and its Composer dependencies in `api/`, which is mounted at `/app`. Create `api/.rr.yaml` with this configuration:
 
 {% code title=".rr.yaml" %}
 
 ```yaml
+version: "3"
+
 rpc:
     listen: 'tcp://127.0.0.1:6001'
 http:
@@ -119,12 +125,11 @@ Next, create a `Dockerfile` in your project root or copy the following content:
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM ghcr.io/roadrunner-server/roadrunner:2025.1.1 AS roadrunner
+FROM roadrunner:v6-b0cccd9 AS roadrunner
 
-FROM php:8.4-cli-alpine3.21
+FROM php:8.5-cli-alpine
 
-# change version to latest if you want to use the latest version of xDebug, see https://xdebug.org
-ENV XDEBUG_VERSION=3.4.4
+ENV XDEBUG_VERSION=3.5.3
 
 RUN apk add --no-cache autoconf g++ make postgresql-dev coreutils --update linux-headers \
     && pecl install xdebug-$XDEBUG_VERSION \
@@ -154,7 +159,7 @@ USER app
 
 {% endcode %}
 
-Important: Make sure to change `XDEBUG_VERSION` to the version you want to use (see xdebug.org). Note that the example container runs as the `app` user.
+The example uses Xdebug `3.5.3` and runs as the `app` user.
 
 Next, create an `xdebug.ini` file in your project root or copy the following content:
 

@@ -9,6 +9,7 @@
 - [Configuration](intro/config.md)
 - [Contributing](intro/contributing.md)
 - [Upgrade and Compatibility](intro/compatibility.md)
+- [v3 Migration](intro/v3-migration.md)
 
 ## 👷 PHP Worker
 
@@ -76,6 +77,7 @@
 - [BoltDB](queues/boltdb.md)
 - [Kafka](queues/kafka.md)
 - [NATS](queues/nats.md)
+- [NSQ](queues/nsq.md)
 - [SQS](queues/sqs.md)
 
 ## 🕸️ HTTP
@@ -83,14 +85,17 @@
 - [Intro into HTTP](http/http.md)
 - [Headers and CORS](http/headers.md)
 - [Proxy IP parser](http/proxy.md)
+- [Rate limiter](http/rate-limiter.md)
 - [Static files](http/static.md)
 - [X-Sendfile](http/sendfile.md)
 - [Streaming](http/resp-streaming.md)
 - [gzip](http/gzip.md)
+- [zstd](http/zstd.md)
 
 ## ⚡️ gRPC
 
 - [Intro into gRPC](grpc/grpc.md)
+- [Interceptors](grpc/interceptors.md)
 - [Protoreg](grpc/protoreg.md)
 
 ## 📈 Logging and Observability

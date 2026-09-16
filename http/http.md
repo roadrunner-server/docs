@@ -2,6 +2,8 @@
 
 HTTP plugin is used to pass `HTTP`/`HTTPS`/`fCGI`/`HTTP2(h2c)`/`HTTP3` requests to the PHP worker.
 
+The upcoming bundle adds [HTTP rate limiting](rate-limiter.md) with global, IP, or header keys. The pinned source build does not yet include this middleware; see its [availability](rate-limiter.md#availability).
+
 ## Configuration reference
 
 {% code title=".rr.yaml" %}
@@ -13,7 +15,7 @@ version: "3"
 http:
   # Host and port to listen on (e.g.: `127.0.0.1:8080`).
   #
-  # This option is required.
+  # Required for plain HTTP. Omit to use only HTTPS or FastCGI.
   address: 127.0.0.1:8080
 
   # Override HTTP error code for internal RR errors
@@ -26,9 +28,9 @@ http:
   # Default: false
   access_logs: false
 
-  # Maximum incoming request size in megabytes. Zero means no limit.
+  # Maximum incoming request size in MiB. Zero selects the default limit.
   #
-  # Default: 0
+  # Default: 1000
   max_request_size: 256
 
   # Send raw body (unescaped) to the PHP worker for the application/x-www-form-urlencoded content type
@@ -36,23 +38,18 @@ http:
   # Optional, default: false
   raw_body: false
 
-  # Middleware for the HTTP plugin; order is important. Allowed values are: "headers", "gzip", "static", "sendfile", [SINCE 2.6] -> "new_relic", [SINCE 2.6] -> "http_metrics", [SINCE 2.7] -> "cache"
+  # Middleware names depend on the plugins in the build. Requests run left to right in v6.
+  # The "zstd" middleware requires a build that includes the zstd plugin.
+  # The upcoming "rate_limiter" middleware uses http.rate_limiter settings.
   #
   # Default value: []
   middleware: [ "headers", "gzip" ]
 
-  # Allow incoming requests only from the following subnets (https://en.wikipedia.org/wiki/Reserved_IP_addresses).
+  # Trust HTTP forwarding headers from these proxy addresses.
+  # Requires "proxy_ip_parser" in middleware. This is not a network access filter.
   #
-  # Default: ["10.0.0.0/8", "127.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",  "::1/128", "fc00::/7", "fe80::/10"]
-  trusted_subnets: [
-    "10.0.0.0/8",
-    "127.0.0.0/8",
-    "172.16.0.0/12",
-    "192.168.0.0/16",
-    "::1/128",
-    "fc00::/7",
-    "fe80::/10",
-  ]
+  # Default: [] (forwarding headers are not trusted)
+  trusted_subnets: [ "127.0.0.1/32" ]
 
   # File uploading settings.
   uploads:
@@ -61,9 +58,11 @@ http:
     # Default: ""
     dir: "/tmp"
 
-    # Deny files with the following extensions to upload.
+    # Deny uploads with these file extensions.
+    # Configure forbid or allow for your application's extension restrictions.
+    # Without either list, RR accepts all file extensions.
     #
-    # Default: [".php", ".exe", ".bat"]
+    # Default: []
     forbid: [ ".php", ".exe", ".bat", ".sh" ]
 
     # [SINCE 2.6] Allow files with the following extensions to upload
@@ -78,9 +77,10 @@ http:
     # feature disabling.
     cors:
       # Controls "Access-Control-Allow-Origin" header value (docs: https://mzl.la/2OgD4Qf).
+      # Replace this example with your application's trusted origin.
       #
       # Default: ""
-      allowed_origin: "*"
+      allowed_origin: "https://foo.example.com"
 
       # Controls "Access-Control-Allow-Headers" header value (docs: https://mzl.la/2OzDVvk).
       #
@@ -121,30 +121,30 @@ http:
 
   # Settings for "static" middleware.
   static:
-    # Path to the directory to serve
+    # Existing directory to serve.
     #
-    # Default: "." (current)
+    # Required when static middleware is enabled.
     dir: "."
 
-    # File patterns to forbid
+    # File extensions to forbid
     #
     # Default: empty
-    forbid: [ "" ]
+    forbid: [ ".php", ".htaccess" ]
 
     # ETag calculation (based on the body CRC32)
     #
     # Default: false
     calculate_etag: false
 
-    # Weak ETag calculation (based only on the content-length CRC32)
+    # Weak ETags use the file name in the pinned static beta.
     #
     # Default: false
     weak: false
 
-    # Patterns to allow
+    # File extensions to allow
     #
     # Default: empty
-    allow: [ ".txt", ".php" ]
+    allow: [ ".txt", ".css", ".js" ]
 
     # Request headers
     #
@@ -239,7 +239,7 @@ http:
   ssl:
     # Host and port to listen on (e.g.: `127.0.0.1:443`).
     #
-    # Default: ":443"
+    # Default: "127.0.0.1:443"
     address: "127.0.0.1:443"
 
     # Use ACME certificates provider (Let's encrypt)
@@ -334,6 +334,8 @@ http:
 
 You can enable HTTPS support by adding the `ssl` section to the `http` config.
 
+Use brackets around IPv6 addresses, such as `"[::1]:8443"`. The port must be an unsigned integer from 0 through 65535. HTTP-to-HTTPS redirects preserve IPv6 brackets.
+
 {% code title=".rr.yaml" %}
 
 ```yaml
@@ -343,7 +345,7 @@ http:
   address: 127.0.0.1:8080
 
   ssl:
-    # host and port separated by semicolon (default :443)
+    # Host and port separated by a colon.
     address: :8892
     redirect: false
     cert: fixtures/server.crt
@@ -482,18 +484,6 @@ http:
 
 {% endcode %}
 
-### Upgrade connection from `HTTP/1.1` to `H2C` [`v2.10.2`]
-
-Connection might be upgraded from the `http/1.1`
-to `h2c`: [rfc7540](https://datatracker.ietf.org/doc/html/rfc7540#section-3.4)
-
-**Headers, which should be sent to upgrade connection:**
-
-1. `Upgrade`: `h2c`
-2. `Connection`: `HTTP2-Settings`
-3. `Connection`: `Upgrade`
-4. `HTTP2-Settings`: `AAMAAABkAARAAAAAAAIAAAAA` [RFC](https://datatracker.ietf.org/doc/html/rfc7540#section-3.2.1)
-
 ### HTTP/2 Push Resources
 
 RoadRunner supports [HTTP/2 push](https://en.wikipedia.org/wiki/HTTP/2_Server_Push) via virtual headers provided by the PHP
@@ -502,10 +492,12 @@ response.
 {% code title="script.php" %}
 
 ```php
-return $response->withAddedHeader('http2-push', '/test.js');
+return $response->withAddedHeader('Http2-Push', '/test.js');
 ```
 
 {% endcode %}
+
+In v6 beta, this virtual header requires the exact name `Http2-Push`.
 
 Note that the path of the resource must be related to the public application directory and must include `/` at the
 beginning.
@@ -516,7 +508,7 @@ HTTP/2 push only works under HTTPS with the `static` service enabled.
 
 ### H2C
 
-You can enable HTTP/2 support over non-encrypted TCP connection using H2C:
+H2C provides HTTP/2 over an unencrypted TCP connection. In v6 beta, the client must start with HTTP/2 prior knowledge. HTTP/1.1 requests with `Upgrade: h2c` are handled as HTTP/1.1; RR does not upgrade them.
 
 {% code title=".rr.yaml" %}
 
@@ -524,7 +516,19 @@ You can enable HTTP/2 support over non-encrypted TCP connection using H2C:
 version: "3"
 
 http:
-  http2.h2c: true
+  address: 127.0.0.1:8080
+  http2:
+    h2c: true
+```
+
+{% endcode %}
+
+For example, use a curl build with HTTP/2 support:
+
+{% code %}
+
+```bash
+curl --http2-prior-knowledge http://127.0.0.1:8080/
 ```
 
 {% endcode %}
@@ -546,6 +550,72 @@ http:
 
 {% endcode %}
 
+## Development: Unix Sockets
+
+The development HTTP plugin supports independent [Unix socket attributes](../intro/config.md#unix-socket-attributes) for plain HTTP and FastCGI:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+http:
+  address: "unix:///run/roadrunner/http.sock"
+  unix_socket:
+    mode: "0600"
+  fcgi:
+    address: "unix:///run/roadrunner/fcgi.sock"
+    unix_socket:
+      mode: "0660"
+```
+
+{% endcode %}
+
+`http.unix_socket` also applies when H2C uses the plain HTTP listener. It does not configure FastCGI, HTTPS, HTTP/3, or ACME challenge listeners. Keep `http.fcgi.unix_socket` separate. PROXY protocol still requires TCP and cannot be used on these Unix listeners.
+
+A socket options object does not enable a listener. Set its `address` to a filesystem Unix socket. Omit its socket options when the listener is disabled.
+
+During shutdown, the HTTP plugin closes the FastCGI listener. This stops new connections. It does not close FastCGI connections that the server already accepted.
+
+See [Nginx group access](../app-server/nginx-with-rr.md#development-unix-socket) to let a web server connect without changing application file permissions.
+
+## Development: PROXY protocol
+
+{% hint style="warning" %}
+This section requires a custom build that includes the untagged HTTP change [8bebd3b](https://github.com/roadrunner-server/http/commit/8bebd3b). The currently pinned HTTP plugin, `v6.0.0-beta.10`, does not include PROXY protocol support.
+{% endhint %}
+
+PROXY protocol v1 and v2 let a TCP proxy supply client addresses. Configure each application listener separately. `http.proxy_protocol` controls plain HTTP, including H2C. `http.ssl.proxy_protocol` controls HTTPS. Omit the corresponding section to disable it.
+
+The following example enables PROXY protocol on both listeners:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+http:
+  address: "0.0.0.0:8080"
+  proxy_protocol:
+    trusted_proxies: [ "10.20.0.10" ]
+    read_header_timeout: 5s
+  ssl:
+    address: "0.0.0.0:8443"
+    cert: "server.crt"
+    key: "server.key"
+    proxy_protocol:
+      trusted_proxies: [ "10.20.0.10" ]
+      read_header_timeout: 5s
+```
+
+{% endcode %}
+
+- `trusted_proxies` must contain at least one IP address or CIDR for an immediate TCP peer. Hostnames are not accepted. Replace the example address with the address of your proxy.
+- RR rejects peers outside this list. Trusted peers must send a valid PROXY header. Direct HTTP requests without that header are rejected.
+- `read_header_timeout` limits the time to read the PROXY header. The default is `5s`. Zero selects the default; negative values are invalid. This setting does not control HTTP or TLS timeouts.
+- For HTTPS, the proxy must send the PROXY header before the TLS handshake. The HTTPS listener still requires certificates or ACME configuration. Temporary ACME challenge listeners are not wrapped.
+- Only TCP application listeners support this setting. It does not apply to HTTP/3 or FastCGI. Headers with TCP4 or TCP6 addresses replace the connection addresses; v1 `UNKNOWN` and v2 `LOCAL` retain the socket addresses.
+
+This trust list is separate from [HTTP forwarding-header trust](./proxy.md). If `proxy_ip_parser` also runs, it checks `trusted_subnets` against the client address supplied by PROXY protocol, not the original TCP peer.
+
+Route HTTP readiness checks through a trusted proxy that sends a PROXY header. For direct checks, use the status plugin's separate [health and readiness endpoints](../lab/health.md). A successful TCP connection alone does not prove that RR accepted the PROXY header or that a worker is ready.
+
 ## HTTP/3
 
 HTTP/3 support is experimental and might change in the future. Docs are available in the [experimental](../experimental/experimental.md) section.
@@ -566,24 +636,37 @@ http:
 
 The `http.internal_error_code` is used for `SoftJob`, allocation, TTL, network, and similar errors. For example, a load balancer might require a different code, so you may override the default.
 
+In v6 beta, malformed request bodies that RR cannot parse return `400 Bad Request`. Requests that exceed `max_request_size` return `413 Request Entity Too Large`. `internal_error_code` does not override these responses.
+
+{% hint style="warning" %}
+With `http.pool.debug: true`, internal error responses can contain HTML-escaped error text. Keep debug mode disabled on public production servers.
+{% endhint %}
+
 ## Middleware order
 
-Since all middleware components are independent, they can remove or update headers set by
-the [previous one](https://github.com/roadrunner-server/roadrunner/issues/1501).
+In v6 beta, requests enter middleware from left to right in the configuration list. Responses return through the same middleware in reverse order. A middleware can return a response without calling the remaining handlers.
 
-**Note that the request (imagine) comes from the right:**
+The order was reversed in v5. Reverse an existing list to preserve its v5 behavior.
 
-{% code title=".rr.yaml" %}
+{% code title="v5 configuration" %}
 
 ```yaml
 http:
-  middleware: # RESPONSE FROM HERE --> [ "static", "gzip", "sendfile" ] # <-- REQUEST COMES FROM HERE
+  middleware: [ "static", "headers", "gzip" ]
 ```
 
 {% endcode %}
 
-So in this case, the request gets into the `sendfile` middleware, then `gzip`, and `static`. And vice versa from the
-response.
+{% code title="Equivalent v6 configuration" %}
+
+```yaml
+http:
+  middleware: [ "gzip", "headers", "static" ]
+```
+
+{% endcode %}
+
+In the v6 example, requests enter `gzip`, then `headers`, then `static`. Put `headers` and `gzip` before `static` to apply them to static responses. Middleware can replace headers set by an earlier handler.
 
 ## Request queues
 

@@ -4,7 +4,7 @@ JOBS drivers are mini-plugins that are connected to the main JOBS plugin and ini
 
 ## Architecture
 
-While initializing, the JOBS plugin searches for registered drivers by the `Constructor` interface. The `Constructor` and `Driver` (described below) interfaces are declared in the [RR API repository](https://github.com/roadrunner-server/api/blob/master/plugins/v4/jobs/driver.go).
+The Jobs plugin discovers drivers through the `Constructor` interface. The [Jobs contracts](https://github.com/roadrunner-server/api-plugins/blob/v6.0.0-beta.2/jobs/driver.go) are in `github.com/roadrunner-server/api-plugins/v6/jobs`. See [plugin migration](plugin.md#v6-migration) for the shared import and logging changes.
 
 Constructor interface:
 
@@ -16,9 +16,9 @@ type Constructor interface {
  // Name returns the name of the driver
  Name() string
  // DriverFromConfig constructs a driver (e.g. kafka, amqp) from the configuration using the provided configKey
- DriverFromConfig(configKey string, queue Queue, pipeline Pipeline) (Driver, error)
+ DriverFromConfig(ctx context.Context, configKey string, queue Queue, pipeline Pipeline) (Driver, error)
  // DriverFromPipeline constructs a driver (e.g. kafka, amqp) from the pipeline. All configuration is provided by the pipeline
- DriverFromPipeline(pipe Pipeline, queue Queue) (Driver, error)
+ DriverFromPipeline(ctx context.Context, pipe Pipeline, queue Queue) (Driver, error)
 }
 ```
 
@@ -51,8 +51,8 @@ type Driver interface {
 So every driver should implement the `Constructor` interface to be found by the JOBS plugin. Let's have a look at the methods included in the `Constructor` interface:
 
 1. `Name() string`: This method should return a user-friendly name for the driver. It'll be used later in the pipelines `<pipeline_name>.driver` option. **It is an important option. The name here and name in the pipeline options should match.**
-2. `DriverFromConfig(configKey string, queue Queue, pipeline Pipeline) (Driver, error)`: Returns a `Driver` implementation declared via configuration. RoadRunner, in turn, provides a configuration key (such as `jobs.pipelines.pipeline-name.driver-name.config`), the queue implementation to which messages are pushed, and the pipeline with all information about the pipeline. Later we will look at how to use this.
-3. `DriverFromPipeline(pipe Pipeline, queue Queue) (Driver, error)`: Returns a `Driver` implementation declared via the RPC `jobs.Declare` call. It doesn't have configuration, but all info and configuration options are stored in the `pipeline` method argument.
+2. `DriverFromConfig(ctx context.Context, configKey string, queue Queue, pipeline Pipeline) (Driver, error)`: Creates a driver from configuration. RoadRunner supplies the context, configuration key, queue, and pipeline.
+3. `DriverFromPipeline(ctx context.Context, pipe Pipeline, queue Queue) (Driver, error)`: Creates a driver for an RPC `jobs.Declare` call. The pipeline contains its configuration. Pass the context to backend connection and setup operations.
 
 ### Initialization
 
@@ -67,7 +67,7 @@ If required, you may use the `Configurer` plugin to unmarshal global driver conf
 
 ### How to create a driver for JOBS
 
-All code from the tutorial is here: [link](https://github.com/roadrunner-server/samples/blob/master/plugins/jobs_driver/)
+The [sample driver](https://github.com/roadrunner-server/samples/blob/master/plugins/jobs_driver/) shows the backend structure. The examples below use the v6 contracts. Use your own module path in place of `example.com/jobs-driver`.
 
 To create a driver for jobs, you need to create a plugin instance:
 
@@ -77,51 +77,53 @@ To create a driver for jobs, you need to create a plugin instance:
 package jobs_driver //nolint:revive,stylecheck
 
 import (
-	"github.com/roadrunner-server/api/v4/plugins/v4/jobs"
-	"github.com/roadrunner-server/errors"
-	"github.com/roadrunner-server/samples/plugins/jobs_driver/driver"
-	"go.uber.org/zap"
+    "context"
+    "log/slog"
+
+    "example.com/jobs-driver/driver"
+    "github.com/roadrunner-server/api-plugins/v6/jobs"
+    "github.com/roadrunner-server/errors"
 )
 
 const pluginName string = "my_awesome_driver"
 
+var _ jobs.Constructor = (*Plugin)(nil)
+
 type Configurer interface {
-	// UnmarshalKey takes a single key and unmarshal it into a Struct.
-	UnmarshalKey(name string, out any) error
-	// Has checks if a config section exists.
-	Has(name string) bool
+    UnmarshalKey(name string, out any) error
+    Has(name string) bool
 }
 
 type Logger interface {
-	NamedLogger(name string) *zap.Logger
+    NamedLogger(name string) *slog.Logger
 }
 
 type Plugin struct {
-	log *zap.Logger
-	cfg Configurer
+    log *slog.Logger
+    cfg Configurer
 }
 
 func (p *Plugin) Init(log Logger, cfg Configurer) error {
-	if !cfg.Has(pluginName) {
-		return errors.E(errors.Disabled)
-	}
+    if !cfg.Has(pluginName) {
+        return errors.E(errors.Disabled)
+    }
 
-	p.log = log.NamedLogger(pluginName)
-	p.cfg = cfg
-	return nil
+    p.log = log.NamedLogger(pluginName)
+    p.cfg = cfg
+    return nil
 }
 
 func (p *Plugin) Name() string {
-	return pluginName
+    return pluginName
 }
 
-func (p *Plugin) DriverFromConfig(configKey string, pq jobs.Queue, pipeline jobs.Pipeline) (jobs.Driver, error) {
-	return driver.FromConfig(configKey, p.log, p.cfg, pipeline, pq)
+func (p *Plugin) DriverFromConfig(ctx context.Context, configKey string, pq jobs.Queue, pipeline jobs.Pipeline) (jobs.Driver, error) {
+    return driver.FromConfig(ctx, configKey, p.log, p.cfg, pipeline, pq)
 }
 
-func (p *Plugin) DriverFromPipeline(pipe jobs.Pipeline, pq jobs.Queue) (jobs.Driver, error) {
-	return driver.FromPipeline(pipe, p.log, p.cfg, pq)
-} 
+func (p *Plugin) DriverFromPipeline(ctx context.Context, pipe jobs.Pipeline, pq jobs.Queue) (jobs.Driver, error) {
+    return driver.FromPipeline(ctx, pipe, p.log, p.cfg, pq)
+}
 ```
 
 {% endcode %}
@@ -130,9 +132,10 @@ This is a simple representation of the RR plugin. It is called driver because it
 Keep in mind the plugin's name.
 
 JOBS plugin will send the following data to the `Constructor` interface methods:
+
 1. If declared via configuration (`.rr.yaml`) - `configKey`, you may use that key to unmarshal the configuration section related solely to this driver. If the driver was declared
 via `jobs.Declare` RPC method, all configuration options would be stored in the `jobs.Pipeline` interface.
-2.  `jobs.Queue`: Priority-Queue, used to push the messages and later process by the PHP workers.
+2. `jobs.Queue`: Priority-Queue, used to push the messages and later process by the PHP workers.
 3. All other things like logger, `Configurer` plugin which will be used to get the values from the `.rr.yaml` configuration you may pass if you need them from the driver's root (e.g.: `p.log`).
 
 Now, let's see the simplified `Driver` implementation:
@@ -143,55 +146,54 @@ Now, let's see the simplified `Driver` implementation:
 package driver
 
 import (
-	"context"
+    "context"
+    "log/slog"
 
-	"github.com/roadrunner-server/api/v4/plugins/v4/jobs"
-	"go.uber.org/zap"
+    "github.com/roadrunner-server/api-plugins/v6/jobs"
 )
 
 var _ jobs.Driver = (*Driver)(nil)
 
 type Configurer interface {
-	// UnmarshalKey takes a single key and unmarshal it into a Struct.
-	UnmarshalKey(name string, out any) error
-	// Has checks if a config section exists.
-	Has(name string) bool
+    UnmarshalKey(name string, out any) error
+    Has(name string) bool
 }
 
 type Driver struct {
+    queue jobs.Queue
 }
 
-func FromConfig(configKey string, log *zap.Logger, cfg Configurer, pipeline jobs.Pipeline, pq jobs.Queue) (*Driver, error) {
-	return &Driver{}, nil
+func FromConfig(ctx context.Context, configKey string, log *slog.Logger, cfg Configurer, pipeline jobs.Pipeline, pq jobs.Queue) (*Driver, error) {
+    return &Driver{queue: pq}, nil
 }
 
 // FromPipeline initializes consumer from pipeline
-func FromPipeline(pipeline jobs.Pipeline, log *zap.Logger, cfg Configurer, pq jobs.Queue) (*Driver, error) {
-	return &Driver{}, nil
+func FromPipeline(ctx context.Context, pipeline jobs.Pipeline, log *slog.Logger, cfg Configurer, pq jobs.Queue) (*Driver, error) {
+    return &Driver{queue: pq}, nil
 }
 
 func (d *Driver) Push(ctx context.Context, job jobs.Message) error {
-	return nil
+    return nil
 }
 
 func (d *Driver) Run(ctx context.Context, p jobs.Pipeline) error {
-	return nil
+    return nil
 }
 
 func (d *Driver) State(ctx context.Context) (*jobs.State, error) {
-	return nil, nil
+    return &jobs.State{}, nil
 }
 
 func (d *Driver) Pause(ctx context.Context, p string) error {
-	return nil
+    return nil
 }
 
 func (d *Driver) Resume(ctx context.Context, p string) error {
-	return nil
+    return nil
 }
 
 func (d *Driver) Stop(ctx context.Context) error {
-	return nil
+    return nil
 }
 ```
 
@@ -204,38 +206,38 @@ Remember the following things:
 3. For pipelines declared via the `jobs.Declare` RPC call, the `jobs.Resume` method should be called instead.
 
 ### Pushing jobs into the priority queue
-To push a job into the priority queue, you need to slightly transform it to add `Ack`, `Nack`, etc. methods to it.
-All interfaces are in the [RR API repository](https://github.com/roadrunner-server/api/blob/master/plugins/v4/jobs/job.go). Let's have a look at the `Job` interface.
 
+To push a job into the priority queue, you need to slightly transform it to add `Ack`, `Nack`, etc. methods to it.
+The [Job interface](https://github.com/roadrunner-server/api-plugins/blob/v6.0.0-beta.2/jobs/job.go) includes `jobs.Item`:
 
 {% code title="job.go" %}
 
 ```go
+import "github.com/roadrunner-server/api-plugins/v6/jobs"
+
 // Job represents a binary heap item
 type Job interface {
-	pq.Item
-	// Ack acknowledges the item after processing
-	Ack() error
-	// Nack discards the item
-	Nack() error
-	// NackWithOptions discards the item with an optional requeue flag
-	NackWithOptions(requeue bool, delay int) error
-	// Requeue puts the message back to the queue with an optional delay
-	Requeue(headers map[string][]string, delay int) error
-	// Body returns the payload associated with the item
-	Body() []byte
-	// Context returns any meta-information associated with the item
-	Context() ([]byte, error)
-	// Headers return the metadata for the item
-	Headers() map[string][]string
+    jobs.Item
+    // Ack acknowledges the item after processing
+    Ack() error
+    // Nack discards the item
+    Nack() error
+    // NackWithOptions discards the item with an optional requeue flag
+    NackWithOptions(requeue bool, delay int) error
+    // Requeue puts the message back to the queue with an optional delay
+    Requeue(headers map[string][]string, delay int) error
+    // Body returns the payload associated with the item
+    Body() []byte
+    // Context returns any meta-information associated with the item
+    Context() ([]byte, error)
+    // Headers return the metadata for the item
+    Headers() map[string][]string
 }
 ```
 
 {% endcode %}
 
-The `Job` interface also includes the `pq.Item` interface to satisfy a minimal priority queue requirement.
-You may add this (`pq.Item`) interface to any interface and benefit from RoadRunner's priority queue.
-So, our driver's `Push` method would be updated as follows:
+`jobs.Item` requires `ID() string`, `GroupID() string`, and `Priority() int64`. Update the driver's `Push` method to insert a `jobs.Job` into its queue:
 
 {% code title="driver.go" %}
 

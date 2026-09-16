@@ -2,13 +2,19 @@
 
 This guide walks you through getting started with RoadRunner. You'll learn how to install RoadRunner and configure it for your project.
 
-## Step 1: Download RR for your platform
+## Step 1: Build RoadRunner
 
-To begin, you need to download RR for your platform. Visit the [RR installation guide](install.md) and download the appropriate version for your operating system.
+Follow the [source installation guide](install.md#build-from-source) to build RoadRunner with v6 plugins. Keep the resulting `rr` binary in your project directory.
 
 ## Step 2: Install PHP
 
 RR requires PHP to run. If you don't have PHP installed, you can download it from the [official PHP website](https://www.php.net/downloads.php) and follow the installation instructions for your operating system.
+
+Install [Composer](https://getcomposer.org/download/). Enable the PHP `sockets` extension. Run this command in the project directory to install the worker dependencies:
+
+```bash
+composer require spiral/roadrunner-http nyholm/psr7
+```
 
 ## Step 3: Create a simple configuration
 
@@ -87,6 +93,9 @@ Now start the server. You should have the following files in the current folder:
 
 - `.rr.yaml`
 - `psr-worker.php`
+- `composer.json`
+- `composer.lock`
+- `vendor/`
 - `rr` binary
 
 Then, open a terminal window in the current folder and run the following command:

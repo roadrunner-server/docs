@@ -48,7 +48,7 @@ kv:
       dial_timeout: 0
 
       # Optional section.
-      # Default: 0 (equivalent to the default value of 3 retries)
+      # Default: 0 (3 command retries after the initial attempt).
       max_retries: 0
 
       # Optional section.
@@ -95,7 +95,7 @@ kv:
       # Default: false
       read_only: false
 
-      # Optional section.
+      # Optional. Remove this section for a non-TLS connection.
       tls:
         # Optional section.
         # Default: ""
@@ -175,14 +175,15 @@ disables idle timeout check.
 
 ### Retries
 
-`max_retries`: Maximum number of retries before giving up. Specifying `0` is equivalent to the default (`3` attempts).
-If you need to specify an infinite number of connection attempts, specify the value `-1`.
+`max_retries`: Maximum number of command retries after the initial attempt. A value of `0` selects the default of three retries. A value of `-1` disables command retries. It does not enable unlimited connection attempts.
 
 `min_retry_backoff`: Minimum backoff between each retry. Must be in the format of a "numeric value" + "time format
 suffix". A value of `0` is equivalent to a timeout of 8 milliseconds (`8ms`). A value of `-1` disables backoff.
 
 `max_retry_backoff`: Maximum backoff between each retry. Must be in the format of a "numeric value" + "time format
 suffix". A value of `0` is equivalent to a timeout of 512 milliseconds (`512ms`). A value of `-1` disables backoff.
+
+In the v6 beta, `min_retry_backoff` controls the minimum retry delay independently of `max_retry_backoff`. The v5 driver used the maximum value for both settings. Review both values before upgrading.
 
 ### Pool Size
 
@@ -192,18 +193,15 @@ cores in your system, then setting the option to 2 you will get 16 connections.
 
 ### TLS Configuration
 
-The `tls` section allows you to configure Transport Layer Security (TLS) for secure communication with the Redis server. 
-If no options are defined in this section, the connection will default to non-TLS. 
+The `tls` section enables TLS for the Redis connection. Omit the section for a non-TLS connection. In the v6 beta, a TLS configuration without `root_ca` uses the system trust store.
 
-`cert`: Path to a file containing the client certificate. This certificate is used to authenticate the client 
-when communicating with the server.
+`cert`: Path to the client certificate file. Set this with `key` when the server requires client authentication.
 
-`key`: Path to a file containing the client private key. This key is used in conjunction with the client 
-certificate for mutual authentication.
+`key`: Path to the client private key file.
 
-`root_ca`: Path to a file containing the Certificate Authority (CA) certificates used to verify the server's certificate.  
-**Note**: This option can be used independently of the `cert` and `key` options. In cases where the server does not 
-require client certificate verification, you only need to provide the `root_ca` option.
+`root_ca`: Optional path to PEM-encoded CA certificates. The driver adds these certificates to the system trust store to verify the server certificate. This option does not require `cert` or `key`.
+
+The v6 beta rejects a CA file that contains no valid PEM certificates. The v5 driver could proceed without TLS in this case. Check the CA file before deployment. An unreadable CA file also prevents startup.
 
 ### Other
 
@@ -301,3 +299,7 @@ Where Sentinel's options means:
 
 - `sentinel_password`: Sentinel password from "requirepass `password`"
   (if enabled) in Sentinel configuration.
+
+## Expiration Errors
+
+In the v6 beta, `kv.MExpire` returns Redis command errors instead of ignoring them. Handle RPC errors before assuming that an expiration was set. A batch can update some keys before a later key fails.

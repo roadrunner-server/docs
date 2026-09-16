@@ -2,6 +2,8 @@
 
 This section provides information about upgrading your RoadRunner configuration to the latest version.
 
+For RoadRunner v3, see [v3 Migration](v3-migration.md). It covers the v5-to-v6 plugin changes, upgrade checks, and known limits. The configuration format remains `version: "3"`.
+
 ## Compatibility matrix
 
 The compatibility matrix provides information about the supported configuration versions for different RoadRunner

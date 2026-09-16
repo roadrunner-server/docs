@@ -27,18 +27,16 @@ The following plugins are designed to run workers and handle specific types of r
   to the PHP application. It supports bidirectional communication, allowing for efficient and seamless interaction
   between the server and clients.
 - [**gRPC**](../grpc/grpc.md) - Deals with gRPC requests from clients and passes them on to the PHP application.
-- [**TCP**](../plugins/tcp.md) - Handles TCP requests from clients and routes them to the appropriate PHP application.
+- [**TCP**](../plugins/tcp.md) - Handles raw TCP requests in custom builds that include the plugin. It is not part of the default RoadRunner container.
 - [**Temporal**](../workflow/temporal.md) - Manages workflows and activities, allowing for the efficient handling of
   various tasks and processes.
 
 By utilizing these plugins, RoadRunner ensures that your PHP application can handle a wide range of requests
 and communication protocols, delivering optimal performance and flexibility.
 
-## (g)RPC interface
+## Goridge RPC interface
 
-RoadRunner also provides a customized gRPC interface for communication between the application and the server, which plays a
-significant role in enhancing the interaction between the two components. This interface is particularly useful when
-working with the various plugins that support RPC communication, such as:
+Applications call these RoadRunner plugin services through [Goridge RPC](../php/rpc.md). The transport uses Go `net/rpc`, not gRPC. The services include:
 
 - [**KV**](../kv/overview-kv.md) - A cache service that allows for efficient storage and retrieval of cached data.
 - [**Locks**](../plugins/locks.md) - Offers a convenient means to manage distributed locks, ensuring resource access

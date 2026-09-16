@@ -55,6 +55,33 @@ Consider using `fastcgi_pass` instead of `proxy_pass`: Using the `fastcgi_pass` 
 performance in certain configurations.
 {% endhint %}
 
+#### Development: Unix Socket
+
+The development HTTP plugin can give Nginx group access to a FastCGI socket without changing application file permissions:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+http:
+  fcgi:
+    address: "unix:///run/roadrunner/fcgi.sock"
+    unix_socket:
+      mode: "0660"
+      gid: 2000
+```
+
+{% endcode %}
+
+Replace the `fastcgi_pass` directive in the Nginx example with:
+
+```nginx
+fastcgi_pass unix:/run/roadrunner/fcgi.sock;
+```
+
+Replace `2000` with the numeric group shared by RoadRunner and the Nginx worker processes. A non-root RoadRunner process must belong to this group to set the socket group. Nginx workers must also belong to this group to connect through the group permissions. The socket owner stays unchanged because `uid` is omitted.
+
+Create the parent directory first. RoadRunner needs permission to create the socket there. Nginx needs search permission, not write permission, on every parent directory. See [Unix socket attributes](../intro/config.md#unix-socket-attributes) for availability and startup access limits. The Docker example below does not include this development feature or a shared socket directory.
+
 ### Proxy
 
 RoadRunner can be configured to listen for HTTP requests on a specific port.
@@ -153,11 +180,13 @@ In this example, we will demonstrate how to use RoadRunner with Nginx in a Docke
 
 ### Dockerfile
 
+Build the [local v6 RoadRunner image](docker.md#build-the-roadrunner-image) before building this application image.
+
 {% code title="docker/app/Dockerfile" %}
 
-```docker
-FROM --platform=${TARGETPLATFORM:-linux/amd64} ghcr.io/roadrunner-server/roadrunner:latest as roadrunner
-FROM --platform=${TARGETPLATFORM:-linux/amd64} php:8.3-alpine
+```dockerfile
+FROM roadrunner:v6-b0cccd9 AS roadrunner
+FROM php:8.5-cli-alpine
 
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
 COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
@@ -176,12 +205,6 @@ ENTRYPOINT ["rr"]
 ```
 
 {% endcode %}
-
-{% hint style="warning" %}
-
-Consider using the direct version in production. The `latest` image tag might be used in development environments only.
-
-{% endhint %}
 
 ### RoadRunner configuration
 
@@ -258,10 +281,9 @@ Do not forget the `composer.json` file:
 
 ```json
 {
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require": {
-    "spiral/roadrunner-http": "^3.0",
+    "nyholm/psr7": "^1.8",
+    "spiral/roadrunner-http": "^4.1",
     "spiral/goridge": "^4.0"
   }
 }

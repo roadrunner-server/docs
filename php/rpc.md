@@ -22,6 +22,16 @@ composer require spiral/goridge
 
 {% endcode %}
 
+## v6 compatibility
+
+The v6 plugin beta still uses Goridge with Go `net/rpc`. Keep the existing TCP or Unix listener address and `plugin.Method` calls. No Connect client migration is required.
+
+The Go transport, `goridge/v4 v4.0.0-beta.3`, no longer supports MessagePack. PHP clients that select a MessagePack codec must switch to a supported codec, even if their PHP Goridge version still offers MessagePack. The server supports JSON, protobuf, Gob, and raw bytes. Use JSON for JSON RPC arguments and protobuf for methods that accept protobuf DTOs.
+
+The Go module version does not change the frame protocol version. The base header, payload-length encoding, CRC calculation, and frame version remain compatible. This does not add a new frame-size limit or make MessagePack calls compatible.
+
+RoadRunner protobuf source, generated Go bindings, and Go plugin contracts now have separate repositories. This relocation alone does not require a PHP worker-loop rewrite. See [plugin migration](../customization/plugin.md#v6-migration) for the Go imports and DTO exceptions.
+
 ## Configuration
 
 You can change the RPC port from the default (`127.0.0.1:6001`) using the following configuration:
@@ -36,6 +46,23 @@ rpc:
 ```
 
 {% endcode %}
+
+### Development: Unix Socket
+
+The development RPC plugin can set [Unix socket attributes](../intro/config.md#unix-socket-attributes) independently of worker credentials:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+rpc:
+  listen: "unix:///run/roadrunner/rpc.sock"
+  unix_socket:
+    mode: "0600"
+```
+
+{% endcode %}
+
+Direct clients must use the same listener address. PHP workers can read it through the environment-based client shown below. Keep RPC permissions separate from sockets used by a web server.
 
 ## Connecting to RoadRunner
 
@@ -126,20 +153,20 @@ the RPC Go definitions for these plugins in the following repositories:
 - [Metrics](https://github.com/roadrunner-server/metrics/blob/master/rpc.go)
 - [Lock](../plugins/locks.md) - Provides a way to obtain and release locks on
   resources. [GitHub](https://github.com/roadrunner-server/lock/blob/master/rpc.go)
-- [Service](../plugins/service.md) - Provides a simple API to monitor and control
-  processes [GitHub](https://github.com/roadrunner-server/service/blob/master/rpc.go)
+- [Service](../plugins/service.md) - Monitors and controls processes through Goridge RPC. The development/unreleased [`service.Update`](../plugins/service.md#update-service-configuration) method updates stored service settings. [GitHub](https://github.com/roadrunner-server/service/blob/master/rpc.go)
 - [RPC](https://github.com/roadrunner-server/rpc/blob/master/rpc.go)
 
 ### Async PHP RPC interface
 
 You can use `Spiral\Goridge\RPC\AsyncRPCInterface` and an implementation with multiple relays to offer non-blocking I/O for RoadRunner communication.
 
-The interface provides the following new methods:
- - `callIgnoreResponse(string $method, mixed $payload): void` - Invoke the remote RoadRunner service method using the given payload (free form) non-blocking and ignore the response.
- - `callAsync(string $method, mixed $payload): int` - Invokes the specified method with the specified payload and returns an integer identifier that can be used to retrieve the response when it's ready.
- - `hasResponse(int $seq): bool, getResponse(int $seq, mixed $options = null): mixed`
- - `hasResponses(array $seqs): array`
- - `getResponses(array $seqs, mixed $options = null): iterable` - methods to check for and retrieve one or more results of executed requests.
+The interface provides these methods:
+
+- `callIgnoreResponse(string $method, mixed $payload): void` - Invoke the method without waiting for its response.
+- `callAsync(string $method, mixed $payload): int` - Invoke the method and return an identifier for its response.
+- `hasResponse(int $seq): bool, getResponse(int $seq, mixed $options = null): mixed`
+- `hasResponses(array $seqs): array`
+- `getResponses(array $seqs, mixed $options = null): iterable` - Retrieve responses for the supplied identifiers.
 
 The `callIgnoreResponse` method can be used to invoke RPC methods without waiting for a response. If you don't need a response, this can greatly improve performance. For example, consider sending metric data.
 
@@ -251,9 +278,10 @@ final class AsyncCache
     public function commitAsync(): bool
     {
         try {
-            $this->rpc->getResponses($this->responses, Response::class);
-        } catch (ServiceException $e) {
-            // ...
+            foreach ($this->rpc->getResponses($this->responses, Response::class) as $response) {
+                // Read each response to detect RPC errors.
+            }
+        } catch (ServiceException) {
             return false;
         } finally {
             $this->responses = [];
@@ -281,6 +309,8 @@ final class AsyncCache
 ```
 
 {% endcode %}
+
+`getResponses()` returns a lazy iterator. `commitAsync()` returns `true` only after it reads all responses. It returns `false` on the first server-side RPC error; other exceptions propagate. It does not undo completed operations or read the remaining responses after an error.
 
 Usage:
 

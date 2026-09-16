@@ -78,3 +78,11 @@ value should not exceed `int32` size.
 ### Tube
 
 `tube` - The name of the inner "tube" specific to the Beanstalk driver.
+
+## Headers
+
+The v6 beta stores headers with the job body and preserves them on delivery and requeue. Upgrade producers and consumers before relying on headers for retry counts or tracing. Existing queued jobs need no conversion, but headers that v5 did not store cannot be recovered.
+
+## Statistics
+
+In the v6 beta, queue counters describe the configured tube, not all tubes on the server. An unused tube reports zero jobs. Review dashboards that assumed server-wide counts in v5. Pipelines that share a tube report the same tube counters.

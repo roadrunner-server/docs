@@ -65,7 +65,11 @@ try {
 
 ### Sending headers and status codes
 
-You can send headers and status codes (`1XX` multiple times, or others once) to the client during streaming.
+You can send multiple informational responses before the final response. Send an empty body and set `endOfStream: false` for each informational response. Send the final status and headers before streaming its body.
+
+{% hint style="warning" %}
+In v6 beta, RR ignores worker responses with status `101 Switching Protocols`. A PHP worker cannot upgrade the connection by sending this status. RR also drops bodies attached to informational responses. Do not send informational responses after the final response has started.
+{% endhint %}
 
 {% code title="worker.php" %}
 
@@ -101,7 +105,6 @@ $read = static function (): Generator {
 try {
     while ($req = $http->waitRequest()) {
         $http->respond(100, '', headers: ['X-100' => ['100']], endOfStream: false);
-        $http->respond(101, '', headers: ['X-101' => ['101']], endOfStream: false);
         $http->respond(102, '', headers: ['X-102' => ['102']], endOfStream: false);
         $http->respond(103, '', headers: ['Link' => ['</style111.css>; rel=preload; as=style'], 'X-103' => ['103']], endOfStream: false);
         $http->respond(200, $read(), headers: ['X-200' => ['200']], endOfStream: true);
@@ -113,4 +116,4 @@ try {
 
 {% endcode %}
 
-In this example, we send five status codes and five headers to the client. You may send a `103 Early Hints` status code (or any `1XX` status code) at any time during streaming (do not forget about `$endOfStream`).
+This example sends `100`, `102`, and `103` before the final `200` response. Headers supplied only in an informational response are not copied to the final response. Repeat any headers needed in the final `respond()` call.
