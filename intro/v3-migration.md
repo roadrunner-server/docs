@@ -34,6 +34,7 @@ Keep `version: "3"` in `.rr.yaml`. That value identifies the configuration forma
 - [Static file controls](../http/static.md): configure URL prefixes, cache lifetimes, and cache limits. The middleware normalizes paths before access checks and uses revised ETags. Positive cache hits still open and stat files. Cached misses can delay newly created files.
 - [Zstd middleware](../http/zstd.md): add response compression with Zstandard. Include and register the plugin before selecting `http.middleware: ["zstd"]`.
 - [HTTP rate limiting](../http/rate-limiter.md): upcoming bundled middleware with global, IP, or header keys, bounded process-local state, and `429` responses with `Retry-After`. The pinned source build does not include it.
+- [Service configuration updates](../plugins/service.md#update-service-configuration) (development/unreleased): change stored service settings through `service.Update` without replacing current PIDs. This requires a development service build and upcoming PHP client/DTO releases. The pinned source build does not include it.
 
 ## AMQP Configuration (Development)
 
@@ -98,4 +99,4 @@ Velox v3 uses [module-based build configuration](../customization/build.md) with
 | Jobs | An explicit `jobs.pool` with omitted or zero `num_workers` produces only two pollers. Set a positive `num_workers` value. Setting `num_pollers` does not override the derived count. |
 | BoltDB Jobs | Storage does not preserve the `pool` header, including for newly published jobs. Use a single `jobs.pool` with BoltDB pipelines. Named pools cannot route these jobs. |
 | Memory KV | `kv.MExpire` with a past deadline or less than one second remaining can replace a value and remove its expiration. Use `kv.Delete` for immediate removal. See [Memory KV](../kv/memory.md). |
-| Service | After an automatic restart, `service.Restart` can start replacements before the old processes finish. Do not rely on it for exclusive process replacement when `remain_after_exit` is enabled. |
+| Service | In `v6.0.0-beta.8`, after an automatic restart, `service.Restart` can start replacements before the old processes finish. Do not rely on it for exclusive process replacement when `remain_after_exit` is enabled. |

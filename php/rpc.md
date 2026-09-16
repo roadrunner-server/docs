@@ -153,8 +153,7 @@ the RPC Go definitions for these plugins in the following repositories:
 - [Metrics](https://github.com/roadrunner-server/metrics/blob/master/rpc.go)
 - [Lock](../plugins/locks.md) - Provides a way to obtain and release locks on
   resources. [GitHub](https://github.com/roadrunner-server/lock/blob/master/rpc.go)
-- [Service](../plugins/service.md) - Provides a simple API to monitor and control
-  processes [GitHub](https://github.com/roadrunner-server/service/blob/master/rpc.go)
+- [Service](../plugins/service.md) - Monitors and controls processes through Goridge RPC. The development/unreleased [`service.Update`](../plugins/service.md#update-service-configuration) method updates stored service settings. [GitHub](https://github.com/roadrunner-server/service/blob/master/rpc.go)
 - [RPC](https://github.com/roadrunner-server/rpc/blob/master/rpc.go)
 
 ### Async PHP RPC interface
