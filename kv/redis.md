@@ -271,7 +271,13 @@ Where new options means:
 Redis Sentinel provides high availability for Redis. You can find more information
 about [Sentinel on the documentation page](https://redis.io/topics/sentinel).
 
-There are two additional options available for the Sentinel configuration: `master_name` and `sentinel_password`.
+Sentinel configuration adds three options: `master_name`, `sentinel_username`, and `sentinel_password`.
+Set `addrs` to the Sentinel endpoints, rather than the Redis master address.
+
+{% hint style="info" %}
+`sentinel_username` is a development/unreleased addition in [redis#245](https://github.com/roadrunner-server/redis/pull/245).
+Use a Redis KV plugin build that includes this change.
+{% endhint %}
 
 {% code title=".rr.yaml" %}
 
@@ -283,22 +289,34 @@ kv:
     driver: redis
 
     config:
-      # Required section.
-      master_name: ""
+      addrs:
+        - "${REDIS_SENTINEL_ADDRESS}"
 
-      # Optional section.
-      # Default: "" (no password)
-      sentinel_password: ""
+      # Required: master name configured in Sentinel.
+      master_name: "${REDIS_SENTINEL_MASTER_NAME}"
+
+      # Optional: Redis master credentials.
+      username: "${REDIS_USERNAME}"
+      password: "${REDIS_PASSWORD}"
+
+      # Optional: Sentinel credentials, independent of the master credentials.
+      sentinel_username: "${REDIS_SENTINEL_USERNAME}"
+      sentinel_password: "${REDIS_SENTINEL_PASSWORD}"
 ```
 
 {% endcode %}
 
-Where Sentinel's options means:
+Sentinel options:
 
-- `master_name`: The name of the Sentinel's master in string format.
+- `master_name`: The name of the Redis master monitored by Sentinel.
 
-- `sentinel_password`: Sentinel password from "requirepass `password`"
-  (if enabled) in Sentinel configuration.
+- `sentinel_username`: Optional Sentinel ACL username. Defaults to an empty string.
+
+- `sentinel_password`: Optional password for the Sentinel ACL user, or the password configured with
+  `requirepass` for the default user. Defaults to an empty string.
+
+`username` and `password` authenticate against the Redis master. `sentinel_username` and `sentinel_password`
+authenticate against Sentinel. For password-only Sentinel authentication, omit `sentinel_username` or set it to `""`.
 
 ## Expiration Errors
 
