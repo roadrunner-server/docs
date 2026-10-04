@@ -66,6 +66,19 @@ Repeat the `plugin` query parameter to check multiple plugins: `http://127.0.0.1
 
 The response format is the same JSON structure as the `/health` endpoint.
 
+## Kubernetes Endpoint Aliases
+
+RoadRunner v3 development builds provide these aliases on the status server:
+
+| Endpoint | Alias | Check |
+| --- | --- | --- |
+| `/health` | `/livez` | Liveness |
+| `/ready` | `/readyz` | Readiness |
+
+Each alias uses the same handler as its original endpoint. Both names accept the same `plugin` query parameters and return the same status codes and response bodies. For example, use `/livez?plugin=http` or `/readyz?plugin=http&plugin=grpc`.
+
+These aliases require a status plugin build that includes this change. The pinned [source build](../intro/install.md) does not include them.
+
 ## Customizing the Not-Ready Status Code
 
 By default, the Status Plugin uses a `503` status code. However, you can replace this status code with a custom one.
@@ -86,7 +99,7 @@ status:
 
 ## Graceful Shutdown
 
-During graceful shutdown, `/health` returns `200`. The `/ready` and `/jobs` endpoints return `unavailable_status_code` (`503` by default). These responses contain the text `service is shutting down`, not the usual JSON report.
+During graceful shutdown, `/health` and `/livez` return `200`. The `/ready`, `/readyz`, and `/jobs` endpoints return `unavailable_status_code` (`503` by default). These responses contain the text `service is shutting down`, not the usual JSON report.
 
 Use `/health` for liveness and `/ready` for readiness. This lets the process finish its current work after readiness checks stop new traffic.
 
@@ -137,7 +150,35 @@ The health check endpoint serves the following purposes:
 
 ### Kubernetes Readiness and Liveness Probes
 
-Configure the liveness probe to use `/health` and the readiness probe to use `/ready`. Busy workers can fail readiness without failing liveness. During shutdown, readiness fails while liveness remains successful.
+Configure the liveness probe to use `/livez` and the readiness probe to use `/readyz`. Busy workers can fail readiness without failing liveness. During shutdown, readiness fails while liveness remains successful.
+
+Bind the status server to an address that Kubernetes can reach, such as `0.0.0.0:2114`:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+status:
+  address: 0.0.0.0:2114
+```
+
+{% endcode %}
+
+Add these probes to the RoadRunner container specification:
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /livez
+    port: 2114
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 2114
+```
+
+For builds without the aliases, use `/health` and `/ready` with the same probe settings.
 
 **Read more [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)**
 

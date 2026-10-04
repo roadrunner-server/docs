@@ -35,6 +35,7 @@ Keep `version: "3"` in `.rr.yaml`. That value identifies the configuration forma
 - [Zstd middleware](../http/zstd.md): add response compression with Zstandard. Include and register the plugin before selecting `http.middleware: ["zstd"]`.
 - [HTTP rate limiting](../http/rate-limiter.md): upcoming bundled middleware with global, IP, or header keys, bounded process-local state, and `429` responses with `Retry-After`. The pinned source build does not include it.
 - [Service configuration updates](../plugins/service.md#update-service-configuration) (development/unreleased): change stored service settings through `service.Update` without replacing current PIDs. This requires a development service build and upcoming PHP client/DTO releases. The pinned source build does not include it.
+- [Kubernetes probe aliases](../lab/health.md#kubernetes-endpoint-aliases) (development/unreleased): use `/livez` for `/health` and `/readyz` for `/ready`. The aliases preserve plugin filters, response bodies, status codes, and shutdown behavior. The pinned source build does not include them.
 
 ## AMQP Configuration (Development)
 
