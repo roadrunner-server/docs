@@ -2,9 +2,9 @@
 
 This guide walks you through getting started with RoadRunner. You'll learn how to install RoadRunner and configure it for your project.
 
-## Step 1: Build RoadRunner
+## Step 1: Install RoadRunner
 
-Follow the [source installation guide](install.md#build-from-source) to build RoadRunner with v6 plugins. Keep the resulting `rr` binary in your project directory.
+Follow the [installation guide](install.md) to install RoadRunner v3. Keep the `rr` binary in your project directory.
 
 ## Step 2: Install PHP
 

@@ -12,7 +12,7 @@ Use Go `1.27.1`. Import the RoadRunner library. Use the same commit SHA as your 
 {% code title="Install the library" %}
 
 ```bash
-go get github.com/roadrunner-server/roadrunner/v2025/lib@master
+go get github.com/roadrunner-server/roadrunner/v3/lib@latest
 ```
 
 {% endcode %}
@@ -26,7 +26,7 @@ The library imports v6 plugins and uses the [v6 plugin contracts](plugin.md#v6-m
 ```go
 
 import (
-    "github.com/roadrunner-server/roadrunner/v2025/lib"
+    "github.com/roadrunner-server/roadrunner/v3/lib"
 )
 
 func main() {
@@ -52,7 +52,7 @@ import (
     httpPlugin "github.com/roadrunner-server/http/v6"
     "github.com/roadrunner-server/informer/v6"
     "github.com/roadrunner-server/resetter/v6"
-    "github.com/roadrunner-server/roadrunner/v2025/lib"
+    "github.com/roadrunner-server/roadrunner/v3/lib"
 )
 
 func main() {

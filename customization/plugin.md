@@ -15,7 +15,7 @@ Below you can find more information about the plugin interface, how to define a 
 
 ## v6 migration
 
-Use the module versions selected by the RoadRunner build. RoadRunner v3 uses v6 plugin modules and `endure/v2`. The Endure lifecycle and dependency injection interfaces stay the same. The RoadRunner library module is `roadrunner/v2025`.
+Use the module versions selected by the RoadRunner build. RoadRunner v3 uses v6 plugin modules and `endure/v2`. The Endure lifecycle and dependency injection interfaces stay the same. The RoadRunner library module is `roadrunner/v3`.
 
 The API repositories now have separate roles. [api](https://github.com/roadrunner-server/api) contains protobuf source, not a Go module. [api-go](https://github.com/roadrunner-server/api-go) contains generated Go bindings. [api-plugins](https://github.com/roadrunner-server/api-plugins) contains Go plugin contracts, not RPC messages.
 
@@ -23,6 +23,7 @@ All import paths in this table start with `github.com/roadrunner-server/`:
 
 | Previous import | v6 plugin import |
 | --- | --- |
+| `roadrunner/v2025/<package>` | `roadrunner/v3/<package>` |
 | `<plugin>/v5` | `<plugin>/v6` |
 | `pool/<package>` | `pool/v2/<package>` |
 | `goridge/v3/pkg/<package>` | `goridge/v4/pkg/<package>` |

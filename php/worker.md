@@ -487,7 +487,7 @@ http:
 {% endcode %}
 
 {% hint style="warning" %}
-Please pay attention, that the RRv1 section had the name **limit**, `>=v2.0` - **supervisor**
+RoadRunner v3 uses `supervisor`. This section was named `limit` in RoadRunner v1 and was renamed in v2.0.
 {% endhint %}
 
 ## Troubleshooting

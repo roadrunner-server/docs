@@ -12,7 +12,7 @@ as <https://onlineyamltools.com/convert-yaml-to-json>.
 
 Use the configuration reference for the RoadRunner revision you build:
 
-- [**.rr.yaml**](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml)
+- [**.rr.yaml for v3.0.0**](https://github.com/roadrunner-server/roadrunner/blob/v3.0.0/.rr.yaml)
 
 {% hint style="warning" %}
 We use dots as level separators, e.g.: `http.pool`, you can't use dots in section names, queue names, etc. You can find out more about it [here](https://github.com/roadrunner-server/roadrunner/issues/1529).
@@ -20,8 +20,8 @@ We use dots as level separators, e.g.: `http.pool`, you can't use dots in sectio
 
 ## Unix Socket Attributes
 
-{% hint style="warning" %}
-RoadRunner v3 supports these options through its v6 plugins. RoadRunner `v2025.1.15` does not include them. See the [v3 release notes](../releases/v3-0-0.md).
+{% hint style="info" %}
+RoadRunner v3 supports these options through its v6 plugins. See the [v3 release notes](../releases/v3-0-0.md).
 {% endhint %}
 
 Configure each filesystem Unix listener separately. Omit its options object to keep the existing socket defaults.

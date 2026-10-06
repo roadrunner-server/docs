@@ -25,13 +25,12 @@ To display the version of RoadRunner, you can use the `-v` or `--version` option
 
 {% endcode %}
 
-This command will display the version of RoadRunner, as well as information about the build time, operating system, and
-architecture.
+The output includes the RoadRunner version, build time, Go version, operating system, and architecture. The build time below is a placeholder.
 
 {% code %}
 
 ```output
-rr version 2023.1.2 (build time: 2023-05-04T13:19:13+0000, go1.20.4), OS: linux, arch: amd64
+rr version 3.0.0 (build time: <build time>, go1.27.1), OS: linux, arch: amd64
 ```
 
 {% endcode %}

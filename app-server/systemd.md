@@ -86,7 +86,7 @@ Example output:
 ```
 ● rr.service - High-performance PHP application server
      Loaded: loaded (/lib/systemd/system/rr.service; enabled; vendor preset: enabled)
-     Active: active (running) since Tue 2024-03-12 19:20:55 UTC; 35min ago
+     Active: active (running) since Tue 2026-10-06 19:20:55 UTC; 35min ago
      Docs: https://docs.roadrunner.dev/
      CGroup: /system.slice/rr.service
              ├─2835793 /usr/local/bin/rr serve -c /var/www/.rr.yaml
@@ -105,13 +105,13 @@ journalctl -f -u rr.service
 
 {% endcode %}
 
-Example output with `info`-level logs (see [levels](../lab/logger.md#level)):
+Example startup output (see [startup logs](../lab/logger.md#startup-logs)). The build time below is a placeholder:
 
-```bash
-Mar 12 20:12:53 server systemd[1]: Starting PHP application server...
-Mar 12 20:12:55 server rr[2936506]: [INFO] RoadRunner server started; version: 2023.3.10, buildtime: 2024-02-01T22:33:17+0000
-Mar 12 20:12:55 server rr[2936506]: [INFO] sdnotify: notified
-Mar 12 20:12:55 server systemd[1]: Started PHP application server.
+```log
+Oct 06 20:12:53 server systemd[1]: Starting PHP application server...
+Oct 06 20:12:55 server rr[2936506]: [INFO] RoadRunner server started; version: 3.0.0, buildtime: <build time>
+Oct 06 20:12:55 server rr[2936506]: [INFO] sdnotify: notified
+Oct 06 20:12:55 server systemd[1]: Started PHP application server.
 ```
 
 ## `sd_notify` protocol

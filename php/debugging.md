@@ -56,7 +56,7 @@ php -dvariables_order=EGPCS artisan octane:start --max-requests=250 --server=roa
 
 ## Xdebug for RoadRunner in Docker
 
-Build the [local RoadRunner image](../app-server/docker.md#build-the-roadrunner-image) before building the application image below.
+The application image below uses the [official RoadRunner v3 image](../app-server/docker.md).
 
 First, create a `docker-compose.yml` file in your project root, or copy the `environment` and `extra_hosts` sections into your existing `docker-compose.yml`:
 
@@ -125,7 +125,7 @@ Next, create a `Dockerfile` in your project root or copy the following content:
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM roadrunner:v3-local AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:3.0.0 AS roadrunner
 
 FROM php:8.5-cli-alpine
 

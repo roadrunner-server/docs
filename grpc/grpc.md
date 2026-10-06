@@ -294,7 +294,7 @@ grpc:
 {% endtabs %}
 
 {% hint style="info" %}
-You can define multiple proto files in the `proto` section. From [>=2025.1.9], one can use glob patterns to specify multiple proto files.
+You can list multiple proto files or glob patterns in the `proto` section. Glob patterns have been supported since RoadRunner v2025.1.9.
 {% endhint %}
 
 After configuring the server, you can start it using the following command:
@@ -335,11 +335,11 @@ Message json (type ? to see defaults): {"name":"Roadrunner"}
 }
 ```
 
-On the PHP side, you should see that the successful request has been logged:
+With debug logging enabled, RoadRunner writes records such as:
 
-```
-2025-03-28T10:04:06+0000        DEBUG   server          req-resp mode   {"pid": 81551}
-2025-03-28T10:04:06+0000        DEBUG   grpc            method was called successfully  {"method": "/helloworld.Greeter/SayHello", "start": "2025-03-28T10:04:06+0000", "elapsed": 0}
+```log
+time=2026-10-06T12:00:00.000Z level=DEBUG msg="req-resp mode" logger=server pid=81551
+time=2026-10-06T12:00:00.000Z level=DEBUG msg="method was called successfully" logger=grpc method=/helloworld.Greeter/SayHello start=2026-10-06T12:00:00.000Z elapsed=0
 ```
 
 Congratulations on being able to communicate over gRPC to PHP using Roadrunner!
@@ -462,7 +462,7 @@ grpc:
   # This option is required
   listen: "tcp://127.0.0.1:9001"
 
-  # Proto file to use, multiply files supported [SINCE 2.6]. As of [2023.1.4], wildcards are allowed in the proto field and in version [>=2025.1.9] glob patterns are supported.
+  # Multiple proto files: since v2.6. Wildcards: since v2023.1.4. Glob patterns: since v2025.1.9.
   #
   # This option is required
   proto:
@@ -649,7 +649,7 @@ For example, a field validation error can include:
 
 See [logger configuration](../lab/logger.md) and [gRPC PR #148](https://github.com/roadrunner-server/grpc/pull/148).
 
-## OTLP support in the `gRPC` plugin: `[>=2023.3.8]`
+## OTLP support in the `gRPC` plugin
 
 In the `v2023.3.8` we added experimental support for the `OTLP` protocol in the `gRPC` plugin. Stable since `v2024.1.1`. To enable it, you need to activate `otel` plugin by adding the following lines to the `.rr.yaml` file:
 

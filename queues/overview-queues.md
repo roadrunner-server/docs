@@ -662,9 +662,7 @@ $handler->process($task);
 
 ### Task auto acknowledge
 
-RoadRunner version `v2.10.0+` supports an auto acknowledge task option. You might use this option to acknowledge a task
-right after RR receive it from the queue. You can use this option for the non-important tasks which can fail or break
-the worker.
+Automatic task acknowledgment has been supported since RoadRunner `v2.10.0`. This option acknowledges a task as soon as RR receives it from the queue. Use it for tasks that can be lost if processing fails.
 
 To use this option you may update the Options:
 

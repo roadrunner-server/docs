@@ -14,7 +14,7 @@ This TOML configuration selects a minimal HTTP server. Keep all RoadRunner plugi
 
 ```toml
 [roadrunner]
-ref = "master"
+ref = "v3.0.0"
 
 [github]
 base_url = "https://github.com"

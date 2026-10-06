@@ -24,6 +24,7 @@ Keep `version: "3"` at the root of `.rr.yaml`. Source builds require Go 1.27 or 
 
 ## Custom Go Plugins
 
+- Update RoadRunner library imports to `github.com/roadrunner-server/roadrunner/v3`.
 - Replace imports from `api/v4` with generated bindings from `api-go/v6` or contracts from `api-plugins/v6`. The `api` repository contains protobuf schemas.
 - Update plugin loggers to `*slog.Logger` and use the context-aware Jobs and KV contracts.
 - Update worker pool imports to `pool/v2` and Goridge imports to `goridge/v4`.

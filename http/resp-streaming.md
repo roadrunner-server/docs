@@ -1,4 +1,6 @@
-# HTTP response streaming `[>=2023.3]`
+# HTTP response streaming
+
+Response streaming has been available since RoadRunner v2023.3.
 
 RoadRunner supports HTTP response streaming, which allows responses to be sent to the client in chunks. This is useful when you need to send a large amount of data to the client.
 You don't need to update the configuration to enable this feature; it is enabled by default and controlled by the PHP worker.

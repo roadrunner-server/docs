@@ -184,10 +184,12 @@ There is no built-in log rotation, backup retention, or compression in v6. The v
 
 ## Startup Logs
 
+The build time below is a placeholder.
+
 {% code %}
 
 ```log
-[INFO] RoadRunner server started; version: 2024.3.0, buildtime: 2024-12-05T18:39:32+0000
+[INFO] RoadRunner server started; version: 3.0.0, buildtime: <build time>
 [INFO] sdnotify: not notified
 ```
 

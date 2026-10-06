@@ -180,12 +180,12 @@ In this example, we will demonstrate how to use RoadRunner with Nginx in a Docke
 
 ### Dockerfile
 
-Build the [local RoadRunner image](docker.md#build-the-roadrunner-image) before building this application image.
+This Dockerfile uses the [official RoadRunner v3 image](docker.md).
 
 {% code title="docker/app/Dockerfile" %}
 
 ```dockerfile
-FROM roadrunner:v3-local AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:3.0.0 AS roadrunner
 FROM php:8.5-cli-alpine
 
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr

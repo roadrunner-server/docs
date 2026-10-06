@@ -22,7 +22,7 @@ Use these files from the upstream repository:
 
 ## Recommended Values (MetalLB-Friendly)
 
-Set `image.repository` and `image.tag` to your published v3 application image. The upstream example image uses RoadRunner v2025. The probe paths below require v3.
+Set `image.repository` and `image.tag` to your published v3 application image. The probe paths below require v3.
 
 This profile uses MetalLB for external service access:
 
@@ -31,7 +31,7 @@ This profile uses MetalLB for external service access:
 ```yaml
 image:
   repository: registry.example.com/your-team/rr-app
-  tag: "v3"
+  tag: "3.0.0"
 
 service:
   type: LoadBalancer

@@ -119,7 +119,7 @@ various aspects of the worker's operation.
 | **RR_MODE**    | Identifies the mode the worker should run in (`http`, `temporal`, `grpc`, `jobs`, `tcp`, `centrifuge`, etc.) |
 | **RR_RPC**     | Contains RPC connection address when enabled.                                                                |
 | **RR_RELAY**   | `pipes` or `tcp://...`, depends on server relay configuration.                                               |
-| **RR_VERSION** | RoadRunner version that started the PHP worker (minimum `2023.1.0`)                                          |
+| **RR_VERSION** | RoadRunner version that started the PHP worker. Available since RoadRunner `v2023.1.0`.                      |
 
 These default environment values can be used within your PHP worker to configure various settings and adapt the worker's
 behavior according to the specific requirements of your application.

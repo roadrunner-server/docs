@@ -1,10 +1,12 @@
 # Docker Images
 
-Build a local image from the RoadRunner binary selected in the [installation guide](../intro/install.md). The application, Nginx, and debugging examples use this image.
+Use the [official RoadRunner image](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner) at `ghcr.io/roadrunner-server/roadrunner:3.0.0`. The application, Nginx, and debugging examples use this release tag.
+
+The `3` and `3.0` tags follow releases in their respective version lines. Use `3.0.0` to select a specific release. Copy the RoadRunner binary into an application image with PHP.
 
 ## Build the RoadRunner Image
 
-Build a static Linux `rr` binary for the target architecture. Use `CGO_ENABLED=0` for a source build. Put the binary and `Dockerfile.rr` in the same build directory:
+For a custom binary, follow the [source installation guide](../intro/install.md#build-from-source). Build a static Linux `rr` binary for the target architecture with `CGO_ENABLED=0`. Put the binary and `Dockerfile.rr` in the same build directory:
 
 {% code title="Dockerfile.rr" %}
 
@@ -23,6 +25,8 @@ docker build -f Dockerfile.rr -t roadrunner:v3-local .
 
 `roadrunner:v3-local` contains the compiled binary. Copy this binary into an application image with PHP. The binary, this image, and the application image must use the same target architecture. Setting Docker `--platform` does not recompile a binary copied from the host.
 
+To use this custom image, set the first `FROM` below to `roadrunner:v3-local`.
+
 ## Build the Application Image
 
 Here is an example of a `Dockerfile` that can be used to build a Docker image with RoadRunner for a PHP application:
@@ -34,7 +38,7 @@ Note that this example utilizes a folder named `app` for your application. If yo
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM roadrunner:v3-local AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:3.0.0 AS roadrunner
 
 FROM php:8.5-cli-alpine
 
