@@ -17,11 +17,7 @@ corresponding [documentation page](https://www.rabbitmq.com/download.html).
 Immediate publishes wait for a publisher confirm from RabbitMQ. Delayed publishes do not wait for that confirmation before returning. A publisher confirm does not prove that a message reached a queue.
 {% endhint %}
 
-## Named Connections (Development)
-
-{% hint style="warning" %}
-Named connections and nested-only static configuration are development/unreleased changes for the next major release. The pinned [RR source build](../intro/install.md) at `b0cccd9` uses AMQP `v6.0.0-beta.9` and includes neither change. That beta allowed both flat and nested static configuration. All YAML examples below require an AMQP dependency with both changes.
-{% endhint %}
+## Named Connections
 
 Define each connection under `amqp.<name>`. Each entry requires an explicit `addr` with a [connection DSN](https://www.rabbitmq.com/uri-spec.html). Each entry can also have an optional `tls` section. Every YAML AMQP pipeline must set `config.connection` to a configured name.
 
@@ -40,9 +36,9 @@ TLS options belong under `amqp.<name>.tls`:
 
 Configure [RabbitMQ TLS support](https://www.rabbitmq.com/ssl.html) on the broker.
 
-In the AMQP v6 beta line (`v6.0.0-beta.9`), `root_ca` adds trust roots for broker certificate verification. Reconnects reuse the configured TLS settings. Use an `amqps://` address with valid `key` and `cert` files. A `root_ca`-only TLS block is not supported. Omit `tls` when using a plain `amqp://` connection.
+`root_ca` adds trust roots for broker certificate verification. Reconnects reuse the configured TLS settings. Use an `amqps://` address with valid `key` and `cert` files. A `root_ca`-only TLS block is not supported. Omit `tls` when using a plain `amqp://` connection.
 
-{% code title=".rr.yaml (development/unreleased)" %}
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -88,7 +84,7 @@ AMQP `config.version` is removed. Keep the root `version: "3"`. Use the [migrati
 
 ### Options in `config`
 
-- `connection`: required connection name from `amqp` in the development configuration.
+- `connection`: required connection name from `amqp`.
 - `priority`: pipeline priority. If a job has priority `0`, it inherits the pipeline priority. Default: `10`.
 - `prefetch`: RabbitMQ QoS prefetch. Default: `10`.
 - `redial_timeout`: reconnect timeout in seconds. Default: `60`.
@@ -135,9 +131,9 @@ If `exchange.type` is not `fanout`, `queue.routing_key` must be set when RR init
 Read more about Nack in RabbitMQ official docs: https://www.rabbitmq.com/confirms.html#consumer-nacks-requeue
 {% endhint %}
 
-This development example consumes from `brokerA` through `consume-a`. It publishes to `brokerB` through `publish-b`.
+This example consumes from `brokerA` through `consume-a`. It publishes to `brokerB` through `publish-b`.
 
-{% code title=".rr.yaml (development/unreleased)" %}
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -228,6 +224,12 @@ while ($task = $consumer->waitTask()) {
 
 RR does not provide a cross-broker transaction. A failure after publishing to B but before acknowledging on A can cause duplicate messages on B. Make the destination handler safe to repeat.
 
+## Per-job Routing
+
+Set the `x-routing-key` job header to override `queue.routing_key` for one publish. Supply exactly one nonempty string value. RR removes this header before it sends the message. Missing, empty, or multiple values use the pipeline's routing key.
+
+The `pool` job header selects a [PHP worker pool](overview-queues.md#named-worker-pools). It does not select an AMQP connection, exchange, or routing key. The `rr_connection` key selects a connection only during [RPC pipeline declaration](#runtime-declaration).
+
 ## Read-only RabbitMQ Permissions
 
 Disable declarations when the RabbitMQ user has no `configure` permission:
@@ -241,7 +243,7 @@ With `queue.declare: false`, RR skips both queue binding and passive queue inspe
 
 Delayed publishing and delayed requeue still declare and bind temporary queues. These operations still require `configure` permission.
 
-{% code title=".rr.yaml (development/unreleased)" %}
+{% code title=".rr.yaml" %}
 
 ```yaml
 version: "3"
@@ -273,7 +275,7 @@ jobs:
 
 {% endcode %}
 
-## Runtime / RPC (`jobs.Declare`)
+## Runtime Declaration
 
 Dynamic pipeline declaration over RPC remains a flat string map. It is separate from static YAML configuration. It does not use nested `config.exchange` or `config.queue` sections.
 
@@ -282,7 +284,7 @@ The `jobs.Declare` payload accepts these declaration controls as strings:
 - `exchange_declare`: `"true"` (default) or `"false"`.
 - `queue_declare`: `"true"` (default) or `"false"`.
 
-For named connections (development/unreleased), set the flat `connection` field to a configured name such as `"brokerB"`. Do not send a DSN or TLS settings in the RPC payload.
+Set the flat `connection` field to a configured name such as `"brokerB"`. Do not send a DSN or TLS settings in the RPC payload.
 
 The existing PHP 4.x [AMQPCreateInfo API](https://github.com/roadrunner-php/jobs/blob/4.x/src/Queue/AMQPCreateInfo.php) accepts `queueHeaders`. `Jobs` serializes this map as JSON in the flat `queue_headers` field. Set the reserved `rr_connection` key in that map to select a connection. No PHP package change is required.
 
@@ -290,7 +292,7 @@ RR reads `rr_connection` only when the flat `connection` field is absent. The fl
 
 This runtime example creates the `runtime-b` pipeline on `brokerB` and declares its exchange. It does not declare or bind the queue. PHP 4.x `Jobs` requires an RPC instance:
 
-{% code title="create.php (development/unreleased AMQP)" %}
+{% code title="create.php" %}
 
 ```php
 use Spiral\Goridge\RPC\RPC;
@@ -313,13 +315,12 @@ Call `$jobs->resume('runtime-b')` after creation to declare and bind the queue a
 
 ## Migration
 
-To use the development/unreleased configuration:
+To update an existing configuration:
 
-1. Select an AMQP dependency with named connections and nested-only static configuration.
-2. Move `amqp.addr` to `amqp.<name>.addr`. Move optional `amqp.tls` to `amqp.<name>.tls`. Set an explicit address for each connection.
-3. Set `config.connection` on every YAML AMQP pipeline. There is no implicit default connection or localhost fallback.
-4. Remove `config.version` from every YAML AMQP pipeline. Keep the root `version: "3"`.
-5. For runtime declarations, send flat `connection` or use the existing PHP `queueHeaders` map with `rr_connection`. The flat field takes precedence even when empty. RR removes the reserved key before broker declaration and configuration storage.
+1. Move `amqp.addr` to `amqp.<name>.addr`. Move optional `amqp.tls` to `amqp.<name>.tls`. Set an explicit address for each connection.
+2. Set `config.connection` on every YAML AMQP pipeline. There is no implicit default connection or localhost fallback.
+3. Remove `config.version` from every YAML AMQP pipeline. Keep the root `version: "3"`.
+4. For runtime declarations, send flat `connection` or use the existing PHP `queueHeaders` map with `rr_connection`. The flat field takes precedence even when empty. RR removes the reserved key before broker declaration and configuration storage.
 
 Move old flat entity settings to the nested fields below. All paths are relative to `jobs.pipelines.<name>.config`.
 
@@ -345,7 +346,7 @@ For restricted RabbitMQ permissions, set `exchange.declare: false` and `queue.de
 ## What's Next?
 
 1. [Queues and Jobs overview](overview-queues.md) - Review the full jobs pipeline model before configuring AMQP in production.
-2. [Read-only RabbitMQ permissions](https://www.rabbitmq.com/docs/access-control) - See declaration flags for restricted users and review the Runtime / RPC (`jobs.Declare`) section on this page for flat declaration keys.
+2. [Read-only RabbitMQ permissions](https://www.rabbitmq.com/docs/access-control) - See declaration flags for restricted users. Use [Runtime Declaration](#runtime-declaration) for flat `jobs.Declare` keys.
 3. [Pipeline configuration](#pipeline-configuration) - Use nested AMQP entity settings. See [RoadRunner configuration](../intro/config.md) for the general configuration structure.
 4. [Exchange settings](#exchange-settings) and [Queue settings](#queue-settings) - Review routing and consumption settings.
 5. [Allocate Timeout](../known-issues/allocate-timeout.md) and [CRC validation failed](../known-issues/stdout-crc.md) - Use these troubleshooting references when workers fail to process queue jobs as expected.

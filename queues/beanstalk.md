@@ -81,8 +81,8 @@ value should not exceed `int32` size.
 
 ## Headers
 
-The v6 beta stores headers with the job body and preserves them on delivery and requeue. Upgrade producers and consumers before relying on headers for retry counts or tracing. Existing queued jobs need no conversion, but headers that v5 did not store cannot be recovered.
+RR stores headers with the job body and preserves them on delivery and requeue. This includes retry counts, trace context, and the `pool` header for named worker pools. Existing v5 jobs need no conversion, but headers that v5 did not store cannot be recovered. Process those jobs before switching to named pools.
 
 ## Statistics
 
-In the v6 beta, queue counters describe the configured tube, not all tubes on the server. An unused tube reports zero jobs. Review dashboards that assumed server-wide counts in v5. Pipelines that share a tube report the same tube counters.
+Queue counters describe the configured tube. An unused tube reports zero jobs. Pipelines that share a tube report the same tube counters.

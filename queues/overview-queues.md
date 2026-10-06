@@ -1,13 +1,8 @@
 # Jobs (Queue) plugin
 
-Starting with RoadRunner >= 2.4, a queuing system (aka "jobs") is available.
-This plugin allows you to move arbitrary "heavy" code into separate tasks to
-execute them asynchronously in an external worker, which will be referred to
-as "consumer" in this documentation.
+The Jobs plugin sends tasks to queues and runs them in PHP workers. A producer sends tasks. A consumer receives and processes them.
 
-The RoadRunner PHP library provides both API implementations: The client one,
-which allows you to dispatch tasks, and the server one, which provides the
-consumer who processes the tasks.
+The RoadRunner PHP library provides APIs for both producers and consumers.
 
 ![RR queue](https://github.com/roadrunner-server/roadrunner-docs/assets/773481/31f7aed2-efae-4088-8f46-b67b8c04a3dd)
 
@@ -64,7 +59,6 @@ Let's now focus on the common settings of the queue server. In full, it may look
 version: "3"
 
 jobs:
-  num_pollers: 64
   timeout: 60
   pipeline_size: 100000
   options:
@@ -87,7 +81,7 @@ jobs:
 
 Common Jobs settings:
 
-- `num_pollers`: RR derives the number of queue pollers from the worker count and ignores this setting in jobs v5 and v6 beta. With an explicit worker count, a single pool uses `num_workers + 2` pollers. Named pools in v6 beta use the total worker count plus two.
+- `num_pollers`: RR derives the number of queue pollers from the worker count and ignores this setting. With an explicit worker count, a single pool uses `num_workers + 2` pollers. Named pools use the total worker count plus two.
 
 - `timeout`: The internal Golang context timeouts (in seconds). For
   example, if the connection was disconnected or your push was in the middle of a
@@ -111,26 +105,23 @@ The PQ does not guarantee recovery after a crash. Recovery depends on the driver
 Kafka pipelines with a configured consumer group use partition offset commits. A later acknowledgment can cause unfinished earlier records in the same partition to be skipped after a crash. See [Kafka acknowledgments](./kafka.md#acknowledgments).
 {% endhint %}
 
-- `pool`: All settings in this section are similar to the worker pool settings
-  described on the [configuration page](https://roadrunner.dev/docs/intro-config).
+- `pool`: A single [worker pool](../php/pool.md) for all consumed pipelines.
 
-- `pools`: Named worker pools in jobs v6. Use this instead of `pool`. See [Named Worker Pools](#named-worker-pools).
+- `pools`: Named worker pools. Configure either `pool` or `pools`. See [Named Worker Pools](#named-worker-pools).
 
-- `consume`: Contains an array of the names of all queues specified in the
-  `"pipelines"` section, which should be processed by the concierge specified in
-  the global `"server"` section (see the [PHP worker's settings](../php/worker.md)).
+- `consume`: Pipeline names to start consuming when RoadRunner starts. Pipelines outside this list are available for publishing. Use `jobs.Resume` to start consumption later.
 
 - `pipelines`: This section contains a list of all queues created in the
   RoadRunner. The key is a unique *queue identifier*, and the value is an object of the
   driver-specific configuration (we will talk about this later).
 
 {% hint style="warning" %}
-In jobs `v6.0.0-beta.10`, an explicit `jobs.pool` with omitted or zero `num_workers` creates only two pollers, even after the pool selects its default worker count. Set `jobs.pool.num_workers` to a value greater than zero. Setting `num_pollers` does not correct this.
+An explicit `jobs.pool` with omitted or zero `num_workers` creates only two pollers, even after the pool selects its default worker count. Set `jobs.pool.num_workers` to a value greater than zero. Setting `num_pollers` does not correct this.
 {% endhint %}
 
 ### Named Worker Pools
 
-Jobs v6 supports named worker pools. Jobs v5 does not support this configuration. Use `jobs.pools` instead of `jobs.pool`. Setting both is an error.
+Named pools let you assign worker capacity and worker settings to different pipelines. Configure them under `jobs.pools`. Setting both `jobs.pool` and a nonempty `jobs.pools` is an error.
 
 Set each pipeline's `pool` to a configured pool name:
 
@@ -168,15 +159,23 @@ jobs:
 
 {% endcode %}
 
-On `jobs.Push` and `jobs.PushBatch`, RR copies the pipeline's `pool` setting into the `pool` job header. This replaces any existing value. The consumer selects the named pool from the first header value.
+Each pool accepts the [worker pool settings](../php/pool.md), including `command` to select a different PHP worker command. Jobs worker metrics include workers from all pools. A jobs reset resets all pools. Worker add and remove operations apply to each pool.
+
+On `jobs.Push` and `jobs.PushBatch`, RR copies a nonempty pipeline `pool` setting into the lowercase `pool` job header. This replaces any existing value. The consumer selects the named pool from the first header value.
 
 Treat `pool` as a reserved header. An unknown pool name causes a negative acknowledgment, even in single-pool mode. In multi-pool mode, a missing or empty `pool` header also causes a negative acknowledgment. A pool named `default` is not an automatic fallback.
 
-Producers that publish directly to a broker must supply the `pool` header. The pipeline setting alone does not route incoming jobs. Process existing jobs without this header before switching to named pools.
+Producers that publish directly to a broker must supply the `pool` header in the driver's job format. The pipeline setting alone does not route incoming jobs. Process existing jobs without this header before switching to named pools. Producer and consumer instances must agree on pool names.
 
 {% hint style="warning" %}
-BoltDB `v6.0.0-beta.5` does not preserve the `pool` header in stored jobs. With jobs `v6.0.0-beta.10`, an RR instance that consumes BoltDB pipelines must retain `jobs.pool`; do not switch it to `jobs.pools`. This also affects newly published jobs, so draining old jobs does not remove the restriction.
+BoltDB does not preserve the `pool` header in stored jobs. Use a single `jobs.pool` when consuming BoltDB pipelines. This also affects newly published jobs.
 {% endhint %}
+
+### Producer-only Pipelines
+
+Omit a pipeline from `jobs.consume` to use it only for publishing on that RoadRunner instance. Set `consume: []` to start no consumers. Driver connections and pipeline setup still run at startup.
+
+The Jobs plugin still creates PHP worker pools with this configuration. A `num_workers` value of `0` selects the default worker count. See the [AMQP example](amqp.md#pipeline-configuration) for a pipeline that publishes without a queue name.
 
 ## PHP Client (Producer)
 
@@ -408,7 +407,7 @@ IP address, the user's token or session id, etc.
 Headers can only contain string values and are not serialized in any way during transmission, so be careful when
 specifying them.
 
-In jobs v6, `pool` is [reserved for worker-pool routing](#named-worker-pools).
+The lowercase `pool` header is [reserved for worker-pool routing](#named-worker-pools).
 
 In the case to add a new header to the task, you can use methods [similar to PSR-7](https://www.php-fig.org/psr/psr-7/).
 
@@ -430,6 +429,14 @@ $queue->dispatch($task);
 ```
 
 {% endcode %}
+
+### Trace Context
+
+Enable the [OpenTelemetry plugin](../lab/otel.md) to export job traces. Put the producer's `traceparent` and optional `tracestate` values in the task headers to continue its trace. The `jobs.Push` RPC handler extracts this context before it starts the push span. Without valid trace context, RR starts a new trace.
+
+`jobs.PushBatch` uses the first valid trace context in the batch as the parent of its push span. Submit jobs from separate traces in separate calls when their trace boundaries must remain separate.
+
+Trace propagation through storage depends on the driver. BoltDB does not store job headers. Beanstalk jobs written by v5 also lack stored headers.
 
 ### Task Delayed Dispatching
 
@@ -882,10 +889,25 @@ $jobs->resume('emails', 'billing');
 
 {% endcode %}
 
+## Metrics
+
+Enable the [Metrics plugin](../lab/metrics.md) to export these Prometheus counters:
+
+| Metric | Meaning |
+| --- | --- |
+| `rr_jobs_jobs_ok` | Successfully acknowledged processing attempts. |
+| `rr_jobs_jobs_err` | Failed processing attempts, including worker, routing, and response errors. |
+| `rr_jobs_jobs_requeue` | Attempts that the worker response handler successfully requeues. |
+| `rr_jobs_push_ok` | Successful job pushes to drivers. |
+| `rr_jobs_push_err` | Failed driver push calls. |
+
+A successful requeue increments `rr_jobs_jobs_requeue` without incrementing `rr_jobs_jobs_ok`. A failed requeue increments `rr_jobs_jobs_err`. A later successful attempt increments `rr_jobs_jobs_ok`. Broker redelivery without a worker requeue response does not increment the requeue counter.
+
+These metrics count attempts across all pipelines and pools. They are counters and reset when RoadRunner restarts. Use Prometheus `rate()` or `increase()` to measure activity over time.
+
 ## RPC Interface
 
-All communication between PHP and GO made by the RPC calls with protobuf payloads. You can find versioned proto-payloads
-here: [Proto](https://github.com/roadrunner-server/roadrunner/blob/e9713a1d08a93e2be70c889c600ed89f54822b54/proto/jobs/v1beta).
+PHP communicates with the Jobs plugin through Goridge RPC with [jobs/v1 Protobuf messages](https://github.com/roadrunner-server/api/blob/master/roadrunner/api/jobs/v1/jobs.proto). The statistics method is `jobs.Stat`.
 
 - `Push(in *jobsv1.PushRequest, out *jobsv1.Empty) error` - The arguments: the first argument is a `PushRequest`, which
   contains one field of the `Job` being sent to the queue; the second argument is `Empty`, which means that the function
@@ -912,7 +934,7 @@ here: [Proto](https://github.com/roadrunner-server/roadrunner/blob/e9713a1d08a93
   an `DeclareRequest`, which contains one `map<string, string>` pipeline field of queue configuration; the second
   argument is `Empty`, which means that the function does not return a result. The error returned if the request fails.
 
-- `Stat(in *jobsv1beta.Empty, out *jobsv1beta.Stats) error` - The arguments: the first argument is an `Empty`, meaning
+- `Stat(in *jobsv1.Empty, out *jobsv1.Stats) error` - The arguments: the first argument is an `Empty`, meaning
   that the function does not accept anything (from the point of view of the PHP API, an empty string should be passed);
   the second argument is `Stats`, which contains one repeated (list) field named `Stats` of type `Stat`. The error
   returned if the request fails.

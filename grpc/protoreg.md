@@ -1,6 +1,6 @@
 # Protoreg Plugin
 
-`protoreg` provides a shared protobuf registry, enabling other plugins to access proto definitions at runtime, making it ideal for building custom gRPC interceptors, middleware, and dynamic message handling.
+The `protoreg` plugin provides a shared protobuf registry. It reads `.proto` definitions for [gRPC server reflection](#server-reflection), custom interceptors, and dynamic message handling. The RoadRunner v3 bundle includes this plugin.
 
 ## Features
 
@@ -20,14 +20,18 @@
 
 ## Configuration
 
-{% hint style="warning" %}
-The stock beta does not include `protoreg`. Add the v6 plugin to a [custom RR build](../customization/build.md). Both `grpc` and `protoreg` configuration sections are required to start it.
-{% endhint %}
+Both `grpc` and `protoreg` configuration sections are required to start the plugin. Keep the service definitions in both sections consistent.
 
 The plugin is configured under the `protoreg` section in your `.rr.yaml` configuration file:
 
 ```yaml
 version: '3'
+
+grpc:
+  listen: "tcp://127.0.0.1:9001"
+  proto:
+    - "proto/serviceapis/service/v1/service.proto"
+    - "proto/serviceapis/user/v1/user.proto"
 
 protoreg:
   proto_path:
@@ -37,6 +41,8 @@ protoreg:
     - service/v1/service.proto
     - user/v1/user.proto
 ```
+
+Set `server.command` to your gRPC worker as shown in the [gRPC configuration](grpc.md#usage).
 
 ### Configuration Options
 
@@ -59,8 +65,9 @@ proto_path:
 
 #### `files` (required)
 
-A list of proto files to parse and register. Paths are relative to the `proto_path` directories.
-This works similarly to passing [variadic proto files argument in `protoc`](https://www.mankier.com/1/protoc#Options-@%3Cfilename%3E).
+A list of proto files to parse and register. Paths are relative to the `proto_path` directories. Use explicit file names. This list does not expand the glob patterns supported by `grpc.proto`.
+
+Both `proto_path` and `files` must contain at least one entry. Blank entries fail initialization. Each file must exist under at least one configured import path.
 
 **Why it's needed**: This explicitly declares which proto files define the services and messages you want to access at runtime. The plugin will:
 
@@ -76,7 +83,7 @@ files:
 
 ## Server reflection
 
-With gRPC `v6.0.0-beta.6`, RR automatically uses the `protoreg` registry for server reflection. Configure the same service files in `grpc.proto` and `protoreg.files`. Paths in `protoreg.files` are relative to `proto_path`; they do not replace `grpc.proto`.
+RR automatically uses the `protoreg` registry for server reflection. Configure the same service files in `grpc.proto` and `protoreg.files`. Paths in `protoreg.files` are relative to `proto_path`; they do not replace `grpc.proto`.
 
 For the [Hello World service](./grpc.md#protoc-plugin), use:
 
@@ -97,7 +104,18 @@ protoreg:
 
 {% endcode %}
 
-This lets reflection clients retrieve file and message descriptors for the PHP service. Reflection streams do not call unary authentication interceptors. See [reflection access controls](./grpc.md#server-reflection).
+Reflection clients can retrieve file and message descriptors for the PHP service. For the preceding listener without TLS, use `grpcurl` without a local `.proto` file:
+
+{% code %}
+
+```bash
+grpcurl -plaintext 127.0.0.1:9001 describe helloworld.Greeter
+grpcurl -plaintext -d '{"name":"RoadRunner"}' 127.0.0.1:9001 helloworld.Greeter/SayHello
+```
+
+{% endcode %}
+
+Reflection streams do not call unary authentication interceptors. See [reflection access controls](./grpc.md#server-reflection).
 
 ## Example: Project Structure
 
@@ -152,6 +170,11 @@ service MyService {
 **Configuration (.rr.yaml)**:
 ```yaml
 version: '3'
+
+grpc:
+  listen: "tcp://127.0.0.1:9001"
+  proto:
+    - "proto/serviceapis/service/v1/service.proto"
 
 protoreg:
   proto_path:

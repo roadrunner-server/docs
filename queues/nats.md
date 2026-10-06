@@ -13,7 +13,6 @@ nats:
   addr: "demo.nats.io"
 
 jobs:
-  num_pollers: 10
   pipeline_size: 100000
   pool:
     num_workers: 10
@@ -43,12 +42,12 @@ jobs:
 
         # The consumer will only start receiving messages that were created after the consumer was created
         # Default: false (deliver all messages from the stream beginning)
-        # Not applied in v6.0.0-beta.5.
+        # RR does not apply this option to the consumer.
         deliver_new: true
 
         # Consumer rate-limiter in bytes https://docs.nats.io/jetstream/concepts/consumers#ratelimit
         # Default: 1000
-        # Not applied in v6.0.0-beta.5.
+        # RR does not apply this option to the consumer.
         rate_limit: 100
 
         # Delete the stream after the pipeline is stopped
@@ -59,7 +58,7 @@ jobs:
         # Default: false
         delete_after_ack: false
 
-        # v6 beta: time before redelivery if no acknowledgment is received.
+        # Time before redelivery if no acknowledgment is received.
         # Default: 30s
         ack_wait: 30s
 ```
@@ -84,21 +83,17 @@ To prevent duplicate message consumption, ensure that each pipeline is configure
 
 ### Deliver new
 
-`deliver_new` - the consumer will only start receiving messages that were created after the consumer was created.
-
-In NATS `v6.0.0-beta.5`, this setting is parsed but not applied to the consumer. It does not prevent replay after a consumer restart.
+RR parses `deliver_new` but does not apply it to the consumer. It does not prevent replay after a consumer restart.
 
 ### Rate limit
 
-`rate_limit` - NATS rate [limiter](https://docs.nats.io/jetstream/concepts/consumers#ratelimit).
-
-In NATS `v6.0.0-beta.5`, this setting is parsed but not applied to the consumer.
+RR parses `rate_limit` but does not apply it to the consumer.
 
 ### Delete stream on stop
 
 `delete_stream_on_stop` deletes the whole stream when the pipeline stops. Default: `false`.
 
-In the NATS v6 beta line (`v6.0.0-beta.5`), stopping an active pipeline with this option set to `false` no longer purges the stream. Messages remain subject to the stream's retention policy. Setting this option to `true` still deletes the stream and its messages.
+Stopping a pipeline with `delete_stream_on_stop: false` preserves the stream. Messages remain subject to the stream's retention policy. Setting this option to `true` deletes the stream and its messages.
 
 RR creates a new consumer on each run or resume. Retained messages can be delivered again, including messages acknowledged by an earlier consumer when `delete_after_ack` is `false`. Review stream retention before upgrading. Make job handlers safe to process the same job more than once.
 
@@ -108,8 +103,12 @@ RR creates a new consumer on each run or resume. Retained messages can be delive
 
 ### Ack wait
 
-In the NATS v6 beta line (`v6.0.0-beta.5`), `ack_wait` sets the time before JetStream redelivers an unacknowledged message. NATS v5 ignored this setting.
+`ack_wait` sets the time before JetStream redelivers an unacknowledged message.
 
 YAML uses a Go duration string, such as `ack_wait: 30s` or `ack_wait: 2m`. The default is `30s`. Use a duration longer than the expected queueing and processing time.
 
 The `jobs.Declare` RPC payload instead uses integer seconds encoded as a string: `"ack_wait": "30"`. Do not send a duration string such as `"30s"` through RPC.
+
+## Headers
+
+RR preserves job headers when it republishes a job for retry. This includes application headers, trace context, and the `pool` header used by [named worker pools](overview-queues.md#named-worker-pools).

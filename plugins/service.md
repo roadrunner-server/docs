@@ -131,10 +131,8 @@ try {
 
 #### Update service configuration
 
-{% hint style="warning" %}
-`service.Update` is a development/unreleased feature. Use a RoadRunner development build with the updated service plugin. The [pinned source build](../intro/install.md) at `b0cccd9` does not include it. The PHP examples require the upcoming client release with `Manager::update()` and the upcoming DTO release with `Update` and `Environment`.
-
-API `v6.0.0-beta.6` and `api-go/v6 v6.0.0-beta.15` are published prereleases of the schema and generated Go types. The service plugin and PHP updates are still unreleased.
+{% hint style="info" %}
+The PHP examples require a client package with `Manager::update()` and a DTO package with `Update` and `Environment`. PHP client `2.3.0` does not provide `Manager::update()`. The server exposes this operation as `service.Update` over Goridge RPC.
 {% endhint %}
 
 Use `update()` to change the desired configuration of an existing service. A `true` result confirms acceptance. A name-only call succeeds. Omitted arguments and `null` keep stored values. Explicit `false`, `0`, and `[]` are sent.
@@ -166,7 +164,7 @@ $result = $manager->update(
 | `service_name_in_logs` | `serviceNameInLogs` | Adds the separate `service` log attribute for new executions. Current output keeps its logger. YAML uses `service_name_in_log`. |
 | `timeout_stop_sec` | `stopTimeout` | Integer seconds; `0` selects `5`. New executions use this stop timeout. Current executions keep theirs. |
 
-Updates keep current PIDs. When automatic restart is enabled, the next exit or queued restart adjusts the process count. Excess processes finish without replacement. An increase starts the missing processes at the next restart opportunity.
+Updates keep current PIDs. When automatic restart is enabled, the next exit or queued restart adjusts the process count. Excess processes finish without replacement. An increase starts the missing processes at the next restart opportunity. To change the command or user, terminate the service and create it with the new settings.
 
 Processes inherit the RoadRunner environment. Override keys become uppercase. Values expand from the RoadRunner environment. Empty strings and the string `'0'` are preserved.
 
@@ -216,11 +214,7 @@ try {
 
 To restart a service, use the `restart` method:
 
-In v6, restart calls stop for each old process before starting replacements. It is not a rolling or atomic restart. Plan for an interval with no running process in that service.
-
-{% hint style="warning" %}
-In `v6.0.0-beta.8`, a service with `remain_after_exit: true` can start replacements before old processes finish if an automatic restart occurred earlier. Do not rely on `service.Restart` for exclusive process replacement in this case.
-{% endhint %}
+Restart cancels queued automatic starts and waits for all current processes to stop before it starts replacements. A process receives `SIGINT`, then a forced stop if its stop timeout expires. The service has an interval with no running process.
 
 {% code title="app.php" %}
 
@@ -240,7 +234,7 @@ try {
 
 {% endcode %}
 
-If a replacement fails to start, RoadRunner requests a stop for replacements that already started and removes the service from its registry. It does not restore the old processes. Fix the reported startup error. Then call `create` with the required service settings. Another `restart` call cannot recover a service that is no longer registered.
+If a replacement fails to start, RoadRunner stops the replacements that already started and removes the service from its registry. Fix the startup error. Then call `create` with the required service settings.
 
 #### Terminating a Service
 
@@ -297,11 +291,11 @@ To make it easy to use the Service proto API in PHP, we provide
 a [GitHub repository](https://github.com/roadrunner-php/roadrunner-api-dto), that contains all the generated
 PHP DTO classes proto files, making it easy to work with these files in your PHP application.
 
-- [Service protobuf API](https://github.com/roadrunner-server/api/blob/v6.0.0-beta.6/roadrunner/api/service/v1/service.proto)
+- [Service protobuf API](https://github.com/roadrunner-server/api/blob/master/roadrunner/api/service/v1/service.proto)
 
 ### Update with Goridge
 
-Use Goridge RPC with `ProtobufCodec` for `service.Update`. It takes `Update` and returns `Response`. The development build and upcoming PHP DTO release described [above](#update-service-configuration) are required.
+Use Goridge RPC with `ProtobufCodec` for `service.Update`. It takes `Update` and returns `Response`. Use a PHP DTO package that provides the types listed [above](#update-service-configuration).
 
 {% code title="app.php" %}
 

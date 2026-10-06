@@ -68,7 +68,7 @@ try {
 You can send multiple informational responses before the final response. Send an empty body and set `endOfStream: false` for each informational response. Send the final status and headers before streaming its body.
 
 {% hint style="warning" %}
-In v6 beta, RR ignores worker responses with status `101 Switching Protocols`. A PHP worker cannot upgrade the connection by sending this status. RR also drops bodies attached to informational responses. Do not send informational responses after the final response has started.
+RR ignores worker responses with status `101 Switching Protocols`. A PHP worker cannot upgrade the connection by sending this status. RR also drops bodies attached to informational responses. Do not send informational responses after the final response has started.
 {% endhint %}
 
 {% code title="worker.php" %}

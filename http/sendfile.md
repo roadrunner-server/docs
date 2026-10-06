@@ -1,4 +1,4 @@
-# HTTP — X-Sendfile middleware
+# HTTP - X-Sendfile middleware
 
 The `Send` HTTP middleware and the `X-Sendfile` HTTP response header are used to stream large files using RoadRunner.
 While the file is being streamed with the help of RoadRunner, the PHP worker may accept the next request.
@@ -34,7 +34,7 @@ http:
 
 ## File responses
 
-In v6 beta, a response with `X-Sendfile` uses `Content-Type: application/octet-stream`. This replaces any content type supplied by the PHP worker. Check clients that depend on a specific media type for inline display. Use `Content-Disposition: attachment` for downloads.
+A response with `X-Sendfile` uses `Content-Type: application/octet-stream`. This replaces any content type supplied by the PHP worker. Check clients that depend on a specific media type for inline display. Use `Content-Disposition: attachment` for downloads.
 
 An empty file returns `200 OK` with no body. Paths are normalized before file access. Use paths controlled by the application: this middleware does not restrict access to a configured root directory.
 

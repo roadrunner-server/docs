@@ -115,6 +115,12 @@ logs:
 
 {% endcode %}
 
+### Asynchronous Output
+
+Log output is asynchronous for production, development, raw, and custom formats. Each configured logger has a queue for up to 1,024 records. A slow output destination does not block the caller. When the queue is full, the logger discards new records. The queue size is fixed.
+
+During shutdown, the plugin drains the root and channel queues for up to five seconds, within the shutdown context deadline. If the deadline expires, it discards queued records. Output errors are returned during shutdown.
+
 ### Error Output
 
 All enabled levels of a logger use the same output destinations. V6 ignores `err_output`. In v5, this setting controlled internal logger errors, not error-level records. Remove it from your configuration. The `error_output` key is not supported.
@@ -193,4 +199,4 @@ These logs are not controlled by the logs configuration section. They are emitte
 
 V6 uses Go's [log/slog](https://pkg.go.dev/log/slog) instead of Zap. Named loggers return `*slog.Logger`. Use a `slog.Handler` for custom output.
 
-The plugin closes its root and channel file outputs during `Stop`. If you call `Config.BuildLogger()` directly, close each resource in the returned `BuildResult.Closers`. If you construct a `Log` with `NewLogger`, call `Log.Close()` to close its channel outputs.
+The plugin drains its queues and closes file outputs during `Stop`. If you call `Config.BuildLogger()` directly, close each resource in the returned `BuildResult.Closers` to drain its queue. If you construct a `Log` with `NewLogger`, call `Log.Close()` to drain its channel outputs.

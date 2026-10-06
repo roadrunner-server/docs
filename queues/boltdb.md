@@ -78,6 +78,8 @@ Default: `rr.db`.
 
 ## Recovery
 
-Persisted jobs that were not acknowledged can be delivered again after a restart. This behavior also exists in v5. Workers must tolerate repeated deliveries.
+At startup, RR moves unacknowledged jobs from the in-flight bucket back to the pending bucket in one database transaction. Workers must tolerate repeated deliveries after a restart.
 
-Keep the same database file when upgrading if you need to retain queued jobs. Stop RoadRunner before backing up the file. The v6 beta reads the existing v5 job format; no conversion is required.
+Delayed jobs enter the in-memory priority queue only after their database transaction commits. A failed transaction leaves those jobs in the database for a later attempt.
+
+Keep the same database file when upgrading if you need to retain queued jobs. Stop RoadRunner before backing up the file. The driver reads the existing v5 job format; no conversion is required.

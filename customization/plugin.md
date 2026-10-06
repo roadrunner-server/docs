@@ -15,13 +15,13 @@ Below you can find more information about the plugin interface, how to define a 
 
 ## v6 migration
 
-Use the module versions selected by the RoadRunner build. The v6 plugin beta still uses `endure/v2 v2.6.2`. Its lifecycle and dependency injection interfaces do not require a migration. The RoadRunner library module remains `roadrunner/v2025`.
+Use the module versions selected by the RoadRunner build. RoadRunner v3 uses v6 plugin modules and `endure/v2`. The Endure lifecycle and dependency injection interfaces stay the same. The RoadRunner library module is `roadrunner/v2025` in the development branch.
 
 The API repositories now have separate roles. [api](https://github.com/roadrunner-server/api) contains protobuf source, not a Go module. [api-go](https://github.com/roadrunner-server/api-go) contains generated Go bindings. [api-plugins](https://github.com/roadrunner-server/api-plugins) contains Go plugin contracts, not RPC messages.
 
 All import paths in this table start with `github.com/roadrunner-server/`:
 
-| Previous import | v6 plugin beta import |
+| Previous import | v6 plugin import |
 | --- | --- |
 | `<plugin>/v5` | `<plugin>/v6` |
 | `pool/<package>` | `pool/v2/<package>` |
@@ -43,14 +43,15 @@ Update implementations, local interfaces, and call sites together:
 
 - **Logging:** use `logger.Named` from `api-plugins/v6/logger` or a local interface with `NamedLogger(string) *slog.Logger`. The old `logger.Log` interface is removed. Pool constructors, worker factories, and logger options also take `*slog.Logger`. Replace `log.Info("started", zap.String("plugin", name))` with `log.Info("started", "plugin", name)`. Slog has no `Fatal`, `Panic`, or `DPanic` methods.
 - **Jobs:** add a leading `context.Context` to `DriverFromConfig` and `DriverFromPipeline`. Calls become `constructor.DriverFromConfig(ctx, key, queue, pipeline)` and `constructor.DriverFromPipeline(ctx, pipeline, queue)`. Existing `Driver` methods already take contexts. See the [Jobs driver tutorial](jobs-driver.md).
-- **KV:** every `Storage` method now takes a leading context, including `Stop`. Update calls such as `storage.Get(ctx, key)`, `storage.Set(ctx, items...)`, and `storage.Stop(ctx)`. Construction becomes `constructor.KvFromConfig(ctx, key)`. Pass the context to backend operations. See the [KV contracts](https://github.com/roadrunner-server/api-plugins/blob/v6.0.0-beta.2/kv/interface.go).
+- **KV:** every `Storage` method now takes a leading context, including `Stop`. Update calls such as `storage.Get(ctx, key)`, `storage.Set(ctx, items...)`, and `storage.Stop(ctx)`. Construction becomes `constructor.KvFromConfig(ctx, key)`. Pass the context to backend operations. See the [KV contracts](https://github.com/roadrunner-server/api-plugins/blob/master/kv/interface.go).
 - **Queues:** lock queue signatures use `lock.Item` and `[]lock.Item`, not the old priority-queue package's named interface. Jobs defines its own `jobs.Item`. Both retain `ID`, `GroupID`, and `Priority`. Update queue type arguments and method signatures. The `priority_queue` package now declares the Go package name `priorityqueue`.
-- **Pool defaults:** direct calls to `DynamicAllocationOpts.InitDefaults()` must pass the base worker count: `InitDefaults(cfg.NumWorkers)`. Pool execution and shutdown guidance must match the [pinned pool version](../php/pool.md).
+- **Pool defaults:** direct calls to `DynamicAllocationOpts.InitDefaults()` must pass the base worker count: `InitDefaults(cfg.NumWorkers)`. `WorkerWatcher.Watch(workers)` has no return value. Remove checks for its former error result. See the [worker pool](../php/pool.md) for execution and shutdown behavior.
+- **Goridge frames:** `Header()` and `Payload()` return frame-owned slices. Copy data that must survive frame reset or reuse. `From`, `ReadFrame`, and `ReadHeader` retain the supplied buffers; later writes can change those buffers. See the [frame API](https://github.com/roadrunner-server/goridge/blob/master/pkg/frame/frame.go).
 - **Removed helpers:** replace `proxy.Cidrs` from `proxy_ip_parser` with `[]*net.IPNet`. Resetter no longer exposes `Plugin.Reset(string)`; its `resetter.Reset` RPC remains available. OTEL removes `HTTPHandler` and `TemporalHandler`; use `Plugin.Middleware` and `Plugin.WorkerInterceptor`. Temporal no longer exposes `ResetAP`; normal activity-worker replacement is handled by the pool.
 
 ### DTO compatibility
 
-`api-go/v6 v6.0.0-beta.14` retains the v1 message set. Do not use the v2 DTO packages from earlier betas. The `lock/v1` package defines `Request` and `Response`, not `LockRequest` and `LockResponse`. Regenerated PHP lock DTOs use `RoadRunner\Lock\DTO\V1`. The lock field numbers and types are unchanged; custom descriptor or protobuf `Any` users must account for the package-name change.
+`api-go/v6` retains the v1 message set. Do not use the v2 DTO packages from earlier betas. The `lock/v1` package defines `Request` and `Response`, not `LockRequest` and `LockResponse`. Regenerated PHP lock DTOs use `RoadRunner\Lock\DTO\V1`. The lock field numbers and types are unchanged; custom descriptor or protobuf `Any` users must account for the package-name change.
 
 Relocation alone does not change the retained HTTP or Jobs wire fields and does not require a PHP worker-loop rewrite. RPC still uses Goridge and Go `net/rpc`, not Connect. See [RPC compatibility](../php/rpc.md#v6-compatibility) for the MessagePack change.
 

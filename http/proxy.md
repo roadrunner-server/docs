@@ -33,7 +33,7 @@ http:
 
 `http.trusted_headers` is an ordered allowlist. The middleware ignores headers that are not listed. It removes whitespace around configured header names, compares names without case sensitivity, and removes duplicate names.
 
-An omitted, empty, or all-blank list uses the default order: `Forwarded`, `X-Forwarded-For`, `X-Real-IP`, `True-Client-IP`, `CF-Connecting-IP`. An empty header list does not disable trust. If a header produces no parsed value, the middleware tries the next header. For example, a `Forwarded` value without `for=` does not prevent use of `X-Forwarded-For`.
+An omitted, empty, or all-blank list uses the default order: `Forwarded`, `X-Forwarded-For`, `X-Real-IP`, `True-Client-IP`, `CF-Connecting-IP`. An empty header list does not disable trust. If a header produces no parsed value, the middleware tries the next header. For example, a `Forwarded` value without `for=` does not prevent use of `X-Forwarded-For`. This setting was added in [proxy_ip_parser PR #120](https://github.com/roadrunner-server/proxy_ip_parser/pull/120).
 
 The following example trusts only `X-Real-IP` and `CF-Connecting-IP`:
 
@@ -58,4 +58,4 @@ The parser does not validate that a selected header value is an IP address. Trus
 
 ## PROXY protocol
 
-HTTP forwarding headers are separate from the TCP PROXY protocol. The pinned HTTP beta does not support PROXY protocol. For custom development builds, see [Development: PROXY protocol](./http.md#development-proxy-protocol).
+HTTP forwarding headers are separate from the TCP [PROXY protocol](./http.md#proxy-protocol). With PROXY protocol enabled, `trusted_subnets` checks the client address supplied by the TCP proxy. Configure forwarding-header trust for that address.

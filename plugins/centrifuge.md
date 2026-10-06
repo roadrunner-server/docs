@@ -44,8 +44,7 @@ composer require roadrunner-php/centrifugo
 
 ### Configuration
 
-First you need to add centrifuge section to your RoadRunner configuration. For example, such a configuration would be
-quite feasible to run:
+Add a `centrifuge` section to your RoadRunner configuration. The plugin starts an incoming proxy listener and a PHP worker pool. If `proxy_address` is omitted or empty, it uses `tcp://127.0.0.1:30000`. These components also start when the application only sends outgoing API calls.
 
 {% code title=".rr.yaml" %}
 
@@ -73,7 +72,7 @@ centrifuge:
   use_compressor: true
 
   # Your application version
-  # Optional, default: v1.0.0
+  # Optional, default: 1.0.0
   version: "v1.0.0"
 
   # Your application name
@@ -132,9 +131,9 @@ For example:
 endpoint address of roadrunner server with activated centrifuge plugin.
 {% endhint %}
 
-### Development: Unix Socket
+### Unix Socket
 
-The development Centrifuge plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) for its incoming proxy listener:
+Configure [Unix socket attributes](../intro/config.md#unix-socket-attributes) for the incoming proxy listener:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -316,7 +315,7 @@ With the incoming payload, RoadRunner also adds the type of the proxied request 
 - `notifycacheempty`: Notify cache empty proxy request (`NotifyCacheEmpty`).
 - `notifychannelstate`: Notify channel state proxy request.
 
-Before enabling `NotifyCacheEmpty` in Centrifugo, verify that the PHP DTO package and worker request handler support this method. RoadRunner forwards the event with `type: notifycacheempty`; an older PHP client can reject the request type.
+To handle `NotifyCacheEmpty`, use a PHP DTO package and worker request handler that support this method. RoadRunner forwards the event with `type: notifycacheempty`.
 
 ## Metrics
 

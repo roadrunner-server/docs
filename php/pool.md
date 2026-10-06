@@ -8,7 +8,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
 
 ## Worker pool configuration
 
-The v6 plugin beta uses [pool/v2 v2.0.0-beta.1](https://github.com/roadrunner-server/pool/tree/v2.0.0-beta.1). The configuration below describes that version.
+RoadRunner v3 uses [pool/v2](https://github.com/roadrunner-server/pool). The configuration below describes the upcoming release.
 
 {% code title=".rr.yaml" %}
 
@@ -104,9 +104,11 @@ The v6 plugin beta uses [pool/v2 v2.0.0-beta.1](https://github.com/roadrunner-se
 
 ## Timeouts and admission
 
-`allocate_timeout` limits worker allocation and the wait for a free worker. It does not limit PHP request execution. Set `supervisor.exec_ttl` to limit execution time. Without `exec_ttl`, canceling the caller's context does not stop normal pool execution in PHP.
+`allocate_timeout` limits worker allocation and each wait for a free worker. With [automatic scaling](auto-scaling.md), a request can wait again after a scale-up attempt. This setting does not limit PHP request execution. Set `supervisor.exec_ttl` to limit execution time. Without `exec_ttl`, canceling the caller's context does not stop normal pool execution in PHP.
 
 For a stream, `exec_ttl` applies separately to each read, not to the entire stream. `stream_timeout` applies to stream cancellation.
+
+When a stream consumer cancels its context, the pool stops waiting to send response frames to that consumer. It cancels an incomplete worker stream before releasing the worker. A worker blocked in a stream read still needs `exec_ttl` to bound that read.
 
 `reset_timeout` and `destroy_timeout` limit the wait for active work before the pool starts stopping workers. They are not strict limits on the entire operation. A worker stop has its own ten-second grace period.
 

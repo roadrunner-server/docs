@@ -47,7 +47,7 @@ file: `/foo/bar/rr1.db`. Default: `rr.db`.
 
 Use a separate database file for each KV storage. Each storage opens the file with an exclusive lock. Sharing a file between storage instances causes startup to fail.
 
-Both v5 and the v6 beta use the fixed internal bucket `default`. The driver does not support a `bucket` configuration option.
+The driver uses the fixed internal bucket `default`. It does not support a `bucket` configuration option.
 
 ### Permissions
 
@@ -60,10 +60,10 @@ already exists, the permissions will not be changed.
 
 ## Persistence
 
-Values remain in the database after a RoadRunner restart. Expiration timestamps are kept only in memory and are lost at restart. This limitation applies to both v5 and the v6 beta. Reapply expiration timestamps from application data after startup if needed. Use [Redis](./redis.md) when expiration must survive a RoadRunner restart.
+Values remain in the database after a RoadRunner restart. Expiration timestamps are kept only in memory and are lost at restart. Reapply expiration timestamps from application data after startup if needed. Use [Redis](./redis.md) when expiration must survive a RoadRunner restart.
 
-Upgrading from v5 to the v6 beta does not require a database format conversion. Stop RoadRunner before backing up the database file.
+Upgrading from v5 does not require a database format conversion. Stop RoadRunner before backing up the database file.
 
 ## Write Errors
 
-In the v6 beta, `kv.Set` and `kv.Delete` return database commit errors through RPC. Handle these errors before treating a write or deletion as successful.
+`kv.Set` and `kv.Delete` return database commit errors through RPC. Handle these errors before treating a write or deletion as successful.

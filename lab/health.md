@@ -68,7 +68,7 @@ The response format is the same JSON structure as the `/health` endpoint.
 
 ## Kubernetes Endpoint Aliases
 
-RoadRunner v3 development builds provide these aliases on the status server:
+The status server provides these endpoint aliases:
 
 | Endpoint | Alias | Check |
 | --- | --- | --- |
@@ -76,8 +76,6 @@ RoadRunner v3 development builds provide these aliases on the status server:
 | `/ready` | `/readyz` | Readiness |
 
 Each alias uses the same handler as its original endpoint. Both names accept the same `plugin` query parameters and return the same status codes and response bodies. For example, use `/livez?plugin=http` or `/readyz?plugin=http&plugin=grpc`.
-
-These aliases require a status plugin build that includes this change. The pinned [source build](../intro/install.md) does not include them.
 
 ## Customizing the Not-Ready Status Code
 
@@ -177,8 +175,6 @@ readinessProbe:
     path: /readyz
     port: 2114
 ```
-
-For builds without the aliases, use `/health` and `/ready` with the same probe settings.
 
 **Read more [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)**
 

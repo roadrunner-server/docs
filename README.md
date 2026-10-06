@@ -25,12 +25,12 @@ of your web applications.
 
 RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https://www.php-fig.org/psr/psr-17) compatible HTTP and `HTTP(S)/2/3/fCGI` servers and can be used to replace classic Nginx+FPM setups with much greater performance and flexibility. `HTTP(S)/2/3/fCGI` servers as just one of its many available plugins, but its capabilities extend far beyond:
 
-- Queue drivers: RabbitMQ, Kafka, SQS, Beanstalk, NATS, Google Pub/Sub, BoltDB, and In-Memory. The v6 beta build also includes [NSQ](queues/nsq.md).
+- Queue drivers: RabbitMQ, Kafka, SQS, Beanstalk, NATS, Google Pub/Sub, BoltDB, In-Memory, and [NSQ](queues/nsq.md).
 - KV drivers: Redis, Memcached, BoltDB, In-Memory.
 - OTLP trace export over gRPC or HTTP.
 - Workflows engine via [Temporal](https://temporal.io)
-- `gRPC` server. For increased speed, the `protobuf` extension can be used.
-- `HTTP(S)/2/3` and `fCGI` server features **automatic TLS management**, **103 Early Hints** support and middleware like: Static, Headers, gzip, prometheus (metrics), send (x-sendfile), OTEL, proxy_ip_parser, etc.
+- [gRPC](grpc/grpc.md) server with reflection and a [protobuf registry](grpc/protoreg.md).
+- `HTTP(S)/2/3` and `fCGI` servers with automatic TLS management, 103 Early Hints, static files, headers, gzip, [Zstd](http/zstd.md), [rate limiting](http/rate-limiter.md), metrics, X-Sendfile, tracing, and proxy IP parsing.
 - Embedded distribute lock plugin which manages access to shared resources.
 - Metrics server (you might easily expose your own).
 - WebSockets and Broadcast via [Centrifugo](https://centrifugal.dev) server.
@@ -39,7 +39,7 @@ RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https:/
 - Compatible with Windows, WSL2, FreeBSD, GNU/Linux, etc.
 - And more 😉
 
-See [v3 Migration](intro/v3-migration.md) for the v5-to-v6 plugin changes and upgrade checks for RoadRunner v3.
+These pages describe the upcoming RoadRunner v3 release. See the [v3 release notes](releases/v3-0-0.md) and [upgrade steps from v2025](intro/v3-migration.md).
 
 If you have a feature request in mind, you can check
 out [GitHub issues](https://github.com/roadrunner-server/roadrunner/issues) page. Here you'll find a list of open

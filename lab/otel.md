@@ -24,7 +24,6 @@ Here is an example configuration file:
 version: "3"
 
 otel:
-  # https://github.com/open-telemetry/opentelemetry-specification/blob/v1.25.0/specification/resource/semantic_conventions/README.md
   resource:
     service_name: "rr_test"
     service_version: "1.0.0"
@@ -48,7 +47,6 @@ You can use environment variables in the configuration with [shell parameter exp
 version: "3"
 
 otel:
-  # https://github.com/open-telemetry/opentelemetry-specification/blob/v1.25.0/specification/resource/semantic_conventions/README.md
   resource:
     service_name: "${OTEL_SERVICE_NAME:-rr_test}"
     service_version: "${OTEL_SERVICE_VERSION:-1.0.0}"
@@ -62,8 +60,7 @@ When `client` is unset, `OTEL_EXPORTER_OTLP_TRACES_PROTOCOL` takes precedence ov
 
 {% endhint %}
 
-Once the plugin is activated, the `grpc` and `jobs` plugins will use the configuration to send tracing data to the
-collector. The `http` plugin requires the `otel` middleware to be added to the middleware list.
+The `grpc` and `jobs` plugins use the configured trace provider. Temporal collects the `otel` worker interceptor. The `http` plugin requires the `otel` middleware in its middleware list.
 
 **Here is an example:**
 
@@ -79,7 +76,13 @@ http:
 
 Requests pass through the middleware list from left to right. Put `otel` before the middleware you want to trace. In this example, the HTTP server span starts before `gzip` runs.
 
-Middleware spans with kind `Internal` measure the middleware's own work. They exclude downstream request time. The HTTP `Server` span covers the full request.
+The `headers`, `gzip`, `zstd`, `proxy_ip_parser`, `rate_limiter`, and `http_metrics` spans end before the next handler starts. They measure work before that call. Compression spans do not measure the full response compression time.
+
+The `static` span includes file serving when it handles the request. When it forwards the request, its span ends before the next handler starts. The HTTP plugin's `http` span has kind `Internal` and includes worker and response processing. The outer HTTP `Server` span covers the handlers that follow `otel`.
+
+The `sendfile:post` and `http_metrics:post` spans measure work after the downstream handler returns. The Prometheus duration histogram includes downstream request execution. See [HTTP tracing](../http/http.md#tracing) for these span boundaries.
+
+For Jobs, pass the producer's `traceparent` and optional `tracestate` values in the task headers to continue its trace. Without valid trace context, the push RPC starts a new trace. See [Jobs trace context](../queues/overview-queues.md#trace-context) for batch behavior and driver storage requirements.
 
 **The `otel` section of the configuration file contains the following options:**
 
@@ -95,6 +98,8 @@ Middleware spans with kind `Internal` measure the middleware's own work. They ex
 | **service_version** | Deprecated. Use `resource.service_version`. The default resource value is `1.0.0`. |
 | **headers** | Headers sent to the OTLP receiver, such as an `api-key` header. |
 | **resource** | Service attributes: `service_name`, `service_version`, `service_namespace`, and `service_instance_id`. |
+
+Values in `resource` take precedence over environment resource attributes. For service name and version, the deprecated top-level settings take precedence over the environment when their `resource` values are empty. The plugin also reads `OTEL_SERVICE_NAME` and `OTEL_RESOURCE_ATTRIBUTES`.
 
 {% hint style="warning" %}
 Match `client` to the receiver protocol. OTLP normally uses port `4317` for `grpc` and port `4318` for `http`. For example, `client: http` requires an HTTP receiver such as `endpoint: 127.0.0.1:4318`. See the [OTLP exporter configuration](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/).
@@ -139,7 +144,7 @@ Read more about the OpenTelemetry Collector on the [official site](https://opent
 The collector is started with the `otel-collector-config.yml` configuration file, which specifies how the collector
 should receive, process, and export the tracing data.
 
-This configuration belongs to the Collector, not RoadRunner. RoadRunner sends OTLP data to the Collector. The Collector can then use its own exporters, including Zipkin when supported by the installed Collector distribution.
+RoadRunner sends OTLP data to the Collector. This Collector configuration prints received traces with the `debug` exporter. Replace it with your backend exporter to store traces.
 
 {% code title="otel-collector-config.yml" %}
 
@@ -148,45 +153,34 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
       http:
+        endpoint: 0.0.0.0:4318
 
 processors:
   batch:
     timeout: 1s
 
 exporters:
-  logging:
-    loglevel: debug
-
-  zipkin:
-    endpoint: "http://zipkin:9411/api/v2/spans"
-
-  datadog:
-    api:
-      site: datadoghq.eu
-      key: ...
-
-  otlp:
-    endpoint: https://otlp.eu01.nr-data.net:443
-    headers:
-      api-key: ...
+  debug:
+    verbosity: detailed
 
 service:
   pipelines:
     traces:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ zipkin, datadog, otlp, logging ]
+      exporters: [ debug ]
 ```
 
 {% endcode %}
 
-| Option         | Description                                                                                                                                                                                                                                  |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **receivers**  | a key-value map that specifies the protocols the collector should use to receive the tracing data.                                                                                                                                           |
-| **processors** | a key-value map that specifies the processors to apply to the tracing data before exporting it. In this example, it uses the batch processor, which batches tracing data before exporting it.                                                |
-| **exporters**  | a key-value map that specifies the destination collectors to which the tracing data should be exported.  In this example, it exports the tracing data to `zipkin`, `datadog`, `otlp`, and `logging`.                                         |
-| **service**    | a key-value map that specifies the service name and the pipelines through which the tracing data flows.  In this example, the traces pipeline includes the otlp receiver, batch processor, and zipkin, datadog, otlp, and logging exporters. |
+| Option | Description |
+| --- | --- |
+| **receivers** | Protocols that receive trace data. |
+| **processors** | Processing steps for trace data. This example uses `batch` to group traces before export. |
+| **exporters** | Output destinations. This example uses `debug` to print traces. |
+| **service** | Enabled pipelines. This example connects the OTLP receiver, batch processor, and debug exporter. |
 
 {% hint style="info" %}
 Read more about the OpenTelemetry Collector configuration on
@@ -252,6 +246,7 @@ Here is the list of currently supported plugin
 | **Kafka**     | Kafka driver.                                                                                |
 | **NATS**      | NATS driver.                                                                                 |
 | **Beanstalk** | Beanstalk driver.                                                                            |
+| **Temporal**  | Workflow and activity tracing through the `otel` worker interceptor.                         |
 
 {% hint style="info" %}
 Thanks to [Brett McBride](https://github.com/brettmc), he created a rr-otel [PHP demo](https://github.com/brettmc/rr-otel-demo).

@@ -28,7 +28,7 @@ Configure [RPC](../php/rpc.md#configuration) to use app-logger.
 This example emits JSON records at `info` level or higher and filters out `debug`. These settings do not control raw log calls.
 
 {% hint style="info" %}
-See [Logger](./logger.md) for v6 formats, levels, and output destinations.
+See [Logger](./logger.md) for formats, levels, and output destinations. Level-based methods use the logger's [asynchronous output queue](logger.md#asynchronous-output).
 {% endhint %}
 
 ## PHP client
@@ -86,11 +86,11 @@ See [RPC connections](../php/rpc.md) for connection setup.
 
 ### Raw Output
 
-The raw RPC methods `app.Log` and `app.LogWithContext` bypass logger levels, formats, and output settings, including `logs.channels.app`. This differs from selecting the logger's `raw` mode, which still uses the configured level and destinations.
+The raw RPC methods `app.Log` and `app.LogWithContext` write directly to standard error. They bypass logger levels, formats, output settings, and the asynchronous queue. These calls wait for the write to complete. The logger's `raw` mode uses its configured level, destinations, and asynchronous queue.
 
 With app-logger v6, `app.Log` appends LF (`\n`) only when the message does not already end with LF. `app.LogWithContext` uses the same rule when there are no attributes. V5 wrote these messages without adding a line ending. Update consumers that depended on concatenated messages without line endings.
 
-With attributes, `app.LogWithContext` writes the message, a space, comma-separated `key:value` pairs, and LF. It preserves newlines inside the message. Send the raw RPC message without a trailing newline if you need the attributes on the same line. V6 also retains the complete final attribute value instead of removing its last byte as v5 did.
+With attributes, `app.LogWithContext` writes the message, a space, comma-separated `key:value` pairs, and LF. It preserves newlines inside the message. Send the raw RPC message without a trailing newline if you need the attributes on the same line.
 
 ## API
 

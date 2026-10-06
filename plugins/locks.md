@@ -1,9 +1,6 @@
 # Lock
 
-The RoadRunner lock plugin is a powerful tool that enables you to manage resource locks in their applications using the 
-RPC protocol. By leveraging the benefits of using GO with PHP, it provides a lightweight, fast, and reliable way to
-acquire, release, and manage locks. With this plugin, you can easily manage critical sections of your application and 
-prevent race conditions, data corruption, and other synchronization issues that can occur in multiprocess environments.
+The Lock plugin provides exclusive and shared resource locks through RPC. Use it to coordinate access to a resource from multiple PHP workers.
 
 {% hint style="info" %}
 The plugin has two lock backends. The in-memory backend is the default, and it keeps the lock state in one RoadRunner instance. The Redis backend shares locks between RoadRunner instances.
@@ -45,6 +42,8 @@ A set `master_name` selects a failover client for any number of addresses. Witho
 
 Set `master_name` to use Redis Sentinel. The `addrs` list then holds the Sentinel addresses. Set `sentinel_password` when the Sentinel nodes need their own password.
 
+The lock backend accepts password-only Sentinel authentication. Its configuration does not include the `sentinel_username` option of the Redis KV driver. `username` and `password` authenticate against the Redis data nodes.
+
 Set `pool_size` to size the connection pool for one Redis node. The client opens more connections when the pool is busy. The value `0` selects the `go-redis` default.
 
 The `dial_timeout`, `read_timeout`, and `write_timeout` settings accept Go durations, such as `5s`. Negative values are rejected at startup. Omitted timeouts use the Redis client defaults.
@@ -57,7 +56,7 @@ The backend does not accept some keys of the [RoadRunner Redis plugin](../kv/red
 
 The `lock` section requires `driver: memory` or `driver: redis`. Invalid configuration and connection failures stop plugin initialization.
 
-The backend stores lock state under the fixed `rr:lock:` key prefix. The resource name is the namespace. Give resources unique names when different applications share one Redis server.
+The backend stores lock state under the fixed `rr:lock:` key prefix. The resource name is the namespace. Give resources unique names when different applications share one Redis server. Redis server time controls expiration. Each read lock has its own TTL. A TTL of `0` creates a lock that remains until release.
 
 ### Redis lock behavior
 
@@ -67,6 +66,8 @@ The backend stores lock state under the fixed `rr:lock:` key prefix. The resourc
 - A failed Redis command, or a deadline that occurs during a Redis command, returns an RPC error. The lock state is then unknown. Call `Exists` or `Release` to find the state of the lock.
 - A `wait` of `0` on Redis makes one acquisition attempt, bounded by `read_timeout`, which is 5 seconds by default. The memory backend waits 1 millisecond instead.
 - Stored locks stay in Redis after a RoadRunner restart until release or expiry.
+
+For `Release`, `ForceRelease`, `Exists`, and `UpdateTTL`, Redis uses `wait` as the deadline for the command. These calls do not wait for lock contention. A deadline during the command returns an RPC error with an unknown result. All waiting acquisition calls in one RoadRunner instance share one Redis Pub/Sub connection.
 
 ## PHP client
 
@@ -117,7 +118,7 @@ The `RoadRunner\Lock\Lock` class provides four methods that allow you to manage 
 
 Attempts to acquire an exclusive lock on a resource. Set a positive `waitTTL` to wait for a conflicting lock to be released. The method returns a lock ID on success or `false` on failure. Check the result before accessing the protected resource.
 
-The PHP SDK uses seconds for numeric `ttl` and `waitTTL` values. It converts these values to microseconds for RPC. In PHP SDK 1.0.x, `waitTTL` defaults to `0`, which sends a zero RPC wait. The server then uses a one-millisecond acquisition window. Set `waitTTL` explicitly when you need a longer wait.
+The PHP SDK uses seconds for numeric `ttl` and `waitTTL` values. It converts these values to microseconds for RPC. In PHP SDK 1.0.x, `waitTTL` defaults to `0`. The memory backend then uses a one-millisecond acquisition window. The Redis backend makes one acquisition attempt, bounded by `read_timeout`. Set `waitTTL` explicitly when you need a longer wait.
 
 {% code title="app.php" %}
 
@@ -305,6 +306,8 @@ RoadRunner provides an RPC API, which allows you to manage locks in your applica
 RPC API provides a set of methods that map to the available methods of the `RoadRunner\Lock\Lock` class in PHP.
 
 Raw RPC requests use microseconds for `Request.ttl` and `Request.wait`. For example, `wait: 5000000` allows an acquisition wait of five seconds. An omitted or zero `wait` is not an unlimited wait. The memory backend then uses a one-millisecond acquisition window, and the Redis backend makes one acquisition attempt, bounded by `read_timeout`. PHP SDK arguments use seconds and are converted before the RPC call.
+
+`Lock`, `LockRead`, and `UpdateTTL` accept `ttl` values from `0` to `9223372036854775` microseconds. All methods accept `wait` values in the same range. A value outside the range returns an RPC error and changes no lock state.
 
 For `Lock` and `LockRead`, require `Response.Ok == true` before accessing the resource. A completed RPC call with no error can still return `Ok == false`, including when the acquisition wait expires.
 

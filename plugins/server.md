@@ -71,9 +71,9 @@ processes. It does not require any network connections or external libraries, ma
 Use `on_init.user` option to execute the on_init command under a different user.
 {% endhint %}
 
-### Development: Unix Relay
+### Unix Relay
 
-The development server plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) for the shared worker relay:
+The server plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) for the shared worker relay:
 
 {% code title=".rr.yaml fragment" %}
 

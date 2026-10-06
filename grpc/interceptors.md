@@ -79,7 +79,7 @@ Execution order will be:
 
 ## Build a custom binary
 
-Include your interceptor plugin in a [custom RR build](../customization/build.md). Use plugin versions compatible with the v6 beta. Listing an interceptor in `.rr.yaml` does not add its code to the binary.
+Include your interceptor plugin in a [custom RR build](../customization/build.md). Use plugin versions compatible with v6. Listing an interceptor in `.rr.yaml` does not add its code to the binary.
 
 For an interceptor that reads protobuf descriptors, see the [registry-based example](./protoreg.md#example-grpc-interceptor). Use the plugin's `Name()` in `grpc.interceptors`.
 

@@ -4,9 +4,7 @@ The `zstd` middleware compresses HTTP response bodies when the client sends `Acc
 
 ## Availability
 
-{% hint style="info" %}
-Your RoadRunner build must include the `github.com/roadrunner-server/zstd/v6` plugin. Adding `zstd` to the configuration does not install the plugin. See [Building a Server](../customization/build.md) and [Registering middleware](../customization/middleware.md#registering-middleware) for custom builds.
-{% endhint %}
+The RoadRunner v3 bundle includes the Zstd plugin. Add `zstd` to `http.middleware` to enable it.
 
 ## Configuration
 
@@ -25,6 +23,8 @@ http:
 {% endcode %}
 
 The middleware does not require a separate configuration section. Eligible responses use `Content-Encoding: zstd`.
+
+Put `zstd` before `static` or `sendfile` to compress their responses. See [middleware order](http.md#middleware-order).
 
 ## Compression behavior
 
@@ -48,5 +48,6 @@ If both gzip and zstd middleware are enabled, their order can determine the sele
 ## Documentation
 
 - [Zstd middleware plugin](https://github.com/roadrunner-server/zstd)
+- [Zstd middleware PR #1](https://github.com/roadrunner-server/zstd/pull/1)
 - [MDN Accept-Encoding header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Accept-Encoding)
 - [HTTP response streaming](resp-streaming.md)

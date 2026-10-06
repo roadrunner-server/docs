@@ -14,7 +14,7 @@ Version `2023.2.0` update:
 
 ## Configuration
 
-For direct partition consumption, use the [v6 beta example](#direct-partitions-v6-beta) instead of the topics and group configuration below.
+For direct partition consumption, use the [direct partitions example](#direct-partitions).
 
 {% code title=".rr.yaml" %}
 
@@ -132,7 +132,6 @@ kafka:
     user_agent: baz
 
 jobs:
-  num_pollers: 10
   pipeline_size: 100000
   pool:
     num_workers: 10
@@ -303,7 +302,7 @@ jobs:
 
 ## Acknowledgments
 
-In Kafka `v5.2.5` and `v6.0.0-beta.7`, pipelines with `group_options.group_id` set mark acknowledged records for automatic offset commits. A commit advances the consumer group's position for a partition. RR does not wait for all earlier records in that partition to complete.
+Pipelines with `group_options.group_id` set mark acknowledged records for automatic offset commits. A commit advances the consumer group's position for a partition. RR does not wait for all earlier records in that partition to complete.
 
 {% hint style="warning" %}
 Workers can complete jobs out of order. If offset `101` is acknowledged while offset `100` is unfinished in the same partition, a commit can advance the group to `102`. After a crash, the group then skips offset `100`, although that job was not acknowledged. Do not assume that every unacknowledged job will be delivered again.
@@ -311,9 +310,9 @@ Workers can complete jobs out of order. If offset `101` is acknowledged while of
 
 Direct partition consumption without `group_options` does not use these consumer-group commits.
 
-## Direct Partitions (v6 Beta)
+## Direct Partitions
 
-The Kafka v6 beta line (`v6.0.0-beta.7`) applies `consumer_options.consume_partitions` to the client. Kafka `v5.2.5` accepted this setting but did not apply it.
+Use `consumer_options.consume_partitions` to select topic partitions and starting offsets without a consumer group.
 
 A nonempty `consumer_options.topics` list takes precedence: RR ignores `consume_partitions` in that case. For direct partition consumption, omit `topics` and `group_options`. Leave `consume_regexp` unset or `false`.
 
@@ -350,3 +349,7 @@ jobs:
 {% endcode %}
 
 Each topic maps partition numbers to offsets. The offset `type` is required: `At`, `AfterMilli`, `AtEnd`, `AtStart`, `Relative` or `WithEpoch`. The `value` defaults to `0` and is used by `At`, `AfterMilli`, `Relative` and `WithEpoch`.
+
+## Consumer Recovery
+
+When a Kafka client closes unexpectedly or reports a non-retriable broker error, the driver asks the Jobs plugin to recreate the pipeline. The driver releases blocked group rebalances when its listener exits. Check the logs if pipeline recreation fails. A broker error that remains, such as denied topic access, still requires operator action.

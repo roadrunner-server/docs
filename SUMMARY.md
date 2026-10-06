@@ -9,7 +9,7 @@
 - [Configuration](intro/config.md)
 - [Contributing](intro/contributing.md)
 - [Upgrade and Compatibility](intro/compatibility.md)
-- [v3 Migration](intro/v3-migration.md)
+- [Upgrade from v2025 to v3](intro/v3-migration.md)
 
 ## 👷 PHP Worker
 
@@ -115,7 +115,6 @@
 
 ## 🧩 Integrations
 
-- [Migration from RRv1 to RRv2](integration/migration.md)
 - [Spiral Framework](integration/spiral.md)
 - [Yii](integration/yii.md)
 - [Symfony](integration/symfony.md)
@@ -133,6 +132,7 @@
 
 ## 📚 Releases
 
+- [v3.0.0](releases/v3-0-0.md)
 - [v2025.1.14](releases/v2025-1-14.md)
 - [v2025.1.13](releases/v2025-1-13.md)
 - [v2025.1.12](releases/v2025-1-12.md)

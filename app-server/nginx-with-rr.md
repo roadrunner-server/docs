@@ -55,9 +55,9 @@ Consider using `fastcgi_pass` instead of `proxy_pass`: Using the `fastcgi_pass` 
 performance in certain configurations.
 {% endhint %}
 
-#### Development: Unix Socket
+#### Unix Socket
 
-The development HTTP plugin can give Nginx group access to a FastCGI socket without changing application file permissions:
+The HTTP plugin can give Nginx group access to a FastCGI socket without changing application file permissions:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -80,7 +80,7 @@ fastcgi_pass unix:/run/roadrunner/fcgi.sock;
 
 Replace `2000` with the numeric group shared by RoadRunner and the Nginx worker processes. A non-root RoadRunner process must belong to this group to set the socket group. Nginx workers must also belong to this group to connect through the group permissions. The socket owner stays unchanged because `uid` is omitted.
 
-Create the parent directory first. RoadRunner needs permission to create the socket there. Nginx needs search permission, not write permission, on every parent directory. See [Unix socket attributes](../intro/config.md#unix-socket-attributes) for availability and startup access limits. The Docker example below does not include this development feature or a shared socket directory.
+Create the parent directory first. RoadRunner needs permission to create the socket there. Nginx needs search permission on every parent directory. See [Unix socket attributes](../intro/config.md#unix-socket-attributes) for configuration. The Docker example below uses TCP connections. A Unix socket between containers requires a shared socket directory.
 
 ### Proxy
 
@@ -180,12 +180,12 @@ In this example, we will demonstrate how to use RoadRunner with Nginx in a Docke
 
 ### Dockerfile
 
-Build the [local v6 RoadRunner image](docker.md#build-the-roadrunner-image) before building this application image.
+Build the [local RoadRunner image](docker.md#build-the-roadrunner-image) before building this application image.
 
 {% code title="docker/app/Dockerfile" %}
 
 ```dockerfile
-FROM roadrunner:v6-b0cccd9 AS roadrunner
+FROM roadrunner:v3-local AS roadrunner
 FROM php:8.5-cli-alpine
 
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr

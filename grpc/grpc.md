@@ -59,6 +59,8 @@ go install github.com/roadrunner-server/grpc/protoc_plugins/v5/protoc-gen-php-gr
 
 Add the Go binary installation directory to `PATH`. Create the `generated` directory before running `protoc`.
 
+The PHP generator uses the separate `protoc_plugins/v5` module. Its module version is independent of the gRPC plugin v6.
+
 **Here's an example command:**
 
 {% code %}
@@ -385,9 +387,9 @@ Options for the `client_auth_type` are:
 
 ## Server reflection
 
-The gRPC plugin in `v6.0.0-beta.6` enables server reflection on the gRPC listen port. Both the v1 and v1alpha reflection APIs are available without an enable flag.
+The gRPC plugin enables server reflection on the gRPC listen port. Both the v1 and v1alpha reflection APIs are available without an enable flag.
 
-Without a descriptor registry, reflection lists registered services but cannot return the file and message descriptors for PHP services. For those descriptors, add [protoreg](./protoreg.md#server-reflection) to a [custom RR build](../customization/build.md). Configure it with the same service definitions used by `grpc.proto`. The stock beta does not include `protoreg`.
+Without a descriptor registry, reflection lists registered services but cannot return the file and message descriptors for PHP services. Configure the bundled [Protoreg plugin](./protoreg.md#server-reflection) with the same service definitions used by `grpc.proto` to provide those descriptors. See [gRPC PR #141](https://github.com/roadrunner-server/grpc/pull/141).
 
 For a listener without TLS, list services with:
 
@@ -405,7 +407,7 @@ Reflection uses streaming RPCs. Authentication in `grpc.interceptors` applies on
 
 ## Health Checking
 
-RoadRunner automatically registers a [`grpc.health.v1.Health`](https://github.com/grpc/grpc/blob/master/doc/health-checking.md) service on the same gRPC listen port. This is the standard gRPC health checking protocol — no additional configuration is required.
+RoadRunner automatically registers a [`grpc.health.v1.Health`](https://github.com/grpc/grpc/blob/master/doc/health-checking.md) service on the same gRPC listen port. This is the standard gRPC health checking protocol. No additional configuration is required.
 
 ### Available methods
 
@@ -582,9 +584,9 @@ grpc:
 
 {% endcode %}
 
-### Development: Unix Socket
+### Unix Socket
 
-The development gRPC plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes). Keep the other gRPC settings from the preceding example:
+Configure optional `mode`, `uid`, and `gid` fields under `grpc.unix_socket`. See [Unix socket attributes](../intro/config.md#unix-socket-attributes) for their values. Keep the other gRPC settings from the preceding example:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -597,11 +599,11 @@ grpc:
 
 {% endcode %}
 
-Configure clients to use the same Unix socket. These options do not change gRPC TLS credentials or worker credentials.
+Configure clients to use the same Unix socket. These settings apply to the listener socket. They were added in [gRPC PR #154](https://github.com/roadrunner-server/grpc/pull/154).
 
 ### Connection age grace
 
-In v6 beta, `max_connection_age_grace` controls how long active RPCs can continue after the connection reaches `max_connection_age`. Zero or omitted grace means unlimited time. Set a finite grace to close the connection after that period.
+`max_connection_age_grace` controls how long active RPCs can continue after the connection reaches `max_connection_age`. Zero or omitted grace means unlimited time. Set a finite grace to close the connection after that period.
 
 {% code title=".rr.yaml" %}
 
@@ -614,6 +616,38 @@ grpc:
 {% endcode %}
 
 The v5 plugin used `max_connection_age` as the grace period and ignored `max_connection_age_grace`. To preserve that behavior, explicitly set both values to the same duration.
+
+## Error details in logs
+
+For a failed unary call, the `grpc` logger adds a `details` field when the error contains supported `google.rpc.Status` details. This field contains an array of type names and one-line message values. It is omitted when the error has no supported details.
+
+The supported types from [`google/rpc/error_details.proto`](https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto) are `BadRequest`, `ErrorInfo`, `DebugInfo`, `Help`, `LocalizedMessage`, `PreconditionFailure`, `QuotaFailure`, `RequestInfo`, `ResourceInfo`, and `RetryInfo`. Other detail types are omitted.
+
+Use a structured log mode to retain the field:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+logs:
+  channels:
+    grpc:
+      mode: production
+      level: error
+```
+
+{% endcode %}
+
+For example, a field validation error can include:
+
+```json
+{
+  "details": [
+    "google.rpc.BadRequest: field_violations:{field:\"email\" description:\"is required\"}"
+  ]
+}
+```
+
+See [logger configuration](../lab/logger.md) and [gRPC PR #148](https://github.com/roadrunner-server/grpc/pull/148).
 
 ## OTLP support in the `gRPC` plugin: `[>=2023.3.8]`
 

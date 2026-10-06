@@ -10,7 +10,7 @@ You can deploy RoadRunner to Kubernetes via GitOps using Argo CD with the offici
 - Kubernetes `>= 1.26`
 - Argo CD installed
 - `kubectl` access to your cluster
-- A runnable RoadRunner container image (or the example image from `k8s-examples`)
+- A RoadRunner v3 application image in a registry that the cluster can access. See [Build the Application Image](docker.md#build-the-application-image).
 
 ## Use the Official Example
 
@@ -22,11 +22,17 @@ Use these files from the upstream repository:
 
 ## Recommended Values (MetalLB-Friendly)
 
-This profile avoids dependency on a Gateway controller and works well on clusters using MetalLB for external service exposure:
+Set `image.repository` and `image.tag` to your published v3 application image. The upstream example image uses RoadRunner v2025. The probe paths below require v3.
+
+This profile uses MetalLB for external service access:
 
 {% code title="values.yaml" %}
 
 ```yaml
+image:
+  repository: registry.example.com/your-team/rr-app
+  tag: "v3"
+
 service:
   type: LoadBalancer
 
@@ -39,9 +45,29 @@ ingress:
 
 {% endcode %}
 
+## Configure Probes
+
+Set the chart probe paths to the RoadRunner v3 status endpoints:
+
+{% code title="values.yaml" %}
+
+```yaml
+probes:
+  liveness:
+    path: /livez?plugin=http
+    port: status
+  readiness:
+    path: /readyz?plugin=http
+    port: status
+```
+
+{% endcode %}
+
+The chart binds the status server to port `2114` in the pod. Liveness accepts active HTTP workers, including busy workers. Readiness requires at least one idle HTTP worker. During graceful shutdown, liveness remains successful and readiness fails. See [Health and Readiness checks](../lab/health.md).
+
 ## Apply with Argo CD
 
-Apply the Argo CD `Application` manifest:
+Commit your values to the repository used by Argo CD. Set `repoURL` and `targetRevision` in `application.yaml` to that repository and revision. Then apply the Argo CD `Application` manifest:
 
 {% code %}
 
@@ -51,8 +77,6 @@ kubectl apply -f deploy/argocd/application.yaml
 
 {% endcode %}
 
-If needed, customize `repoURL` and `targetRevision` in `application.yaml` before applying.
-
 ## Verify Sync and Health
 
 {% code %}
@@ -60,10 +84,22 @@ If needed, customize `repoURL` and `targetRevision` in `application.yaml` before
 ```bash
 kubectl -n roadrunner get svc roadrunner -w
 curl -sS http://<external-ip>/
-curl -sS http://<external-ip>/health
 ```
 
 {% endcode %}
+
+To check the status server, forward its pod port:
+
+```bash
+kubectl -n roadrunner port-forward deployment/roadrunner 2114:2114
+```
+
+In another terminal, request the probes:
+
+```bash
+curl -sS 'http://127.0.0.1:2114/livez?plugin=http'
+curl -sS 'http://127.0.0.1:2114/readyz?plugin=http'
+```
 
 ## Troubleshooting
 

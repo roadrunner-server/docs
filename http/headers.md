@@ -1,4 +1,4 @@
-# HTTP — Headers and CORS
+# HTTP - Headers and CORS
 
 The headers middleware sets request/response headers and controls CORS for your application.
 
@@ -37,7 +37,7 @@ http:
 
 Replace the example origin in both settings with your trusted origin. Keep `^` and `$` in the regex. Use `[.]` to match literal dots. Do not use `allowed_origin: "*"` with `allow_credentials: true`.
 
-In v6 beta, `allowed_origin`, `allowed_methods`, `allowed_headers`, and `exposed_headers` ignore whitespace around each comma-separated value. For example, `"GET, POST"` selects both methods.
+`allowed_origin`, `allowed_methods`, `allowed_headers`, and `exposed_headers` ignore whitespace around each comma-separated value. For example, `"GET, POST"` selects both methods.
 
 {% hint style="info" %}
 Since RoadRunner v2023.2.0, the following changes were made:

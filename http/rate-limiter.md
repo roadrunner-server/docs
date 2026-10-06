@@ -4,9 +4,7 @@ The `rate_limiter` middleware limits requests before they reach PHP. It uses one
 
 ## Availability
 
-{% hint style="info" %}
-This middleware is planned for the RoadRunner bundle in the upcoming v3 release with v6 plugins. The pinned [RR source build](../intro/install.md) at `b0cccd917f001b6584eafdc04ad6ba69a97cbb69` does not include it. The implementation is in [rate-limiter PR #1](https://github.com/roadrunner-server/rate-limiter/pull/1).
-{% endhint %}
+The RoadRunner v3 bundle includes this middleware. See [rate-limiter PR #1](https://github.com/roadrunner-server/rate-limiter/pull/1) and [RoadRunner PR #2389](https://github.com/roadrunner-server/roadrunner/pull/2389).
 
 ## Configuration
 

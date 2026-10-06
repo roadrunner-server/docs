@@ -2,7 +2,7 @@
 
 HTTP plugin is used to pass `HTTP`/`HTTPS`/`fCGI`/`HTTP2(h2c)`/`HTTP3` requests to the PHP worker.
 
-The upcoming bundle adds [HTTP rate limiting](rate-limiter.md) with global, IP, or header keys. The pinned source build does not yet include this middleware; see its [availability](rate-limiter.md#availability).
+The RoadRunner v3 bundle includes [HTTP rate limiting](rate-limiter.md) with global, IP, or header keys and [Zstd response compression](zstd.md).
 
 ## Configuration reference
 
@@ -39,8 +39,8 @@ http:
   raw_body: false
 
   # Middleware names depend on the plugins in the build. Requests run left to right in v6.
-  # The "zstd" middleware requires a build that includes the zstd plugin.
-  # The upcoming "rate_limiter" middleware uses http.rate_limiter settings.
+  # The "zstd" middleware compresses responses for clients that accept Zstd.
+  # The "rate_limiter" middleware uses http.rate_limiter settings.
   #
   # Default value: []
   middleware: [ "headers", "gzip" ]
@@ -50,6 +50,11 @@ http:
   #
   # Default: [] (forwarding headers are not trusted)
   trusted_subnets: [ "127.0.0.1/32" ]
+
+  # Forwarding headers to read, in priority order.
+  # Requires "proxy_ip_parser" and a trusted_subnets match.
+  # An omitted or empty list uses the default order shown here.
+  trusted_headers: [ "Forwarded", "X-Forwarded-For", "X-Real-IP", "True-Client-IP", "CF-Connecting-IP" ]
 
   # File uploading settings.
   uploads:
@@ -131,12 +136,12 @@ http:
     # Default: empty
     forbid: [ ".php", ".htaccess" ]
 
-    # ETag calculation (based on the body CRC32)
+    # Calculate ETags. Strong ETags use CRC32C of the file contents.
     #
     # Default: false
     calculate_etag: false
 
-    # Weak ETags use the file name in the pinned static beta.
+    # Weak ETags use the file size and modification time.
     #
     # Default: false
     weak: false
@@ -145,6 +150,21 @@ http:
     #
     # Default: empty
     allow: [ ".txt", ".css", ".js" ]
+
+    # URL path prefixes to serve. An empty list accepts all paths.
+    prefixes: []
+
+    # Cache file metadata when calculate_etag is true. Zero disables this cache.
+    # Default: 10s
+    cache_ttl: 10s
+
+    # Cache missing files and directories. Zero disables this cache.
+    # Default: 10s
+    cache_miss_ttl: 10s
+
+    # Maximum entries in each cache. Zero selects the default.
+    # Default: 16384
+    cache_max_entries: 16384
 
     # Request headers
     #
@@ -497,7 +517,7 @@ return $response->withAddedHeader('Http2-Push', '/test.js');
 
 {% endcode %}
 
-In v6 beta, this virtual header requires the exact name `Http2-Push`.
+This virtual header requires the exact name `Http2-Push`.
 
 Note that the path of the resource must be related to the public application directory and must include `/` at the
 beginning.
@@ -508,7 +528,7 @@ HTTP/2 push only works under HTTPS with the `static` service enabled.
 
 ### H2C
 
-H2C provides HTTP/2 over an unencrypted TCP connection. In v6 beta, the client must start with HTTP/2 prior knowledge. HTTP/1.1 requests with `Upgrade: h2c` are handled as HTTP/1.1; RR does not upgrade them.
+H2C provides HTTP/2 over an unencrypted connection. The client must start with HTTP/2 prior knowledge. HTTP/1.1 requests with `Upgrade: h2c` are handled as HTTP/1.1; RR does not upgrade them.
 
 {% code title=".rr.yaml" %}
 
@@ -550,9 +570,9 @@ http:
 
 {% endcode %}
 
-## Development: Unix Sockets
+## Unix Sockets
 
-The development HTTP plugin supports independent [Unix socket attributes](../intro/config.md#unix-socket-attributes) for plain HTTP and FastCGI:
+Configure independent [Unix socket attributes](../intro/config.md#unix-socket-attributes) for plain HTTP and FastCGI. Each listener accepts optional `mode`, `uid`, and `gid` fields:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -575,13 +595,9 @@ A socket options object does not enable a listener. Set its `address` to a files
 
 During shutdown, the HTTP plugin closes the FastCGI listener. This stops new connections. It does not close FastCGI connections that the server already accepted.
 
-See [Nginx group access](../app-server/nginx-with-rr.md#development-unix-socket) to let a web server connect without changing application file permissions.
+See [Nginx configuration](../app-server/nginx-with-rr.md) for a FastCGI socket shared with a web server. These settings were added in [HTTP PR #284](https://github.com/roadrunner-server/http/pull/284).
 
-## Development: PROXY protocol
-
-{% hint style="warning" %}
-This section requires a custom build that includes the untagged HTTP change [8bebd3b](https://github.com/roadrunner-server/http/commit/8bebd3b). The currently pinned HTTP plugin, `v6.0.0-beta.10`, does not include PROXY protocol support.
-{% endhint %}
+## PROXY protocol
 
 PROXY protocol v1 and v2 let a TCP proxy supply client addresses. Configure each application listener separately. `http.proxy_protocol` controls plain HTTP, including H2C. `http.ssl.proxy_protocol` controls HTTPS. Omit the corresponding section to disable it.
 
@@ -612,9 +628,13 @@ http:
 - For HTTPS, the proxy must send the PROXY header before the TLS handshake. The HTTPS listener still requires certificates or ACME configuration. Temporary ACME challenge listeners are not wrapped.
 - Only TCP application listeners support this setting. It does not apply to HTTP/3 or FastCGI. Headers with TCP4 or TCP6 addresses replace the connection addresses; v1 `UNKNOWN` and v2 `LOCAL` retain the socket addresses.
 
+The supplied client address applies to the whole connection, including all HTTP/2 streams. The proxy must use separate backend connections for different client identities. PROXY metadata does not change the TLS state or URL scheme.
+
 This trust list is separate from [HTTP forwarding-header trust](./proxy.md). If `proxy_ip_parser` also runs, it checks `trusted_subnets` against the client address supplied by PROXY protocol, not the original TCP peer.
 
 Route HTTP readiness checks through a trusted proxy that sends a PROXY header. For direct checks, use the status plugin's separate [health and readiness endpoints](../lab/health.md). A successful TCP connection alone does not prove that RR accepted the PROXY header or that a worker is ready.
+
+The parser can reject fragmented v1 headers. It limits the v2 address and metadata payload to 4,096 bytes. Use v2 when the proxy supports it. See [HTTP PR #283](https://github.com/roadrunner-server/http/pull/283).
 
 ## HTTP/3
 
@@ -636,7 +656,7 @@ http:
 
 The `http.internal_error_code` is used for `SoftJob`, allocation, TTL, network, and similar errors. For example, a load balancer might require a different code, so you may override the default.
 
-In v6 beta, malformed request bodies that RR cannot parse return `400 Bad Request`. Requests that exceed `max_request_size` return `413 Request Entity Too Large`. `internal_error_code` does not override these responses.
+Malformed request bodies that RR cannot parse return `400 Bad Request`. Requests that exceed `max_request_size` return `413 Request Entity Too Large`. `internal_error_code` does not override these responses.
 
 {% hint style="warning" %}
 With `http.pool.debug: true`, internal error responses can contain HTML-escaped error text. Keep debug mode disabled on public production servers.
@@ -644,7 +664,7 @@ With `http.pool.debug: true`, internal error responses can contain HTML-escaped 
 
 ## Middleware order
 
-In v6 beta, requests enter middleware from left to right in the configuration list. Responses return through the same middleware in reverse order. A middleware can return a response without calling the remaining handlers.
+Requests enter middleware from left to right in the configuration list. Responses return through the same middleware in reverse order. A middleware can return a response without calling the remaining handlers.
 
 The order was reversed in v5. Reverse an existing list to preserve its v5 behavior.
 
@@ -667,6 +687,23 @@ http:
 {% endcode %}
 
 In the v6 example, requests enter `gzip`, then `headers`, then `static`. Put `headers` and `gzip` before `static` to apply them to static responses. Middleware can replace headers set by an earlier handler.
+
+## Tracing
+
+Configure [OpenTelemetry](../lab/otel.md) and put `otel` before the middleware to trace:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+http:
+  middleware: [ "otel", "headers", "gzip" ]
+```
+
+{% endcode %}
+
+The `headers`, `gzip`, `zstd`, `proxy_ip_parser`, and `rate_limiter` spans end before the next handler starts. They cover work before that call. Compression spans do not measure the full response compression time. The `static` span includes file serving when it handles the request. When it forwards the request, its span ends before the next handler starts.
+
+The `sendfile` middleware uses a second span, `sendfile:post`, for work after the PHP response. The HTTP plugin's internal `http` span includes worker and response processing. The outer HTTP server span measures the request through the handlers that follow `otel`.
 
 ## Request queues
 

@@ -1,146 +1,20 @@
-# Upgrading
+# Upgrade and Compatibility
 
-This section provides information about upgrading your RoadRunner configuration to the latest version.
+These reference pages describe the upcoming RoadRunner v3 release and its v6 plugins. Use the [2025 to v3 upgrade guide](v3-migration.md) when updating an existing application. See the [v3 release notes](../releases/v3-0-0.md) for the major changes.
 
-For RoadRunner v3, see [v3 Migration](v3-migration.md). It covers the v5-to-v6 plugin changes, upgrade checks, and known limits. The configuration format remains `version: "3"`.
+## Configuration Version
 
-## Compatibility matrix
+| RoadRunner release | `.rr.yaml` version | Go plugin modules |
+| --- | --- | --- |
+| v2025 | `"3"` | `/v5` |
+| v3 | `"3"` | `/v6` |
 
-The compatibility matrix provides information about the supported configuration versions for different RoadRunner
-versions.
+Keep `version: "3"` at the root of `.rr.yaml`. The configuration version is separate from the RoadRunner release and the Go plugin versions.
 
-| RR version     | Configuration version                                                          |
-|----------------|--------------------------------------------------------------------------------|
-| **>=2023.x.x** | **3**                                                                          |
-| **>=2.8**      | **2.7**                                                                        |
-| **2.7.x**      | **2.7** `OR` Unversioned (treated as `v2.6.0`, will be auto-updated to `v2.7`) |
-| **<=2.6.x**    | Doesn't support versions                                                       |
+## PHP Applications
 
-{% hint style="info" %}
-*non-versioned: configuration used in the 2.0.x-2.6.x releases.
-{% endhint %}
+Use compatible RoadRunner PHP packages for each enabled plugin. The [RPC reference](../php/rpc.md) describes codec compatibility. The [plugin API reference](../customization/plugin.md#dto-compatibility) describes changes to generated DTOs.
 
-## Changelog
+## Custom Builds
 
-### v3.0 Configuration and RR v2023.x.x
-
-#### Reload plugin update
-
-{% hint style="warning" %}
-The `reload` plugin has been removed from the default plugins list. Please use `*.pool.debug=true` instead.
-{% endhint %}
-
-#### OpenTelemetry middleware update
-
-Starting from version **v2023.1.0**, the OpenTelemetry (OTEL) middleware configuration has been moved out of the HTTP
-plugin to support its usage across multiple plugins, including HTTP, gRPC, jobs, and temporal. The OTEL middleware is now
-configured using a top-level YAML key.
-
-**RoadRunner 2.x:**
-
-{% code title=".rr.yaml" %}
-
-```yaml
-# HTTP plugin settings.
-http:
-  ...
-  middleware: [ "otel" ]
-  otel:
-    insecure: true
-    compress: false
-    client: http
-    exporter: otlp
-    custom_url: ""
-    service_name: "rr_test"
-    service_version: "1.0.0"
-    endpoint: "127.0.0.1:4318"
-```
-
-{% endcode %}
-
-**RoadRunner v2023.x.x:**
-
-{% code title=".rr.yaml" %}
-
-```yaml
-http:
-  ...
-  middleware: [ "otel" ]
-
-otel:
-  insecure: true
-  compress: false
-  client: http
-  exporter: otlp
-  custom_url: ""
-  service_name: "rr_test"
-  service_version: "1.0.0"
-  endpoint: "127.0.0.1:4318"
-```
-
-{% endcode %}
-
-## Updating from `version: 2.7` to `version: 3`
-
-To update your configuration from version 2.7 to version 3, follow these steps:
-
-1. **Update the version number:** Change the `version` value from `2.7` to `3`.
-2. **Relocate the `otel` middleware configuration:** If your configuration uses the `otel` middleware configuration
-   within the `http` plugin, move it to the configuration root by cutting it from the `http` plugin and pasting it at
-   the root level.
-3. **Remove** the `reload` plugin configuration and if needed, use the `*.pool.debug=true` option instead.
-
-### Upgrading to RoadRunner v2024.1.x
-
-**There are no breaking changes in the userland API.**
-
-#### Configuration
-
-1. **`server.relay_timeout`** was deprecated and replaced internally with the Go context timeout. Starting from `v2024.1.0`, this option is a no-op.
-
-#### ⚠️ HTTP plugin ⚠️
-
-{% hint style="warning" %}
-Starting from `v2024.1.0` RR uses the protobuf encoded messages to send the payloads to the PHP workers via pipes and our protocol called `goridge`.
-That means you'll need to install the `protobuf` PHP extension to benefit from increased performance. The PHP userland API remains the same.
-{% endhint %}
-
-{% hint style="info" %}
-RR uses `pipes` and our custom protocol called `goridge` to communicate with the PHP worker.
-However, the user payload was usually encoded with a `JSON` codec.
-This approach led to issues,
-such as broken raw binary payloads due to `JSON's` limitations and fields reordering, even in raw mode.
-With the new protobuf codec, these problems have been resolved.
-Now, by using the `http.raw_body=true` option, you'll receive the payload completely untouched as it is.
-Additionally, encoded images or raw binary payloads will no longer be escaped
-(which previously led to broken images in payloads not encoded in base64).
-{% endhint %}
-
-#### Compatibility with RoadRunner PHP packages
-
-1. The `spiral/roadrunner-http` and `spiral/roadrunner-worker` packages should be upgraded to version **3.5**. Old RR versions up to `v2023.3.12` are also supported with the latest versions of the PHP packages.
-
-### Upgrading to RoadRunner v2024.2.x
-
-{% hint style="info" %}
-**There are no breaking changes in the userland API and no configuration changes.**
-{% endhint %}
-
-#### Information for plugin developers
-
-{% hint style="warning" %}
-
-Starting from `v2024.2.0`, all plugins were updated to version 5 due to the deprecation of the RoadRunner [SDK](https://github.com/roadrunner-server/sdk).
-Pool, Workers, and Context tools are now available separately:
-
-- The `util.CreateListener` API was moved to the [TcpListen](https://github.com/roadrunner-server/tcplisten) package with the same functionality.
-- `util.Context` (and various context keys) was moved to the [Context](https://github.com/roadrunner-server/context) package.
-- `Pool`, `Workers API`, and all `IPC` related stuff was moved to the [Pool](https://github.com/roadrunner-server/pool) package. You only need to replace `sdk/v4` with `pool` in your imports. For example, `github.com/roadrunner-server/sdk/v4/pool/static_pool/config` -> `github.com/roadrunner-server/pool/static_pool/config`.
-- `events` (events bus package from `github.com/roadrunner-server/sdk/v4/events`) was moved to the [Events](https://github.com/roadrunner-server/events) package.
-
-{% endhint %}
-
-### Upgrading to RoadRunner v2025
-
-- For users of the RoadRunner library, the only required update is to change the Go package version from `v2024` to `v2025` in your `go.mod` file and package imports.
-- There are no breaking changes in the userland API and no configuration changes.
+Build custom Go plugins with the v6 interfaces and module paths. See [Writing a Plugin](../customization/plugin.md) and [Building RR with a Custom Plugin](../customization/build.md). Source builds require Go 1.27 or later.

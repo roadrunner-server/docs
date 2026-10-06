@@ -63,7 +63,7 @@ func (p *Plugin) Name() string {
 {% endcode %}
 
 {% hint style="info" %}
-The plugin must implement the [HTTP middleware interface](https://github.com/roadrunner-server/http/blob/v6.0.0-beta.10/api/interfaces.go#L36-L40), including `Name() string`. See [plugin migration](plugin.md#v6-migration) for the v6 imports and shared contracts.
+The plugin must implement the [HTTP middleware interface](https://github.com/roadrunner-server/http/blob/master/api/interfaces.go#L36-L40), including `Name() string`. See [plugin migration](plugin.md#v6-migration) for the v6 imports and shared contracts.
 {% endhint %}
 
 ## gRPC

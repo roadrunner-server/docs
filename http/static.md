@@ -1,9 +1,9 @@
-# HTTP — Serving static content
+# HTTP - Serving static content
 
 The `static` HTTP middleware serves static content using RoadRunner on the main HTTP plugin endpoint.
 
 {% hint style="info" %}
-If there is no file to serve, RR forwards the request to the PHP worker. The pinned static plugin, `v6.0.0-beta.5`, does not include the cache and prefix options described in the [development section](#development-cache-and-prefixes).
+The middleware serves files for `GET` and `HEAD` requests. It forwards other requests to PHP. See [cache and prefixes](#cache-and-prefixes) to limit filesystem checks and cache file metadata.
 {% endhint %}
 
 ## Enable HTTP middleware
@@ -38,11 +38,11 @@ Where:
 1. `dir`: required path to an existing directory.
 2. `forbid`: file extensions that should not be served.
 3. `allow`: extensions that should be served (empty = serve all except forbidden). If an extension is present in both lists (allow and forbid), it is treated as forbidden.
-4. `calculate_etag`: enable etag calculation for the static file.
-5. `weak`: use a weak ETag (`W/`) when `calculate_etag` is enabled. In the pinned beta, this value depends only on the file name, not its contents. With `weak: false`, RR calculates a strong CRC32 ETag from the file contents.
+4. `calculate_etag`: enable [ETag calculation](#etags) for the static file.
+5. `weak`: use file size and modification time for a weak ETag (`W/`). With `weak: false`, RR calculates a strong CRC32C ETag from the file contents. This setting requires `calculate_etag: true`.
 6. `request/response`: custom headers for the static files.
 
-In v6 beta, put `static` after `gzip` and `headers` so they also apply to static responses. See [middleware order](./http.md#middleware-order) when migrating a v5 configuration.
+Put `static` after `gzip` and `headers` so they also apply to static responses. See [middleware order](./http.md#middleware-order) when migrating a v5 configuration.
 
 {% code title=".rr.yaml" %}
 
@@ -56,7 +56,7 @@ http:
   # Settings for "headers" middleware.
   headers:
     cors:
-      allowed_origin: "*"
+      allowed_origin: "https://app.example.com"
       allowed_headers: "*"
       allowed_methods: "GET,POST,PUT,DELETE"
       allow_credentials: true
@@ -77,13 +77,9 @@ http:
 
 {% endcode %}
 
-## Development: cache and prefixes
+## Cache and prefixes
 
-{% hint style="warning" %}
-This section requires a custom build that includes the untagged static change [030052b](https://github.com/roadrunner-server/static/commit/030052b). The currently pinned static plugin, `v6.0.0-beta.5`, does not include these options or the behavior changes in this section.
-{% endhint %}
-
-The development build serves only `GET` and `HEAD` requests. Other methods go to the PHP worker. It normalizes the URL path before checking prefixes and file extensions.
+The middleware normalizes the URL path before checking prefixes and file extensions. Requests for missing files, directories, or paths without a file extension go to PHP.
 
 {% code title=".rr.yaml" %}
 
@@ -114,9 +110,15 @@ Negative TTLs and negative entry limits are invalid.
 
 A positive cache hit still opens the file and reads its metadata. RR reuses cached metadata only when the file size and modification time match. It detects deleted files and changed metadata on the next request. A cached miss avoids the filesystem lookup. RR can continue to send requests for a newly created file to PHP until `cache_miss_ttl` expires.
 
-If a deployment preserves both file size and modification time, RR can reuse an old ETag until `cache_ttl` expires. Run `rr reset static` after such a deployment to clear both caches. Set both TTLs to `0s` to disable caching.
+If a deployment preserves both file size and modification time, RR can reuse an old ETag until `cache_ttl` expires. Run `rr reset static` after such a deployment to clear both caches. This command requires [RPC](../php/rpc.md). Set both TTLs to `0s` to disable caching.
 
-In this development build, weak ETags use file size and modification time. Strong ETags use CRC32C and are not generated for empty files or files larger than 32 MiB. Treat ETags as opaque values rather than calculating them in a client.
+These options were added in [static PR #147](https://github.com/roadrunner-server/static/pull/147).
+
+## ETags
+
+Set `calculate_etag: true` to add ETags. Strong ETags use CRC32C of the file contents. RR does not generate a strong ETag for an empty file or a file larger than 32 MiB. Set `weak: true` to use file size and modification time for a weak ETag.
+
+Clients can send `If-None-Match` with a stored ETag. An unchanged file can return `304 Not Modified` without its body. Store and send ETags as opaque values. Do not calculate them in the client.
 
 ## Fileserver plugin
 
@@ -125,7 +127,7 @@ The `static` middleware runs on the main HTTP endpoint. The Fileserver plugin us
 
 ## File server configuration
 
-In v6 beta, startup fails if `address` is empty or `serve` has no entries. Each `prefix` must be nonempty and start with `/`.
+Startup fails if `address` is empty or `serve` has no entries. Each `prefix` must be nonempty and start with `/`.
 
 {% code title=".rr.yaml" %}
 
@@ -192,9 +194,9 @@ fileserver:
 
 {% endcode %}
 
-### Development: Unix Socket
+### Unix Socket
 
-The development Fileserver plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes). These options belong to `fileserver`, not `http.static`:
+The Fileserver plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes). Set optional `mode`, `uid`, and `gid` fields under `fileserver.unix_socket`:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -209,3 +211,5 @@ fileserver:
 ```
 
 {% endcode %}
+
+These settings apply to the Fileserver listener. See [Fileserver PR #95](https://github.com/roadrunner-server/fileserver/pull/95).

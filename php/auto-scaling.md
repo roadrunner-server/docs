@@ -1,8 +1,6 @@
-# Automatic worker scaling (beta)
+# Automatic worker scaling
 
-## Beta notice
-
-Automatic scaling is in beta. Do not use it in production environments. This page describes [pool/v2 v2.0.0-beta.1](https://github.com/roadrunner-server/pool/tree/v2.0.0-beta.1), which is used by the v6 plugin beta.
+This page describes automatic scaling in the upcoming RoadRunner v3 release, using [pool/v2](https://github.com/roadrunner-server/pool).
 
 ## Introduction
 
@@ -24,13 +22,15 @@ If no worker becomes free within `pool.allocate_timeout`, RoadRunner attempts to
 
 Only one allocation batch can run at a time. Concurrent triggers do not each start a batch. The next batch can start after a one-second cooldown once the previous batch finishes.
 
-{% hint style="warning" %}
-In beta.1, allocation does not retry the request that triggered it. That request can still fail with `NoFreeWorkers` after new workers are added. Applications must handle this failure.
-{% endhint %}
+After a batch adds workers, the request retries worker acquisition. A concurrent request that cannot start a batch because of the cooldown also retries. Each retry waits up to `allocate_timeout`, subject to the caller's context deadline. The total wait can include the initial timeout, worker startup, and the retry timeout.
 
-After an `idle_timeout` interval without allocation triggers, the allocator removes up to `spawn_rate` extra workers per tick. Recent allocation triggers postpone removal, including triggers rejected by the cooldown. This is not a separate idle timer for each worker.
+If a batch adds no workers because the pool is at its limit or worker startup fails, the request returns `NoFreeWorkers`. A batch that adds at least one worker still permits the retry, even if a later worker fails to start. Choose `allocate_timeout` to allow both worker startup and waiting for a free worker.
 
-A removal attempt waits up to 500 ms for a free worker. If none becomes free, the allocator stops that removal batch and tries again on a later tick. It does not interrupt a busy worker to scale down. Stopping a selected worker can take longer than the 500 ms wait.
+Idle checks start with the first automatic allocation attempt. After an `idle_timeout` interval without allocation triggers, the allocator removes up to `spawn_rate` extra workers per tick. Recent allocation triggers postpone removal, including triggers rejected by the cooldown. This is not a separate idle timer for each worker.
+
+A removal batch is limited to the number of workers that are free at the start of the check. Each removal attempt waits up to 500 ms for a free worker. If none becomes free, the allocator stops that batch. It does not interrupt a busy worker to scale down. Stopping a selected worker can take longer than the 500 ms wait.
+
+The allocator counts all workers above the base `num_workers` value. This includes workers added through [manual scaling](manual-scaling.md). Worker resets preserve the current pool size; extra workers remain subject to idle removal.
 
 ### Usage
 

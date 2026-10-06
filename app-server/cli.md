@@ -2,6 +2,17 @@
 
 RoadRunner offers a convenient CLI to start and manage the server.
 
+| Command | Purpose |
+| --- | --- |
+| `rr serve` | Start RoadRunner. |
+| `rr stop` | Signal the process recorded in `.pid`. |
+| `rr reset [plugin...]` | Reset worker pools through RPC. |
+| `rr workers [plugin...]` | Show worker state through RPC. |
+| `rr jobs --list` | List Jobs pipelines through RPC. |
+| `rr jobs --pause`, `--resume`, or `--destroy` | Manage Jobs pipelines through RPC. |
+
+Use `rr --help` or `rr <command> --help` to list the options in your binary.
+
 ## Version
 
 To display the version of RoadRunner, you can use the `-v` or `--version` option:
@@ -32,13 +43,12 @@ To start the server, you can use the following command:
 {% code %}
 
 ```terminal
-./rr serve 
+./rr serve
 ```
 
 {% endcode %}
 
-By default, RoadRunner looks for a `.rr.yaml` file in the current working directory where the binary is placed. However,
-you can also specify the configuration file from a different location using the `-c` option:
+RoadRunner looks for `.rr.yaml` in the current working directory. Use `-c` to select a different configuration file:
 
 {% code %}
 
@@ -48,7 +58,7 @@ you can also specify the configuration file from a different location using the 
 
 {% endcode %}
 
-You can also specify the working directory using the -w option:
+Use `-w` to select a working directory. Without `-w`, RoadRunner uses the directory that contains the selected configuration file:
 
 {% code %}
 
@@ -58,8 +68,7 @@ You can also specify the working directory using the -w option:
 
 {% endcode %}
 
-RoadRunner also supports `.env` files. To read environment variables from the `.env` file, use the `--dotenv` CLI
-command:
+Use `--dotenv` to load an environment file before the command reads configuration. `DOTENV_PATH` takes precedence over this option:
 
 {% code %}
 
@@ -69,10 +78,9 @@ command:
 
 {% endcode %}
 
-## Background mode
+## PID file
 
-Additionally, you can start the server in background mode using the `-p` option. In this mode, RoadRunner creates
-a `.pid` file:
+Use `-p` to write the process ID to `.pid` in the working directory. The process stays in the foreground. Use a process manager such as [systemd](systemd.md) to run it as a service.
 
 {% code %}
 
@@ -118,18 +126,13 @@ To enable experimental features, use the `--enable-experimental` or `-e` option:
 
 ## Options
 
-- `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a `.rr.yaml` file in the current
-  working directory. However, you can specify a different file using this option.
-- `-w` - sets the working directory for the server. By default, RoadRunner uses the current working directory.
-- `--dotenv` - populates the process with environment variables from the `.dotenv` file. This can be useful when you
-  want to set environment variables for your application.
-- `-d` - starts a Golang profiling server. This allows you to analyze the performance of your application and
-  identify potential bottlenecks. (Read more [here](https://pkg.go.dev/net/http/pprof).)
-- `-s` - enables silent mode. In this mode, RoadRunner does not display any output in the console.
-- `-o` - allows you to override configuration keys with your values. For example, `-o=http.address=8080` will override
-  the `http.address` configuration key from the `.rr.yaml` file.
-- `-p` - creates a `.pid` file to use with the rr stop command later. This can be useful when you want to run RoadRunner
-  in the background mode.
+- `-c` - selects the configuration file. The default is `.rr.yaml` in the current working directory.
+- `-w` - sets the working directory. Without this option, RoadRunner uses the configuration file's directory.
+- `--dotenv` - loads an environment file. Existing process environment values take precedence over values in the file.
+- `-d` - starts a Go profiling server. See [pprof](https://pkg.go.dev/net/http/pprof).
+- `-s` - suppresses command status messages. Configure plugin logs through the `logs` section.
+- `-o` - overrides a configuration key, such as `-o http.address=127.0.0.1:8080`. Included files can override these values.
+- `-p` - creates a `.pid` file for `rr stop`.
 - `-e` or `--enable-experimental` - enables experimental features. This option is useful when you want to test new
   features that are not yet available in the stable release.
 
@@ -147,8 +150,7 @@ To stop RoadRunner, you have a few options:
 {% endhint %}
 
 {% hint style="info" %}
-By default, the grace period is 30 seconds. You can change it in the configuration file using `endure.grace_period`
-setting. You can find an example [here](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml#L2115).
+The default grace period is 30 seconds. Set `endure.grace_period` to change it. See [plugin shutdown](../customization/plugin.md#serving).
 {% endhint %}
 
 You can also use the following command to stop the server:
@@ -182,26 +184,26 @@ The `rr stop` command can only be used to stop a RoadRunner server that was star
 
 ## Restarting the Server
 
-RoadRunner supports graceful restarts using the `SIGUSR2` signal on Unix-like systems. This allows you to restart the RoadRunner process without downtime, which is particularly useful in deployment scenarios.
+Use `SIGUSR2` on Unix-like systems to reload RoadRunner configuration. RoadRunner stops its plugins, then starts the same executable with the same arguments and environment. Listeners close during this restart, so requests need another available instance if continuous service is required.
 
 To restart RoadRunner, send the `SIGUSR2` signal to the main RoadRunner process:
 
 {% code %}
 
 ```bash
-kill -USR2 <pid>
+kill -USR2 1234
 ```
 
 {% endcode %}
 
-Where `<pid>` is the process ID of the main RoadRunner process.
+Replace `1234` with the process ID of the main RoadRunner process.
 
 When RoadRunner receives the `SIGUSR2` signal, it performs the following steps:
 
-1. Validates the executable path
-2. Notifies systemd (if running under systemd)
-3. Gracefully stops all workers and plugins
-4. Replaces the current process with a new one using the same executable path
+1. Resolves the executable path.
+2. Stops workers and plugins.
+3. Replaces the process with the same executable, arguments, and environment.
+4. Reads the configuration during startup.
 
 {% hint style="info" %}
 If the configuration file is a symlink, RoadRunner will properly re-read the configuration from the symlink target after restart. This allows you to update the symlink to point to a new configuration file for deployment workflows.
@@ -223,9 +225,7 @@ RoadRunner allows you to reload all workers.
 
 {% endcode %}
 
-This command reloads all RoadRunner workers, including HTTP, gRPC, and others, and starts them with a new worker pool.
-This can be useful when you make changes to your application code and want to see the changes reflected in the running
-server.
+This command calls `resetter.Reset` for plugins that support worker reset. It loads new PHP code with the running server's configuration. Use [SIGUSR2](#restarting-the-server) to apply changes to `.rr.yaml`.
 
 By default, this command displays output in the console. However, if you want to reload the workers silently, you can
 use the `--silent` option:
@@ -253,11 +253,7 @@ Additionally, you can reload only particular plugins by specifying their names:
 {% endcode %}
 
 {% hint style="info" %}
-RoadRunner will wait for any active requests to finish processing before reloading the worker pool. This ensures that
-all active requests are completed before the new worker pool is started.
-Any new incoming requests that arrive during the reloading process will be queued and processed once the new worker
-pool is started. This means that there may be a temporary delay in processing new requests while the worker pool is
-being reloaded, but no requests should be lost.
+The pool waits up to `pool.reset_timeout` for active work before it starts stopping workers. Requests waiting for a worker can still reach their allocation timeout. See [worker pool timeouts](../php/pool.md#timeouts-and-admission).
 {% endhint %}
 
 ### Options
@@ -338,7 +334,7 @@ workers at the time the command is executed.
 
 - `-c` - specifies the path to the configuration file. By default, RoadRunner looks for a `.rr.yaml` file in the current
   working directory. However, you can specify a different file using this option.
-- `-w` - sets the working directory for the server. By default, RoadRunner uses the current working directory.
+- `-w` - sets the working directory. Without this option, RoadRunner uses the configuration file's directory.
 - `-i` - interactive mode (updates statistics every second).
 
 ## Jobs commands
@@ -413,8 +409,12 @@ For example:
 {% code %}
 
 ```yaml
+version: "3"
+
 rpc:
-  listen: "127.0.0.1:6001"
+  listen: "tcp://127.0.0.1:6001"
 ```
 
 {% endcode %}
+
+If the RPC address uses values from a dotenv file, pass `--dotenv` to the client command. These commands do not load the root `envfile` setting. See [environment files](../php/environment.md#dotenv).

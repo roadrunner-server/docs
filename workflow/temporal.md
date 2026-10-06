@@ -1,10 +1,9 @@
 # About Temporal.IO
-Temporal is a distributed, scalable, durable, and highly available orchestration engine used to execute asynchronous 
-long-running business logic in a scalable and resilient way.
+Temporal runs durable workflows and activities for long-running business operations.
 
 Read more at [official website](https://docs.temporal.io/).
 
-RoadRunner >= 2.0 includes a plugin to execute Temporal workflows and activities. Make sure to write [temporal worker](/workflow/worker.md).
+RoadRunner includes a plugin to execute Temporal workflows and activities. Configure a [Temporal worker](worker.md).
 
 Activate plugin via config:
 
@@ -24,7 +23,8 @@ temporal:
 logs:
   level: debug
   channels:
-    temporal.level: error
+    temporal:
+      level: error
 ```
 
 ## Worker Heartbeats
@@ -34,6 +34,25 @@ The `temporal.worker_heartbeat_interval` option sets how often SDK workers repor
 Positive intervals below `1s` are clamped to `1s`. Intervals above `60s` are clamped to `60s`. The plugin logs a warning when it clamps a value.
 
 The plugin supplies host CPU and memory usage and the PHP SDK identity for these heartbeats. This option does not control activity heartbeats or the activity heartbeat timeout.
+
+## Custom Payload Converters
+
+The plugin collects Go implementations of Temporal's `converter.PayloadConverter` interface from a [custom RoadRunner build](../customization/build.md). Use `data_converters` to select converters by their `Encoding()` value and set their order:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+temporal:
+  address: "127.0.0.1:7233"
+  data_converters:
+    - "json/custom"
+```
+
+{% endcode %}
+
+This example requires a registered converter with the encoding `json/custom`. An unknown encoding fails initialization. If the list is empty or omitted, the plugin uses all registered converters. Set the list when converter order matters.
+
+The composite converter tries the standard nil, byte, and Protobuf converters first. It then tries the selected custom converters, followed by the standard JSON converter. See the [payload converter example](https://github.com/roadrunner-server/data-converter-example).
 
 ## Example
 Integrated workflow server provides the ability to create very complex, long-running activities.

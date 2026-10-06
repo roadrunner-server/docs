@@ -183,7 +183,7 @@ suffix". A value of `0` is equivalent to a timeout of 8 milliseconds (`8ms`). A 
 `max_retry_backoff`: Maximum backoff between each retry. Must be in the format of a "numeric value" + "time format
 suffix". A value of `0` is equivalent to a timeout of 512 milliseconds (`512ms`). A value of `-1` disables backoff.
 
-In the v6 beta, `min_retry_backoff` controls the minimum retry delay independently of `max_retry_backoff`. The v5 driver used the maximum value for both settings. Review both values before upgrading.
+`min_retry_backoff` controls the minimum retry delay independently of `max_retry_backoff`.
 
 ### Pool Size
 
@@ -193,7 +193,7 @@ cores in your system, then setting the option to 2 you will get 16 connections.
 
 ### TLS Configuration
 
-The `tls` section enables TLS for the Redis connection. Omit the section for a non-TLS connection. In the v6 beta, a TLS configuration without `root_ca` uses the system trust store.
+The `tls` section enables TLS for the Redis connection. Omit the section for a non-TLS connection. A TLS configuration without `root_ca` uses the system trust store.
 
 `cert`: Path to the client certificate file. Set this with `key` when the server requires client authentication.
 
@@ -201,7 +201,7 @@ The `tls` section enables TLS for the Redis connection. Omit the section for a n
 
 `root_ca`: Optional path to PEM-encoded CA certificates. The driver adds these certificates to the system trust store to verify the server certificate. This option does not require `cert` or `key`.
 
-The v6 beta rejects a CA file that contains no valid PEM certificates. The v5 driver could proceed without TLS in this case. Check the CA file before deployment. An unreadable CA file also prevents startup.
+An unreadable CA file or a CA file without valid PEM certificates prevents startup.
 
 ### Other
 
@@ -271,13 +271,7 @@ Where new options means:
 Redis Sentinel provides high availability for Redis. You can find more information
 about [Sentinel on the documentation page](https://redis.io/topics/sentinel).
 
-Sentinel configuration adds three options: `master_name`, `sentinel_username`, and `sentinel_password`.
-Set `addrs` to the Sentinel endpoints, rather than the Redis master address.
-
-{% hint style="info" %}
-`sentinel_username` is a development/unreleased addition in [redis#245](https://github.com/roadrunner-server/redis/pull/245).
-Use a Redis KV plugin build that includes this change.
-{% endhint %}
+Sentinel configuration adds three options: `master_name`, `sentinel_username`, and `sentinel_password`. Set `addrs` to the Sentinel endpoints.
 
 {% code title=".rr.yaml" %}
 
@@ -312,12 +306,10 @@ Sentinel options:
 
 - `sentinel_username`: Optional Sentinel ACL username. Defaults to an empty string.
 
-- `sentinel_password`: Optional password for the Sentinel ACL user, or the password configured with
-  `requirepass` for the default user. Defaults to an empty string.
+- `sentinel_password`: Optional password for the Sentinel ACL user, or the password configured with `requirepass` for the default user. Defaults to an empty string.
 
-`username` and `password` authenticate against the Redis master. `sentinel_username` and `sentinel_password`
-authenticate against Sentinel. For password-only Sentinel authentication, omit `sentinel_username` or set it to `""`.
+`username` and `password` authenticate against the Redis master. `sentinel_username` and `sentinel_password` authenticate against Sentinel. For password-only Sentinel authentication, omit `sentinel_username` or set it to `""`.
 
 ## Expiration Errors
 
-In the v6 beta, `kv.MExpire` returns Redis command errors instead of ignoring them. Handle RPC errors before assuming that an expiration was set. A batch can update some keys before a later key fails.
+`kv.MExpire` returns Redis command errors through RPC. Handle these errors before assuming that an expiration was set. A batch can update some keys before a later key fails.

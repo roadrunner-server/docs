@@ -2,19 +2,19 @@
 
 Velox builds a RoadRunner binary from the plugins listed in `velox.toml`. Use it to select plugins or build with a custom plugin or fork.
 
-{% hint style="warning" %}
-**Velox v3 is untagged.** This guide requires development revision `6b71101ce0080143b4927cf2d84ab0ba02189b67`, not a released Velox binary. The example uses RR development source with v6 beta plugins. Use the pinned installation command below.
+{% hint style="info" %}
+This guide uses Velox v3 to build the upcoming RoadRunner v3 release with v6 plugins. The example follows RoadRunner development source and the latest available v6 plugin versions.
 {% endhint %}
 
 ## Configuration
 
-This TOML configuration pins the RR commit and plugin versions. The plugin tags match the requirements in the [pinned RR source](https://github.com/roadrunner-server/roadrunner/blob/b0cccd917f001b6584eafdc04ad6ba69a97cbb69/go.mod).
+This TOML configuration selects a minimal HTTP server. Keep all RoadRunner plugins on the `/v6` module line. Use exact plugin tags and an RR commit SHA when you need repeatable builds.
 
 {% code title="velox.toml" %}
 
 ```toml
 [roadrunner]
-ref = "b0cccd917f001b6584eafdc04ad6ba69a97cbb69"
+ref = "master"
 
 [github]
 base_url = "https://github.com"
@@ -24,19 +24,19 @@ token = "${GITHUB_TOKEN}"
 
 [plugins.logger]
 module_name = "github.com/roadrunner-server/logger/v6"
-tag = "v6.0.0-beta.4"
+tag = "latest"
 
 [plugins.server]
 module_name = "github.com/roadrunner-server/server/v6"
-tag = "v6.0.0-beta.7"
+tag = "latest"
 
 [plugins.rpc]
 module_name = "github.com/roadrunner-server/rpc/v6"
-tag = "v6.0.0-beta.6"
+tag = "latest"
 
 [plugins.http]
 module_name = "github.com/roadrunner-server/http/v6"
-tag = "v6.0.0-beta.10"
+tag = "latest"
 
 [log]
 level = "info"
@@ -48,6 +48,8 @@ mode = "production"
 Velox includes `informer` and `resetter` automatically from the downloaded RR `go.mod`. Do not add them to `[plugins]`. Velox warns and ignores those entries.
 
 List each plugin module once. Custom plugins must export a `Plugin` type from the module root.
+
+`tag = "latest"` selects a published module version. It does not select every untagged change on `master`. Set `tag` to a full commit SHA when testing a merged change without a release tag. Use compatible revisions for its required modules.
 
 ### Options
 
@@ -93,6 +95,8 @@ Velox v3 ignores the old `[github.plugins.*]` and `[gitlab.*]` tables. It does n
 
 The old per-plugin `ref`, `owner`, `repository`, `folder`, and inline `replace` fields are also ignored. Use the module path declared in the plugin's `go.mod`, including for plugins in repository subdirectories. Move inline replacements to `[[replaces]]`.
 
+The `build_args` setting is removed. Use `debug.enabled`, `debug.race`, and `target_platform` for build options. Velox sets version metadata from `roadrunner.ref` and the build timestamp.
+
 ### Private repositories
 
 Go downloads plugin modules, including modules hosted on GitLab. Configure SSH or HTTPS credentials for Go module downloads. Set `GOPRIVATE` for your private module prefixes. Replace the organization names in this example:
@@ -111,12 +115,12 @@ To download from GitHub Enterprise, set `[github] base_url` to your host, such a
 
 ## Building
 
-Use Go `1.27.1` for this example. Install the pinned Velox development revision:
+Use Go `1.27.1` for this example. Install Velox v3 from its development branch:
 
 {% code title="go install" %}
 
 ```bash
-go install github.com/roadrunner-server/velox/v3/cmd/vx@6b71101ce0080143b4927cf2d84ab0ba02189b67
+go install github.com/roadrunner-server/velox/v3/cmd/vx@master
 ```
 
 {% endcode %}
@@ -126,7 +130,7 @@ Add the Go binary installation directory to `PATH`. Build from the directory tha
 {% code title="vx build" %}
 
 ```bash
-SOURCE_DATE_EPOCH=1788438954 vx build -c velox.toml -o .
+vx build -c velox.toml -o .
 ```
 
 {% endcode %}
@@ -138,9 +142,11 @@ SOURCE_DATE_EPOCH=1788438954 vx build -c velox.toml -o .
 
 The command produces `./rr`. When the target matches the host OS and architecture, Velox checks `rr --version` before it replaces the output binary. For a cross-build, run that check on the target system. The output directory can be on another filesystem, including a container volume mount.
 
+Build errors include the last 8 KB of the Go command's standard error output. Set `log.level = "debug"` to see that output while the command runs.
+
 ### Reproducible builds
 
-`SOURCE_DATE_EPOCH` sets the binary build timestamp in Unix seconds. The value above is the pinned RR commit's timestamp. Without a valid value, Velox uses the current time. The reported binary version comes from `roadrunner.ref`; the old `VERSION` and `TIME` environment variables are not used.
+`SOURCE_DATE_EPOCH` sets the binary build timestamp in Unix seconds. Without a valid value, Velox uses the current time. The reported binary version comes from `roadrunner.ref`; the old `VERSION` and `TIME` environment variables are not used.
 
 Keep the Velox revision, RR commit, plugin tags, Go toolchain, target platform, build flags, and environment fixed for repeated builds. Keep local replacement contents fixed.
 

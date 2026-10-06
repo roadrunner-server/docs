@@ -59,7 +59,7 @@ To use the RoadRunner KV plugin, you need to define multiple key-value storages 
 configuration file. Each storage must have a `driver` that indicates the type of connection used by those storages. At
 the moment, four different types of drivers are available: `boltdb`, `redis`, `memcached`, and `memory`.
 
-In the v6 beta, an unknown driver name in `kv.<storage>.driver` stops RoadRunner startup with a `no such constructor was registered` error. The v5 driver skipped that storage instead. Check the driver name. Confirm that your RoadRunner binary includes the driver.
+An unknown driver name in `kv.<storage>.driver` stops RoadRunner startup with a `no such constructor was registered` error. Check the driver name. Confirm that your RoadRunner binary includes the driver.
 
 {% hint style="info" %}
 The `memory` and `boltdb` drivers do not require additional binaries and are available immediately, while the others
@@ -361,7 +361,7 @@ To make it easy to use the KV proto API in PHP, we provide
 a [GitHub repository](https://github.com/roadrunner-php/roadrunner-api-dto), that contains all the generated PHP DTO
 classes proto files, making it easy to work with these files in your PHP application.
 
-- [API](https://github.com/roadrunner-server/api/blob/master/proto/kv/v1/kv.proto)
+- [API](https://github.com/roadrunner-server/api/blob/master/roadrunner/api/kv/v1/kv.proto)
 
 ### RPC API
 
@@ -369,7 +369,7 @@ RoadRunner provides an RPC API, which allows you to manage key-value in your app
 The RPC API provides a set of methods that map to the available methods of the `Spiral\RoadRunner\KeyValue\Cache` class
 in PHP.
 
-Each request must name a configured storage. In the v6 beta, the `memory`, `redis`, and `memcached` drivers reject empty item lists for `Has`, `MGet`, `Set`, and `Delete`. The `memory` and `redis` drivers also reject empty `TTL` requests. Skip empty batches in direct RPC clients. `Clear` needs a storage name but no items.
+The plugin uses Goridge RPC with `kv/v1` Protobuf messages. Each request must name a configured storage. The `memory`, `redis`, and `memcached` drivers reject empty item lists for `Has`, `MGet`, `Set`, and `Delete`. The `memory` and `redis` drivers also reject empty `TTL` requests. Skip empty batches in direct RPC clients. `Clear` needs a storage name but no items.
 
 #### Has
 

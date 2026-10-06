@@ -24,9 +24,9 @@ composer require spiral/goridge
 
 ## v6 compatibility
 
-The v6 plugin beta still uses Goridge with Go `net/rpc`. Keep the existing TCP or Unix listener address and `plugin.Method` calls. No Connect client migration is required.
+RoadRunner v3 uses Goridge with Go `net/rpc`. Keep the existing TCP or Unix listener address and `plugin.Method` calls. No Connect client migration is required.
 
-The Go transport, `goridge/v4 v4.0.0-beta.3`, no longer supports MessagePack. PHP clients that select a MessagePack codec must switch to a supported codec, even if their PHP Goridge version still offers MessagePack. The server supports JSON, protobuf, Gob, and raw bytes. Use JSON for JSON RPC arguments and protobuf for methods that accept protobuf DTOs.
+The Go transport, `goridge/v4`, no longer supports MessagePack. PHP clients that select a MessagePack codec must switch to a supported codec, even if their PHP Goridge version still offers MessagePack. The server supports JSON, protobuf, Gob, and raw bytes. Use JSON for JSON RPC arguments and protobuf for methods that accept protobuf DTOs.
 
 The Go module version does not change the frame protocol version. The base header, payload-length encoding, CRC calculation, and frame version remain compatible. This does not add a new frame-size limit or make MessagePack calls compatible.
 
@@ -47,9 +47,9 @@ rpc:
 
 {% endcode %}
 
-### Development: Unix Socket
+### Unix Socket
 
-The development RPC plugin can set [Unix socket attributes](../intro/config.md#unix-socket-attributes) independently of worker credentials:
+The RPC plugin can set [Unix socket attributes](../intro/config.md#unix-socket-attributes) independently of worker credentials:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -153,7 +153,7 @@ the RPC Go definitions for these plugins in the following repositories:
 - [Metrics](https://github.com/roadrunner-server/metrics/blob/master/rpc.go)
 - [Lock](../plugins/locks.md) - Provides a way to obtain and release locks on
   resources. [GitHub](https://github.com/roadrunner-server/lock/blob/master/rpc.go)
-- [Service](../plugins/service.md) - Monitors and controls processes through Goridge RPC. The development/unreleased [`service.Update`](../plugins/service.md#update-service-configuration) method updates stored service settings. [GitHub](https://github.com/roadrunner-server/service/blob/master/rpc.go)
+- [Service](../plugins/service.md) - Monitors and controls processes through Goridge RPC. [`service.Update`](../plugins/service.md#update-service-configuration) updates stored service settings. [GitHub](https://github.com/roadrunner-server/service/blob/master/rpc.go)
 - [RPC](https://github.com/roadrunner-server/rpc/blob/master/rpc.go)
 
 ### Async PHP RPC interface

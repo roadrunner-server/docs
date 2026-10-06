@@ -7,12 +7,12 @@ program.
 
 Here's an example of how to embed RoadRunner into a Go program with an HTTP handler:
 
-Use Go `1.27.1`. Import the RoadRunner library at the same revision as the [source installation guide](../intro/install.md#build-from-source):
+Use Go `1.27.1`. Import the RoadRunner library from the development branch for the upcoming v3 release. Use the same commit SHA as your [source build](../intro/install.md#build-from-source) when you need a fixed revision:
 
 {% code title="Install the library" %}
 
 ```bash
-go get github.com/roadrunner-server/roadrunner/v2025/lib@b0cccd917f001b6584eafdc04ad6ba69a97cbb69
+go get github.com/roadrunner-server/roadrunner/v2025/lib@master
 ```
 
 {% endcode %}

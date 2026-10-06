@@ -14,6 +14,7 @@ development process. Some of the most notable plugins include:
 - [**Logger**](../lab/logger.md): Robust logging capabilities for various output formats and destinations.
 - [**App-Logger**](../lab/applogger.md): Send application logs to the RoadRunner logger from a PHP application.
 - [**gRPC**](../grpc/grpc.md): Efficient and scalable gRPC server implementation.
+- [**Protoreg**](../grpc/protoreg.md): Protobuf descriptors for gRPC reflection and custom plugins.
 - [**Temporal**](../workflow/temporal.md): Workflow and task orchestration with distributed computing capabilities.
 - [**Server**](./server.md): Core server functionality and lifecycle management.
 - [**Service**](./service.md): Start and monitor services like a supervisor.
@@ -21,6 +22,9 @@ development process. Some of the most notable plugins include:
 - [**Metrics**](../lab/metrics.md): Application-level metrics and monitoring.
 - [**KV**](../kv/overview-kv.md): Key-value store interface for storage and retrieval of data.
 - [**Jobs**](../queues/overview-queues.md): Background job processing and management.
+- [**NSQ**](../queues/nsq.md): Jobs driver with topics, channels, and broker discovery.
+- [**Rate limiter**](../http/rate-limiter.md): HTTP request limits by global, IP, or header key.
+- [**Zstd**](../http/zstd.md): HTTP response compression with Zstandard.
 - [**HealthChecks**](../lab/health.md): Health monitoring and reporting for system components.
 - [**OpenTelemetry (OTEL)**](../lab/otel.md): Distributed tracing and observability with OpenTelemetry integration.
 

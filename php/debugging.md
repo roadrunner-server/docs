@@ -26,7 +26,7 @@ rpc:
 server:
    command: "php worker.php"
    env:
-     - XDEBUG_SESSION: 1
+     XDEBUG_SESSION: 1
 
 http:
    address: "0.0.0.0:8080"
@@ -56,7 +56,7 @@ php -dvariables_order=EGPCS artisan octane:start --max-requests=250 --server=roa
 
 ## Xdebug for RoadRunner in Docker
 
-Build the [local v6 RoadRunner image](../app-server/docker.md#build-the-roadrunner-image) before building the application image below.
+Build the [local RoadRunner image](../app-server/docker.md#build-the-roadrunner-image) before building the application image below.
 
 First, create a `docker-compose.yml` file in your project root, or copy the `environment` and `extra_hosts` sections into your existing `docker-compose.yml`:
 
@@ -113,7 +113,7 @@ server:
     command: 'php app.php'
     relay: pipes
     env:
-      - XDEBUG_SESSION: 1
+      XDEBUG_SESSION: 1
 metrics:
     address: '127.0.0.1:2112'
 ```
@@ -125,7 +125,7 @@ Next, create a `Dockerfile` in your project root or copy the following content:
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM roadrunner:v6-b0cccd9 AS roadrunner
+FROM roadrunner:v3-local AS roadrunner
 
 FROM php:8.5-cli-alpine
 

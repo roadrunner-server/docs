@@ -84,7 +84,7 @@ registered plugins, such as `grpc`, `http`, `jobs`, etc.
 
 {% tab title="Worker command" %}
 
-You can also define command to start server in the `grpc.pool.command` section to separate server and grpc workers.
+Set `tcp.pool.command` to use a separate command for TCP workers.
 
 {% code title=".rr.yaml" %}
 
@@ -125,9 +125,9 @@ tcp:
 - `pool`: Configuration for the PHP worker pool for the TCP servers. See
 https://docs.roadrunner.dev/docs/php-worker/pool for available parameters.
 
-### Development: Unix Sockets
+### Unix Sockets
 
-The development TCP plugin supports [Unix socket attributes](../intro/config.md#unix-socket-attributes) on each named server. Keep the worker command and pool configuration from the preceding example:
+Configure [Unix socket attributes](../intro/config.md#unix-socket-attributes) on each named server. Keep the worker command and pool configuration from the preceding example:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -241,4 +241,4 @@ while ($request = $tcpWorker->waitRequest()) {
 
 ## What's Next?
 
-1. [Plugins — KV](../kv/overview-kv.md) - Learn how to use the Key Value plugin to store data between requests.
+1. [Plugins - KV](../kv/overview-kv.md) - Learn how to use the Key Value plugin to store data between requests.

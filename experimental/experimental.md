@@ -26,31 +26,13 @@ Or:
 
 {% endcode %}
 
-## List of experimental features
+## Configuration Files
 
-### Support for loading [`envfiles`](https://github.com/roadrunner-server/roadrunner/issues/1077) in the `.rr.yaml`: `[>= v2023.3.5]`
+The `envfile` and `include` settings work without the experimental flag. See [Configuration](../plugins/config.md) for these settings.
 
-In `v2023.3.5`, we added experimental support for loading `envfiles` in the `.rr.yaml` configuration file.
-`.env` file should be in the same directory as the `.rr.yaml` file.
+## HTTP/3 Server
 
-Sample `.rr.yaml` file:
-
-{% code title=".rr.yaml" %}
-
-```yaml .rr.yaml
-version: "3"
-envfile: .env
-```
-
-{% endcode %}
-
-### Support for the HTTP/3 server: `[>=2023.3.8]`
-
-In `v2023.3.8`, we added experimental support for an HTTP/3 server.
-
-{% hint style="warning" %}
-The pinned HTTP plugin, `v6.0.0-beta.10`, requires existing certificate and private key files in `http.http3.cert` and `http.http3.key`. The HTTP/3 listener does not use certificates from `http.ssl.acme`.
-{% endhint %}
+Set `http.http3.cert` and `http.http3.key` to existing certificate and private key files. The HTTP/3 listener requires these files at startup. Start RoadRunner with `-e` to enable this listener.
 
 Sample `.rr.yaml` file:
 

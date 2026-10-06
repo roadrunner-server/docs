@@ -2,13 +2,14 @@
 
 ## Introduction
 
-Manual scaling has been available since RoadRunner `2023.3`. Use `Spiral\RoadRunner\WorkerPool` to add or remove workers through [Goridge RPC](rpc.md). The v6 plugin beta retains these PHP calls.
+Use `Spiral\RoadRunner\WorkerPool` to add or remove workers through [Goridge RPC](rpc.md). RoadRunner v3 retains these PHP calls.
 
 ### Limitations
 
 - This feature is not available when running RoadRunner in debug mode (`pool.debug=true`).
-- With `pool/v2 v2.0.0-beta.1`, a pool can hold at most 2048 workers. The initial `num_workers` value cannot exceed 500.
+- A pool can hold at most 2048 workers. The initial `num_workers` value cannot exceed 500.
 - A removal selects a free worker. It does not interrupt an active request or remove the last worker.
+- When an automatic allocator is active, workers above the base `num_workers` count are subject to its idle removal rules, including manually added workers.
 
 ### Usage
 

@@ -2,10 +2,6 @@
 
 RoadRunner publishes jobs to an NSQ topic and consumes them through an NSQ channel.
 
-{% hint style="info" %}
-NSQ is newly bundled in the RoadRunner development binary that uses v6 plugins. It is not included in RoadRunner `v2025.1.15`. This page describes the `nsq` driver at `v6.0.0-beta.1`.
-{% endhint %}
-
 ## Configuration
 
 Start `nsqd` before RoadRunner. The example uses a [Jobs consumer](./overview-queues.md) in `consumer.php`.
@@ -47,6 +43,7 @@ The global `nsq` section is required. Put connection settings in this section. P
 - `lookupd`: An optional list of nsqlookupd HTTP addresses, such as `["127.0.0.1:4161"]`. With this option, consumers discover nsqd servers through nsqlookupd. Without it, consumers connect to `addr`.
 - `lookupd_poll_interval`: The duration between discovery polls. It also controls the delay before a direct consumer connection reconnects. The default is `60s`.
 - `dial_timeout`: The connection timeout. The default is `1s`. Duration settings use a unit suffix, such as `5s`.
+- `read_timeout` and `write_timeout`: Network read and write timeouts. Positive values override the NSQ client defaults of `60s` and `1s`.
 
 ## Pipeline Options
 
@@ -67,7 +64,7 @@ The global `nsq` section is required. Put connection settings in this section. P
 ## Retry Limit
 
 {% hint style="warning" %}
-In `v6.0.0-beta.1`, omitting `max_attempts` or setting it to `0` keeps the client default of five attempts. Zero does not enable unlimited retries. On a delivery beyond the limit, the client acknowledges the message without sending it to PHP. The driver does not forward it to a dead-letter queue.
+Omitting `max_attempts` or setting it to `0` keeps the client default of five attempts. Zero does not enable unlimited retries. On a delivery beyond the limit, the client acknowledges the message without sending it to PHP. The driver does not forward it to a dead-letter queue.
 {% endhint %}
 
 Use a positive `max_attempts` value for a different limit. A retry that publishes a new message starts a new broker attempt count. This setting is not a total retry limit across those new messages. Applications that must retain failed jobs need their own failure storage.
@@ -76,4 +73,4 @@ Use a positive `max_attempts` value for a different limit. A retry that publishe
 
 RR statistics report pipeline identity, listener readiness, and a locally tracked delayed-job count. They do not report the broker backlog. Use [nsqadmin](https://nsq.io/components/nsqadmin.html) for topic and channel counts.
 
-The beta driver does not expose TLS or authentication settings.
+The driver does not expose TLS or authentication settings.

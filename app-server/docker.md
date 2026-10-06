@@ -1,30 +1,16 @@
 # Docker Images
 
-Build a local image with v6 plugins from the same RoadRunner revision as the [installation guide](../intro/install.md). The application, Nginx, and debugging examples use this image.
+Build a local image from the RoadRunner binary selected in the [installation guide](../intro/install.md). The application, Nginx, and debugging examples use this image.
 
 ## Build the RoadRunner Image
 
-Create `Dockerfile.rr` in the build directory:
+Build a static Linux `rr` binary for the target architecture. Use `CGO_ENABLED=0` for a source build. Put the binary and `Dockerfile.rr` in the same build directory:
 
 {% code title="Dockerfile.rr" %}
 
 ```dockerfile
-FROM --platform=$BUILDPLATFORM golang:1.27.1 AS build
-
-ARG TARGETOS
-ARG TARGETARCH
-
-WORKDIR /src
-
-ADD https://github.com/roadrunner-server/roadrunner/archive/b0cccd917f001b6584eafdc04ad6ba69a97cbb69.tar.gz /tmp/rr.tar.gz
-
-RUN tar -xzf /tmp/rr.tar.gz --strip-components=1 -C /src \
-    && CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -mod=readonly -trimpath \
-       -ldflags "-s -X github.com/roadrunner-server/roadrunner/v2025/internal/meta.version=dev-b0cccd9" \
-       -o /rr ./cmd/rr
-
-FROM scratch
-COPY --from=build /rr /usr/bin/rr
+FROM scratch AS roadrunner
+COPY rr /usr/bin/rr
 ```
 
 {% endcode %}
@@ -32,10 +18,10 @@ COPY --from=build /rr /usr/bin/rr
 Build the image for the same target platform as your PHP application image:
 
 ```bash
-docker build -f Dockerfile.rr -t roadrunner:v6-b0cccd9 .
+docker build -f Dockerfile.rr -t roadrunner:v3-local .
 ```
 
-`roadrunner:v6-b0cccd9` is a local image that supplies the compiled binary. It does not contain PHP. For a cross-build, pass the same `--platform` value to this command and the application image build.
+`roadrunner:v3-local` contains the compiled binary. Copy this binary into an application image with PHP. The binary, this image, and the application image must use the same target architecture. Setting Docker `--platform` does not recompile a binary copied from the host.
 
 ## Build the Application Image
 
@@ -48,7 +34,7 @@ Note that this example utilizes a folder named `app` for your application. If yo
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM roadrunner:v6-b0cccd9 AS roadrunner
+FROM roadrunner:v3-local AS roadrunner
 
 FROM php:8.5-cli-alpine
 

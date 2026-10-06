@@ -4,7 +4,7 @@ JOBS drivers are mini-plugins that are connected to the main JOBS plugin and ini
 
 ## Architecture
 
-The Jobs plugin discovers drivers through the `Constructor` interface. The [Jobs contracts](https://github.com/roadrunner-server/api-plugins/blob/v6.0.0-beta.2/jobs/driver.go) are in `github.com/roadrunner-server/api-plugins/v6/jobs`. See [plugin migration](plugin.md#v6-migration) for the shared import and logging changes.
+The Jobs plugin discovers drivers through the `Constructor` interface. The [Jobs contracts](https://github.com/roadrunner-server/api-plugins/blob/master/jobs/driver.go) are in `github.com/roadrunner-server/api-plugins/v6/jobs`. See [plugin migration](plugin.md#v6-migration) for the shared import and logging changes.
 
 Constructor interface:
 
@@ -208,7 +208,7 @@ Remember the following things:
 ### Pushing jobs into the priority queue
 
 To push a job into the priority queue, you need to slightly transform it to add `Ack`, `Nack`, etc. methods to it.
-The [Job interface](https://github.com/roadrunner-server/api-plugins/blob/v6.0.0-beta.2/jobs/job.go) includes `jobs.Item`:
+The [Job interface](https://github.com/roadrunner-server/api-plugins/blob/master/jobs/job.go) includes `jobs.Item`:
 
 {% code title="job.go" %}
 
