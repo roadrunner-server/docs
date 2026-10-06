@@ -441,14 +441,14 @@ Use Go `1.27.1`. If your project has no `go.mod`, run `go mod init example.com/l
 
 ```bash
 go get github.com/aws/aws-lambda-go@v1.55.0 \
-  github.com/roadrunner-server/api-go/v6@v6.0.0-beta.14 \
-  github.com/roadrunner-server/config/v6@v6.0.0-beta.4 \
+  github.com/roadrunner-server/api-go/v6@latest \
+  github.com/roadrunner-server/config/v6@latest \
   github.com/roadrunner-server/endure/v2@v2.6.2 \
   github.com/roadrunner-server/errors@v1.5.0 \
-  github.com/roadrunner-server/goridge/v4@v4.0.0-beta.3 \
-  github.com/roadrunner-server/logger/v6@v6.0.0-beta.4 \
-  github.com/roadrunner-server/pool/v2@v2.0.0-beta.1 \
-  github.com/roadrunner-server/server/v6@v6.0.0-beta.7 \
+  github.com/roadrunner-server/goridge/v4@latest \
+  github.com/roadrunner-server/logger/v6@latest \
+  github.com/roadrunner-server/pool/v2@latest \
+  github.com/roadrunner-server/server/v6@latest \
   google.golang.org/protobuf@v1.36.12
 ```
 

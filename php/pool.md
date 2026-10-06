@@ -8,7 +8,7 @@ Additionally, the worker pool contains an internal `supervisor` to control the e
 
 ## Worker pool configuration
 
-RoadRunner v3 uses [pool/v2](https://github.com/roadrunner-server/pool). The configuration below describes the upcoming release.
+RoadRunner v3 uses [pool/v2](https://github.com/roadrunner-server/pool).
 
 {% code title=".rr.yaml" %}
 

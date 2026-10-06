@@ -118,7 +118,7 @@ func (p *Plugin) Name() string {
 {% endcode %}
 
 {% hint style="info" %}
-The plugin must implement the [gRPC interceptor interface](https://github.com/roadrunner-server/grpc/blob/v6.0.0-beta.6/api/interfaces.go#L16-L19), including `Name() string`.
+The plugin must implement the [gRPC interceptor interface](https://github.com/roadrunner-server/grpc/blob/master/api/interfaces.go#L16-L19), including `Name() string`.
 {% endhint %}
 
 See [unary gRPC interceptors](../grpc/interceptors.md) for configuration and [go-grpc-middleware](https://github.com/grpc-ecosystem/go-grpc-middleware) for interceptor examples.

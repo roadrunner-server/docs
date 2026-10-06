@@ -1,6 +1,6 @@
 # Upgrade and Compatibility
 
-These reference pages describe the upcoming RoadRunner v3 release and its v6 plugins. Use the [2025 to v3 upgrade guide](v3-migration.md) when updating an existing application. See the [v3 release notes](../releases/v3-0-0.md) for the major changes.
+These reference pages describe RoadRunner v3 and its v6 plugins. Use the [2025 to v3 upgrade guide](v3-migration.md) when updating an existing application. See the [v3 release notes](../releases/v3-0-0.md) for the major changes.
 
 ## Configuration Version
 

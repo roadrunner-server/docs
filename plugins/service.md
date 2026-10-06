@@ -132,7 +132,7 @@ try {
 #### Update service configuration
 
 {% hint style="info" %}
-The PHP examples require a client package with `Manager::update()` and a DTO package with `Update` and `Environment`. PHP client `2.3.0` does not provide `Manager::update()`. The server exposes this operation as `service.Update` over Goridge RPC.
+The PHP examples use `Manager::update()` and the `Update` and `Environment` DTOs. The server exposes this operation as `service.Update` over Goridge RPC.
 {% endhint %}
 
 Use `update()` to change the desired configuration of an existing service. A `true` result confirms acceptance. A name-only call succeeds. Omitted arguments and `null` keep stored values. Explicit `false`, `0`, and `[]` are sent.

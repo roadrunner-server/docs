@@ -1,10 +1,6 @@
 # RoadRunner Installation
 
-These guides describe the upcoming RoadRunner v3 release with v6 plugins. Use the `master` branch to build the development version.
-
-{% hint style="info" %}
-Development builds use the module versions selected in RoadRunner's `go.mod`. Those beta versions can lag behind the merged plugin changes described here. Check the selected versions before using a new option. Use a compatible set of plugin revisions through [Velox](../customization/build.md) to test untagged changes. Default Zstd and Protoreg registration is tracked in [RoadRunner PR #2410](https://github.com/roadrunner-server/roadrunner/pull/2410).
-{% endhint %}
+These guides describe RoadRunner v3 with v6 plugins.
 
 ## Requirements
 

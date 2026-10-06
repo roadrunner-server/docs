@@ -39,7 +39,7 @@ RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https:/
 - Compatible with Windows, WSL2, FreeBSD, GNU/Linux, etc.
 - And more 😉
 
-These pages describe the upcoming RoadRunner v3 release. See the [v3 release notes](releases/v3-0-0.md) and [upgrade steps from v2025](intro/v3-migration.md).
+These pages describe RoadRunner v3. See the [v3 release notes](releases/v3-0-0.md) and [upgrade steps from v2025](intro/v3-migration.md).
 
 If you have a feature request in mind, you can check
 out [GitHub issues](https://github.com/roadrunner-server/roadrunner/issues) page. Here you'll find a list of open

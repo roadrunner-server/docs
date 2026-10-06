@@ -1,6 +1,6 @@
 # Automatic worker scaling
 
-This page describes automatic scaling in the upcoming RoadRunner v3 release, using [pool/v2](https://github.com/roadrunner-server/pool).
+This page describes automatic scaling in RoadRunner v3, using [pool/v2](https://github.com/roadrunner-server/pool).
 
 ## Introduction
 

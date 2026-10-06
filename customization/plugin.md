@@ -15,7 +15,7 @@ Below you can find more information about the plugin interface, how to define a 
 
 ## v6 migration
 
-Use the module versions selected by the RoadRunner build. RoadRunner v3 uses v6 plugin modules and `endure/v2`. The Endure lifecycle and dependency injection interfaces stay the same. The RoadRunner library module is `roadrunner/v2025` in the development branch.
+Use the module versions selected by the RoadRunner build. RoadRunner v3 uses v6 plugin modules and `endure/v2`. The Endure lifecycle and dependency injection interfaces stay the same. The RoadRunner library module is `roadrunner/v2025`.
 
 The API repositories now have separate roles. [api](https://github.com/roadrunner-server/api) contains protobuf source, not a Go module. [api-go](https://github.com/roadrunner-server/api-go) contains generated Go bindings. [api-plugins](https://github.com/roadrunner-server/api-plugins) contains Go plugin contracts, not RPC messages.
 
@@ -51,7 +51,7 @@ Update implementations, local interfaces, and call sites together:
 
 ### DTO compatibility
 
-`api-go/v6` retains the v1 message set. Do not use the v2 DTO packages from earlier betas. The `lock/v1` package defines `Request` and `Response`, not `LockRequest` and `LockResponse`. Regenerated PHP lock DTOs use `RoadRunner\Lock\DTO\V1`. The lock field numbers and types are unchanged; custom descriptor or protobuf `Any` users must account for the package-name change.
+`api-go/v6` uses the v1 message set. The `lock/v1` package defines `Request` and `Response`. Regenerated PHP lock DTOs use `RoadRunner\Lock\DTO\V1`. The lock field numbers and types are unchanged; custom descriptor or protobuf `Any` users must account for the package-name change.
 
 Relocation alone does not change the retained HTTP or Jobs wire fields and does not require a PHP worker-loop rewrite. RPC still uses Goridge and Go `net/rpc`, not Connect. See [RPC compatibility](../php/rpc.md#v6-compatibility) for the MessagePack change.
 

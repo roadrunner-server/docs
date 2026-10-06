@@ -3,7 +3,7 @@
 Velox builds a RoadRunner binary from the plugins listed in `velox.toml`. Use it to select plugins or build with a custom plugin or fork.
 
 {% hint style="info" %}
-This guide uses Velox v3 to build the upcoming RoadRunner v3 release with v6 plugins. The example follows RoadRunner development source and the latest available v6 plugin versions.
+This guide uses Velox v3 to build RoadRunner v3 with v6 plugins.
 {% endhint %}
 
 ## Configuration
@@ -48,8 +48,6 @@ mode = "production"
 Velox includes `informer` and `resetter` automatically from the downloaded RR `go.mod`. Do not add them to `[plugins]`. Velox warns and ignores those entries.
 
 List each plugin module once. Custom plugins must export a `Plugin` type from the module root.
-
-`tag = "latest"` selects a published module version. It does not select every untagged change on `master`. Set `tag` to a full commit SHA when testing a merged change without a release tag. Use compatible revisions for its required modules.
 
 ### Options
 
@@ -115,12 +113,12 @@ To download from GitHub Enterprise, set `[github] base_url` to your host, such a
 
 ## Building
 
-Use Go `1.27.1` for this example. Install Velox v3 from its development branch:
+Use Go `1.27.1` for this example. Install Velox v3:
 
 {% code title="go install" %}
 
 ```bash
-go install github.com/roadrunner-server/velox/v3/cmd/vx@master
+go install github.com/roadrunner-server/velox/v3/cmd/vx@latest
 ```
 
 {% endcode %}

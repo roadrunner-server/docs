@@ -43,7 +43,7 @@ Read more about Temporal configuration and usage on the [official website](https
 
 A dynamic workflow handles workflow types that have no named registration in that SDK worker. Register at most one dynamic workflow per worker. Multiple dynamic registrations cause worker initialization to fail.
 
-PHP SDK support is pending in [temporalio/sdk-php#774](https://github.com/temporalio/sdk-php/pull/774). Use an SDK version that implements this support. The SDK must set the `dynamic` field to `true` in the workflow registration metadata. This is a worker registration option.
+Use a PHP SDK version with [dynamic workflow support](https://github.com/temporalio/sdk-php/pull/774). The SDK must set the `dynamic` field to `true` in the workflow registration metadata. This is a worker registration option.
 
 ## Worker Recovery
 

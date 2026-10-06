@@ -10,7 +10,7 @@ as <https://onlineyamltools.com/convert-yaml-to-json>.
 
 ## Configuration reference
 
-Use the configuration reference for the RoadRunner revision you build. The development reference covers the upcoming v3 release:
+Use the configuration reference for the RoadRunner revision you build:
 
 - [**.rr.yaml**](https://github.com/roadrunner-server/roadrunner/blob/master/.rr.yaml)
 
