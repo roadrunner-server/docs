@@ -14,7 +14,7 @@ Keep `version: "3"` at the root of `.rr.yaml`. Source builds require Go 1.27 or 
 | Logging | Replace `file_logger_options` with `output`. Use an external tool for log rotation. Update JSON parsers for `time` and uppercase levels. Output is asynchronous; a full queue drops new records. See [Logger](../lab/logger.md). |
 | Tracing | Replace the removed Zipkin exporter with OTLP. Use the server span to measure request latency; middleware spans end before the next handler starts. See [OpenTelemetry](../lab/otel.md). |
 | RPC | Replace MessagePack with a supported codec. Goridge v4 supports JSON, protobuf, Gob, and raw payloads. See [RPC](../php/rpc.md). |
-| Jobs | Reserve the `pool` job header for named-pool routing. Configure either `jobs.pool` or `jobs.pools`. See [Jobs](../queues/overview-queues.md). |
+| Jobs | Reserve the `pool` job header for named-pool routing. Configure either `jobs.pool` or `jobs.pools`. The default `pipeline_size` is `100000`. Set `pipeline_size: 1000000` to keep the v5 limit. See [Jobs](../queues/overview-queues.md). |
 | NATS | Review stream retention and repeated-job handling. Stopping a pipeline now preserves messages unless stream deletion is enabled. A new consumer can receive retained messages again after restart. See [NATS retention](../queues/nats.md#delete-stream-on-stop). |
 | Centrifuge | Remove calls to `centrifuge.RateLimit`. Update direct clients for the supported DTOs and events. See [Centrifuge](../plugins/centrifuge.md). |
 | Environment files | A root `envfile` is loaded without experimental mode. Supply the configured file or remove the setting. See [Environment](../php/environment.md). |

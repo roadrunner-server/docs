@@ -81,7 +81,7 @@ jobs:
 
 Common Jobs settings:
 
-- `num_pollers`: RR derives the number of queue pollers from the worker count and ignores this setting. With an explicit worker count, a single pool uses `num_workers + 2` pollers. Named pools use the total worker count plus two.
+- `num_pollers`: RR derives the number of queue pollers from the worker count and ignores this setting. A single pool uses `num_workers + 2` pollers. If `num_workers` is omitted or zero, RR uses the default worker count of the pool. Named pools use the total worker count plus two.
 
 - `timeout`: The internal Golang context timeouts (in seconds). For
   example, if the connection was disconnected or your push was in the middle of a
@@ -91,14 +91,12 @@ Common Jobs settings:
 
 - `options.parallelism`: Limits concurrent pipeline initialization and destruction. Default: `10` when `options` is omitted; `5` when `options.parallelism` is zero.
 
-- `pipeline_size`: The binary heaps priority queue (PQ) settings. The priority
-  queue stores jobs in order of priority. The priority can be set
-  for the job or inherited by the pipeline. When worker performance is poor, PQ
-  will accumulate jobs until `pipeline_size` is reached. After that, PQ
-  is then blocked until the workers have processed all the jobs in it. **Lower number means higher priority.**
+- `pipeline_size`: The size of the priority queue (PQ). All pipelines share one PQ. The PQ stores jobs in order of priority, and jobs with the same priority leave the PQ in the order they arrived. The priority can be set for the job or inherited by the pipeline. When the workers are slower than the drivers, the PQ fills up to `pipeline_size`. After that, each driver waits for a free slot before it adds the next job. Default: `100000`. **Lower number means higher priority.**
 
 {% hint style="info" %}
 A full PQ blocks further inserts. Publishing can continue if the driver has capacity.
+
+A job can wait in the PQ for about `pipeline_size` multiplied by the average job time, divided by the number of workers. Keep this time shorter than the acknowledgment deadline of the broker, for example the beanstalk TTR, the SQS visibility timeout or the NATS `ack_wait`. If the wait is longer, the broker can deliver the job again while it is in the PQ.
 
 The PQ does not guarantee recovery after a crash. Recovery depends on the driver's persistence, broker retention, and acknowledgment settings. The memory driver loses jobs when RoadRunner stops. Auto-ack can acknowledge a job before PHP processes it.
 
@@ -114,10 +112,6 @@ Kafka pipelines with a configured consumer group use partition offset commits. A
 - `pipelines`: This section contains a list of all queues created in the
   RoadRunner. The key is a unique *queue identifier*, and the value is an object of the
   driver-specific configuration (we will talk about this later).
-
-{% hint style="warning" %}
-An explicit `jobs.pool` with omitted or zero `num_workers` creates only two pollers, even after the pool selects its default worker count. Set `jobs.pool.num_workers` to a value greater than zero. Setting `num_pollers` does not correct this.
-{% endhint %}
 
 ### Named Worker Pools
 
