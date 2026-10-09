@@ -1,6 +1,6 @@
 # Protoreg Plugin
 
-`protoreg` provides a shared protobuf registry, enabling other plugins to access proto definitions at runtime, making it ideal for building custom gRPC interceptors, middleware, and dynamic message handling.
+The `protoreg` plugin provides a shared protobuf registry. It reads `.proto` definitions for [gRPC server reflection](#server-reflection), custom interceptors, and dynamic message handling. The RoadRunner v3 bundle includes this plugin.
 
 ## Features
 
@@ -20,14 +20,18 @@
 
 ## Configuration
 
-{% hint style="warning" %}
-The `protoreg` plugin must be enabled alongside the `grpc` plugin in your configuration. Without the `grpc` plugin enabled, the `protoreg` plugin will not be started.
-{% endhint %}
+Both `grpc` and `protoreg` configuration sections are required to start the plugin. Keep the service definitions in both sections consistent.
 
 The plugin is configured under the `protoreg` section in your `.rr.yaml` configuration file:
 
 ```yaml
 version: '3'
+
+grpc:
+  listen: "tcp://127.0.0.1:9001"
+  proto:
+    - "proto/serviceapis/service/v1/service.proto"
+    - "proto/serviceapis/user/v1/user.proto"
 
 protoreg:
   proto_path:
@@ -37,6 +41,8 @@ protoreg:
     - service/v1/service.proto
     - user/v1/user.proto
 ```
+
+Set `server.command` to your gRPC worker as shown in the [gRPC configuration](grpc.md#usage).
 
 ### Configuration Options
 
@@ -59,8 +65,9 @@ proto_path:
 
 #### `files` (required)
 
-A list of proto files to parse and register. Paths are relative to the `proto_path` directories.
-This works similarly to passing [variadic proto files argument in `protoc`](https://www.mankier.com/1/protoc#Options-@%3Cfilename%3E).
+A list of proto files to parse and register. Paths are relative to the `proto_path` directories. Use explicit file names. This list does not expand the glob patterns supported by `grpc.proto`.
+
+Both `proto_path` and `files` must contain at least one entry. Blank entries fail initialization. Each file must exist under at least one configured import path.
 
 **Why it's needed**: This explicitly declares which proto files define the services and messages you want to access at runtime. The plugin will:
 
@@ -73,6 +80,42 @@ files:
   - service/v1/service.proto    # Your gRPC service definitions
   - user/v1/user.proto          # Additional service definitions
 ```
+
+## Server reflection
+
+RR automatically uses the `protoreg` registry for server reflection. Configure the same service files in `grpc.proto` and `protoreg.files`. Paths in `protoreg.files` are relative to `proto_path`; they do not replace `grpc.proto`.
+
+For the [Hello World service](./grpc.md#protoc-plugin), use:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+grpc:
+  listen: "tcp://127.0.0.1:9001"
+  proto:
+    - "proto/helloworld.proto"
+
+protoreg:
+  proto_path:
+    - "proto"
+  files:
+    - "helloworld.proto"
+```
+
+{% endcode %}
+
+Reflection clients can retrieve file and message descriptors for the PHP service. For the preceding listener without TLS, use `grpcurl` without a local `.proto` file:
+
+{% code %}
+
+```bash
+grpcurl -plaintext 127.0.0.1:9001 describe helloworld.Greeter
+grpcurl -plaintext -d '{"name":"RoadRunner"}' 127.0.0.1:9001 helloworld.Greeter/SayHello
+```
+
+{% endcode %}
+
+Reflection streams do not call unary authentication interceptors. See [reflection access controls](./grpc.md#server-reflection).
 
 ## Example: Project Structure
 
@@ -128,6 +171,11 @@ service MyService {
 ```yaml
 version: '3'
 
+grpc:
+  listen: "tcp://127.0.0.1:9001"
+  proto:
+    - "proto/serviceapis/service/v1/service.proto"
+
 protoreg:
   proto_path:
     - proto/commonapis
@@ -138,116 +186,86 @@ protoreg:
 
 ## Using the Registry in Your Plugin
 
-Other plugins can depend on `protoreg` to access the registry. Here's how to use it in a custom plugin:
+Declare `protoreg.Registry` as an initialization dependency:
 
 ```go
 package myplugin
 
-import (
-	"github.com/jhump/protoreflect/desc"
-	"github.com/jhump/protoreflect/v2/protoresolve"
-)
-
-type Registry interface {
-	Registry() *protoresolve.Registry
-	Services() map[string]*desc.ServiceDescriptor
-	FindMethodByFullPath(method string) (*desc.MethodDescriptor, error)
-}
+import "github.com/roadrunner-server/protoreg/v6"
 
 type Plugin struct {
-    registry Registry
+    registry protoreg.Registry
 }
 
-func (p *Plugin) Init(registry Registry) error {
-
+func (p *Plugin) Init(registry protoreg.Registry) error {
     p.registry = registry
-
-    // Access the underlying registry
-    reg := p.registry.Registry()
-
-    // Get all registered services
-    services := p.registry.Services()
-
-    // Find a specific method by its full path
-    method, err := p.registry.FindMethodByFullPath("/service.v1.MyService/Process")
-    if err != nil {
-        return err
-    }
-
-    // Use the method descriptor for reflection
-    inputType := method.GetInputType()
-    outputType := method.GetOutputType()
-
     return nil
 }
 ```
 
 ### Registry Interface
 
-The plugin exposes the following interface:
+The interface uses `protoresolve.Registry` from `github.com/jhump/protoreflect/v2/protoresolve` and descriptors from `github.com/jhump/protoreflect/desc`:
 
 ```go
 type Registry interface {
-    // Registry returns the underlying protoresolve.Registry that
-	// contains all the parsed descriptors
+    // Registry returns the parsed descriptors.
     Registry() *protoresolve.Registry
 
-    // Services returns a map of all registered service descriptors
-    // keyed by their fully qualified name
+    // Services maps fully qualified service names to descriptors.
     Services() map[string]*desc.ServiceDescriptor
 
-    // FindMethodByFullPath finds a method descriptor by its full gRPC path
-    // Format: "/package.Service/Method" or "package.Service/Method"
+    // The path format is "/package.Service/Method" or "package.Service/Method".
     FindMethodByFullPath(method string) (*desc.MethodDescriptor, error)
 }
 ```
 
 ## Example: gRPC Interceptor
 
-Here's an example of using the registry in a custom gRPC interceptor to log request details:
+This unary interceptor logs method descriptors without logging request bodies. Include it with `grpc` and `protoreg` in your custom build. Set `grpc.interceptors: ["descriptor-logger"]` to activate it.
 
 ```go
 package interceptor
 
 import (
     "context"
-    "log"
+    "log/slog"
 
-    "github.com/roadrunner-server/protoreg/v5"
+    "github.com/roadrunner-server/protoreg/v6"
     "google.golang.org/grpc"
-    "google.golang.org/protobuf/proto"
-    "google.golang.org/protobuf/types/dynamicpb"
 )
+
+type Logger interface {
+    NamedLogger(name string) *slog.Logger
+}
 
 type Plugin struct {
     registry protoreg.Registry
+    log *slog.Logger
 }
 
-func (i *Plugin) UnaryInterceptor(
-    ctx context.Context,
-    req interface{},
-    info *grpc.UnaryServerInfo,
-    handler grpc.UnaryHandler,
-) (interface{}, error) {
-    // Find the method descriptor
-    method, err := i.registry.FindMethodByFullPath(info.FullMethod)
-    if err != nil {
-        log.Printf("Method not found in registry: %s", info.FullMethod)
+func (p *Plugin) Init(registry protoreg.Registry, logger Logger) error {
+    p.registry = registry
+    p.log = logger.NamedLogger(p.Name())
+    return nil
+}
+
+func (p *Plugin) Name() string {
+    return "descriptor-logger"
+}
+
+func (p *Plugin) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
+    return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+        method, err := p.registry.FindMethodByFullPath(info.FullMethod)
+        if err == nil && method != nil {
+            p.log.Info("grpc method",
+                "method", method.GetFullyQualifiedName(),
+                "input_type", method.GetInputType().GetFullyQualifiedName(),
+                "output_type", method.GetOutputType().GetFullyQualifiedName(),
+            )
+        }
         return handler(ctx, req)
     }
-
-    // Log method information
-    log.Printf("Method: %s", method.GetFullyQualifiedName())
-    log.Printf("Input type: %s", method.GetInputType().GetFullyQualifiedName())
-    log.Printf("Output type: %s", method.GetOutputType().GetFullyQualifiedName())
-
-    // You can also dynamically inspect the message fields
-    inputDesc := method.GetInputType()
-    for _, field := range inputDesc.GetFields() {
-        log.Printf("  Field: %s (type: %s)", field.GetName(), field.GetType().String())
-    }
-
-    return handler(ctx, req)
 }
 ```
 

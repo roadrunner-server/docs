@@ -78,3 +78,11 @@ value should not exceed `int32` size.
 ### Tube
 
 `tube` - The name of the inner "tube" specific to the Beanstalk driver.
+
+## Headers
+
+RR stores headers with the job body and preserves them on delivery and requeue. This includes retry counts, trace context, and the `pool` header for named worker pools. Existing v5 jobs need no conversion, but headers that v5 did not store cannot be recovered. Process those jobs before switching to named pools.
+
+## Statistics
+
+Queue counters describe the configured tube. An unused tube reports zero jobs. Pipelines that share a tube report the same tube counters.

@@ -7,6 +7,8 @@ It consists of two main parts:
 1. **protoc-plugin `protoc-gen-php-grpc`:** This is a plugin for the protoc compiler that generates PHP code from a gRPC service definition file (`.proto`). It generates PHP classes that correspond to the service definition and message types. These classes provide an interface for handling incoming gRPC requests and sending responses back to the client.
 2. **gRPC server:** This is a server that starts PHP workers and listens for incoming gRPC requests. It receives requests from gRPC clients, proxies them to the PHP workers, and sends the responses back to the client. The server is responsible for managing the lifecycle of the PHP workers and ensuring that they are available to handle requests.
 
+For custom gRPC interceptor plugins, see [Interceptors](./interceptors.md).
+
 ## Protoc-plugin
 
 The first step is to define a `.proto` file that describes the gRPC service and messages that your PHP application will handle.
@@ -49,61 +51,22 @@ The `php_namespace` and `php_metadata_namespace` options allow you to specify th
 
 ### Generating PHP code
 
-After defining the proto file, you need to generate the PHP files using the `protoc` compiler and the `protoc-gen-php-grpc` plugin. You can install the plugin binary using Composer or download a pre-built binary from the GitHub releases page.
-
-{% tabs %}
-
-{% tab title="Prebuilt Binary" %}
-
-The simplest way to get the latest version of `protoc-gen-php-grpc` plugin is to download one of the pre-built release binaries on the GitHub [releases page](https://github.com/roadrunner-server/roadrunner/releases).
-
-Just download the appropriate archive from the release page and extract it into your desired application directory.
-
-{% endtab %}
-
-{% tab title="Composer" %}
-
-If you use Composer to manage your PHP dependencies, you can install the `spiral/roadrunner-cli` package to download the latest version of `protoc-gen-php-grpc` plugin to your project's root directory.
-
-**Install the package**
-
-{% code %}
+Use `protoc` `36.1` and Go `1.27.1`. Install the RoadRunner generator from its pinned source revision:
 
 ```bash
-composer require spiral/roadrunner-cli
+go install github.com/roadrunner-server/grpc/protoc_plugins/v5/protoc-gen-php-grpc@4965bf6d7e43
 ```
 
-{% endcode %}
+Add the Go binary installation directory to `PATH`. Create the `generated` directory before running `protoc`.
 
-And run the following command to download the latest version of the plugin
-
-{% code %}
-
-```bash
-./vendor/bin/rr download-protoc-binary
-```
-
-{% endcode %}
-
-Server binary will be available at the root of your project.
-
-{% hint style="warning" %}
-PHP's extensions `php-curl` and `php-zip` are required. Check with `php --modules` your installed extensions.
-{% endhint %}
-
-{% endtab %}
-
-{% endtabs %}
-
-Once the plugin is installed, you can use the `protoc` command to compile the proto file into PHP files.
+The PHP generator uses the separate `protoc_plugins/v5` module. Its module version is independent of the gRPC plugin v6.
 
 **Here's an example command:**
 
 {% code %}
 
 ```bash
-protoc --plugin=protoc-gen-php-grpc \
-       --php_out=./generated \
+protoc --php_out=./generated \
        --php-grpc_out=./generated \
        proto/helloworld.proto
 ```
@@ -147,31 +110,19 @@ Here's an example of a `buf.yaml` file:
 
 ```yaml
 version: v2
-deps:
-    - buf.build/googleapis/googleapis:fb98f92554c17ec159a0b35ea8ffca71bac14385
-
-name: buf.build/<your_org_name>/<you_project_name>
+modules:
+  - path: proto
 lint:
   use:
-    - DEFAULT
-  except:
-    - FIELD_NOT_REQUIRED
-    - PACKAGE_NO_IMPORT_CYCLE
+    - STANDARD
 breaking:
   use:
     - FILE
-  except:
-    - EXTENSION_NO_DELETE
-    - FIELD_SAME_DEFAULT
 ```
 
 {% endcode %}
 
-Note that you need to optionally replace `<your_org_name>` and `<your_project_name>` with your organization and project names created on the [BUF](https://login.buf.build/u/signup) website.
-
-In the `deps` section, you can specify the dependencies that your `.proto` file relies on. In this example, we're using a dependency from the Google APIs repository.
-
-Also, you may configure the linting and breaking changes rules.
+The module contains the `.proto` files in `proto/`. If your files import external schemas, add their Buf modules under `deps`, run `buf dep update`, and keep the resulting `buf.lock` with your source files.
 
 Here's an example of a `buf.gen.yaml` file:
 
@@ -180,31 +131,31 @@ Here's an example of a `buf.gen.yaml` file:
 ```yaml
 version: v2
 plugins:
-  - remote: buf.build/protocolbuffers/php:v26.1
+  - remote: buf.build/protocolbuffers/php:v36.1
     out: generated/php
-  - remote: buf.build/community/roadrunner-server-php-grpc:v4.8.0
+  - remote: buf.build/community/roadrunner-server-php-grpc:v5.3.0
     out: generated/php
-  - remote: buf.build/protocolbuffers/go:v1.32.0
+  - remote: buf.build/protocolbuffers/go:v1.36.12
     out: generated/go
     opt: paths=source_relative
-  - remote: buf.build/grpc/go:v1.3.0
+  - remote: buf.build/grpc/go:v1.6.2
     out: generated/go
     opt:
       - paths=source_relative
       - require_unimplemented_servers=false
-  - remote: buf.build/grpc/python:v1.63.0
+  - remote: buf.build/grpc/python:v1.83.1
     out: generated/python
-  - remote: buf.build/protocolbuffers/python
+  - remote: buf.build/protocolbuffers/python:v36.1
     out: generated/python
-  - remote: buf.build/protocolbuffers/pyi
+  - remote: buf.build/protocolbuffers/pyi:v36.1
     out: generated/python
 ```
 
 {% endcode %}
 
-As you can see, the `buf.gen.yaml` file specifies the plugins that will be used to generate the code. In this example, we're using the `buf.build/community/roadrunner-server-php-grpc` plugin to generate PHP gRPC services.
+Run `buf generate` from the directory that contains `buf.yaml` and `buf.gen.yaml`. The configuration pins each generator version and uses the RoadRunner plugin to generate PHP gRPC services.
 
-Also, you may generate code for other languages like Go and Python.
+For Buf output, set the `GRPC\\` Composer autoload path to `generated/php/GRPC`. The example also generates Go and Python code.
 
 ## PHP Client
 
@@ -343,7 +294,7 @@ grpc:
 {% endtabs %}
 
 {% hint style="info" %}
-You can define multiple proto files in the `proto` section. From [>=2025.1.9], one can use glob patterns to specify multiple proto files.
+You can list multiple proto files or glob patterns in the `proto` section. Glob patterns have been supported since RoadRunner v2025.1.9.
 {% endhint %}
 
 After configuring the server, you can start it using the following command:
@@ -384,11 +335,11 @@ Message json (type ? to see defaults): {"name":"Roadrunner"}
 }
 ```
 
-On the PHP side, you should see that the successful request has been logged:
+With debug logging enabled, RoadRunner writes records such as:
 
-```
-2025-03-28T10:04:06+0000        DEBUG   server          req-resp mode   {"pid": 81551}
-2025-03-28T10:04:06+0000        DEBUG   grpc            method was called successfully  {"method": "/helloworld.Greeter/SayHello", "start": "2025-03-28T10:04:06+0000", "elapsed": 0}
+```log
+time=2026-10-06T12:00:00.000Z level=DEBUG msg="req-resp mode" logger=server pid=81551
+time=2026-10-06T12:00:00.000Z level=DEBUG msg="method was called successfully" logger=grpc method=/helloworld.Greeter/SayHello start=2026-10-06T12:00:00.000Z elapsed=0
 ```
 
 Congratulations on being able to communicate over gRPC to PHP using Roadrunner!
@@ -419,10 +370,12 @@ grpc:
     key: "server-key.pem"
     cert: "server-cert.pem"
     root_ca: "rootCA.pem"
-    client_auth_type: request_client_cert
+    client_auth_type: require_and_verify_client_cert
 ```
 
 {% endcode %}
+
+`require_and_verify_client_cert` requires a client certificate signed by a trusted CA. `request_client_cert` only requests a certificate; it does not require or verify one.
 
 Options for the `client_auth_type` are:
 
@@ -432,9 +385,29 @@ Options for the `client_auth_type` are:
 - `require_and_verify_client_cert`
 - `no_client_certs`
 
+## Server reflection
+
+The gRPC plugin enables server reflection on the gRPC listen port. Both the v1 and v1alpha reflection APIs are available without an enable flag.
+
+Without a descriptor registry, reflection lists registered services but cannot return the file and message descriptors for PHP services. Configure the bundled [Protoreg plugin](./protoreg.md#server-reflection) with the same service definitions used by `grpc.proto` to provide those descriptors. See [gRPC PR #141](https://github.com/roadrunner-server/grpc/pull/141).
+
+For a listener without TLS, list services with:
+
+{% code %}
+
+```bash
+grpcurl -plaintext 127.0.0.1:9001 list
+```
+
+{% endcode %}
+
+{% hint style="warning" %}
+Reflection uses streaming RPCs. Authentication in `grpc.interceptors` applies only to unary RPCs and does not protect reflection. Restrict network access to the gRPC port or require [verified client certificates](#mtls). The plugin has no configuration option to disable reflection.
+{% endhint %}
+
 ## Health Checking
 
-RoadRunner automatically registers a [`grpc.health.v1.Health`](https://github.com/grpc/grpc/blob/master/doc/health-checking.md) service on the same gRPC listen port. This is the standard gRPC health checking protocol — no additional configuration is required.
+RoadRunner automatically registers a [`grpc.health.v1.Health`](https://github.com/grpc/grpc/blob/master/doc/health-checking.md) service on the same gRPC listen port. This is the standard gRPC health checking protocol. No additional configuration is required.
 
 ### Available methods
 
@@ -489,7 +462,7 @@ grpc:
   # This option is required
   listen: "tcp://127.0.0.1:9001"
 
-  # Proto file to use, multiply files supported [SINCE 2.6]. As of [2023.1.4], wildcards are allowed in the proto field and in version [>=2025.1.9] glob patterns are supported.
+  # Multiple proto files: since v2.6. Wildcards: since v2023.1.4. Glob patterns: since v2025.1.9.
   #
   # This option is required
   proto:
@@ -548,8 +521,8 @@ grpc:
   # This option is optional. Default value: infinity.
   max_connection_age: 0s
 
-  # MaxConnectionAgeGrace is an additive period after MaxConnectionAge after
-  #	which the connection will be forcibly closed.
+  # Time allowed for active RPCs to finish after max_connection_age.
+  # Zero or omitted means unlimited grace.
   max_connection_age_grace: 0s
 
   # Maximal concurrent streams count.
@@ -611,8 +584,72 @@ grpc:
 
 {% endcode %}
 
+### Unix Socket
 
-## OTLP support in the `gRPC` plugin: `[>=2023.3.8]`
+Configure optional `mode`, `uid`, and `gid` fields under `grpc.unix_socket`. See [Unix socket attributes](../intro/config.md#unix-socket-attributes) for their values. Keep the other gRPC settings from the preceding example:
+
+{% code title=".rr.yaml fragment" %}
+
+```yaml
+grpc:
+  listen: "unix:///run/roadrunner/grpc.sock"
+  unix_socket:
+    mode: "0660"
+```
+
+{% endcode %}
+
+Configure clients to use the same Unix socket. These settings apply to the listener socket. They were added in [gRPC PR #154](https://github.com/roadrunner-server/grpc/pull/154).
+
+### Connection age grace
+
+`max_connection_age_grace` controls how long active RPCs can continue after the connection reaches `max_connection_age`. Zero or omitted grace means unlimited time. Set a finite grace to close the connection after that period.
+
+{% code title=".rr.yaml" %}
+
+```yaml
+grpc:
+  max_connection_age: 5m
+  max_connection_age_grace: 30s
+```
+
+{% endcode %}
+
+The v5 plugin used `max_connection_age` as the grace period and ignored `max_connection_age_grace`. To preserve that behavior, explicitly set both values to the same duration.
+
+## Error details in logs
+
+For a failed unary call, the `grpc` logger adds a `details` field when the error contains supported `google.rpc.Status` details. This field contains an array of type names and one-line message values. It is omitted when the error has no supported details.
+
+The supported types from [`google/rpc/error_details.proto`](https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto) are `BadRequest`, `ErrorInfo`, `DebugInfo`, `Help`, `LocalizedMessage`, `PreconditionFailure`, `QuotaFailure`, `RequestInfo`, `ResourceInfo`, and `RetryInfo`. Other detail types are omitted.
+
+Use a structured log mode to retain the field:
+
+{% code title=".rr.yaml" %}
+
+```yaml
+logs:
+  channels:
+    grpc:
+      mode: production
+      level: error
+```
+
+{% endcode %}
+
+For example, a field validation error can include:
+
+```json
+{
+  "details": [
+    "google.rpc.BadRequest: field_violations:{field:\"email\" description:\"is required\"}"
+  ]
+}
+```
+
+See [logger configuration](../lab/logger.md) and [gRPC PR #148](https://github.com/roadrunner-server/grpc/pull/148).
+
+## OTLP support in the `gRPC` plugin
 
 In the `v2023.3.8` we added experimental support for the `OTLP` protocol in the `gRPC` plugin. Stable since `v2024.1.1`. To enable it, you need to activate `otel` plugin by adding the following lines to the `.rr.yaml` file:
 

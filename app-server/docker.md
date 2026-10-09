@@ -1,12 +1,33 @@
 # Docker Images
 
-The following Docker images are available:
+Use the [official RoadRunner image](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner) at `ghcr.io/roadrunner-server/roadrunner:3.0.0`. The application, Nginx, and debugging examples use this release tag.
 
-| Description                              | Links                                                                             | Status                                                                                                                                                                                                                   |
-|------------------------------------------|-----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Official RR image**                    | [Link](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner) | ![Latest Stable Version](https://img.shields.io/github/v/release/roadrunner-server/roadrunner.svg?maxAge=30) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) |
-| **Third-party image from `n1215`**       | [Link](https://github.com/n1215/roadrunner-docker-skeleton)                       | [![License](https://poser.pugx.org/n1215/roadrunner-docker-skeleton/license)](https://packagist.org/packages/n1215/roadrunner-docker-skeleton)                                                                           |
-| **Third-party image from `spacetab-io`** | [Link](https://github.com/spacetab-io/docker-roadrunner-php)                      | ![Latest Stable Version](https://img.shields.io/github/v/release/spacetab-io/docker-roadrunner-php) ![License](https://img.shields.io/github/license/spacetab-io/docker-roadrunner-php)                                  |
+The `3` and `3.0` tags follow releases in their respective version lines. Use `3.0.0` to select a specific release. Copy the RoadRunner binary into an application image with PHP.
+
+## Build the RoadRunner Image
+
+For a custom binary, follow the [source installation guide](../intro/install.md#build-from-source). Build a static Linux `rr` binary for the target architecture with `CGO_ENABLED=0`. Put the binary and `Dockerfile.rr` in the same build directory:
+
+{% code title="Dockerfile.rr" %}
+
+```dockerfile
+FROM scratch AS roadrunner
+COPY rr /usr/bin/rr
+```
+
+{% endcode %}
+
+Build the image for the same target platform as your PHP application image:
+
+```bash
+docker build -f Dockerfile.rr -t roadrunner:v3-local .
+```
+
+`roadrunner:v3-local` contains the compiled binary. Copy this binary into an application image with PHP. The binary, this image, and the application image must use the same target architecture. Setting Docker `--platform` does not recompile a binary copied from the host.
+
+To use this custom image, set the first `FROM` below to `roadrunner:v3-local`.
+
+## Build the Application Image
 
 Here is an example of a `Dockerfile` that can be used to build a Docker image with RoadRunner for a PHP application:
 
@@ -17,9 +38,9 @@ Note that this example utilizes a folder named `app` for your application. If yo
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM ghcr.io/roadrunner-server/roadrunner:2024 as roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:3.0.0 AS roadrunner
 
-FROM php:8.3-alpine
+FROM php:8.5-cli-alpine
 
 # https://github.com/mlocati/docker-php-extension-installer
 # https://github.com/docker-library/docs/tree/0fbef0e8b8c403f581b794030f9180a68935af9d/php#how-to-install-more-php-extensions
@@ -43,7 +64,7 @@ RUN composer install --optimize-autoloader --no-dev
 COPY ./app .
 
 # Run the RoadRunner server
-CMD ./rr serve -c .rr.yaml
+CMD ["/usr/local/bin/rr", "serve", "-c", ".rr.yaml"]
 ```
 
 {% endcode %}

@@ -7,18 +7,60 @@ implementation with automatic method injection.
 **To create a custom plugin, you can follow these steps:**
 
 - Define a struct with a public `Init` method that returns an error value.
-- Implement the `Service` interface in your struct to provide the `Serve` and `Stop` methods.
+- Implement `Serve` and `Stop` only if the plugin starts a service.
 - Request dependencies using their respective interfaces and inject them using the Endure container.
-- Register your plugin with RoadRunner by creating a custom version of the `main.go` file and [building it](build.md).
+- Register the plugin in the RoadRunner container and [build the binary](build.md).
 
 Below you can find more information about the plugin interface, how to define a plugin, and how to access other plugins.
 
+## v6 migration
+
+Use the module versions selected by the RoadRunner build. RoadRunner v3 uses v6 plugin modules and `endure/v2`. The Endure lifecycle and dependency injection interfaces stay the same. The RoadRunner library module is `roadrunner/v3`.
+
+The API repositories now have separate roles. [api](https://github.com/roadrunner-server/api) contains protobuf source, not a Go module. [api-go](https://github.com/roadrunner-server/api-go) contains generated Go bindings. [api-plugins](https://github.com/roadrunner-server/api-plugins) contains Go plugin contracts, not RPC messages.
+
+All import paths in this table start with `github.com/roadrunner-server/`:
+
+| Previous import | v6 plugin import |
+| --- | --- |
+| `roadrunner/v2025/<package>` | `roadrunner/v3/<package>` |
+| `<plugin>/v5` | `<plugin>/v6` |
+| `pool/<package>` | `pool/v2/<package>` |
+| `goridge/v3/pkg/<package>` | `goridge/v4/pkg/<package>` |
+| `api/v4/build/<component>/v1` | `api-go/v6/<component>/v1` |
+| `api/v4/build/lock/v1beta1` | `api-go/v6/lock/v1` |
+| `api/v4/build/status/v1beta1` | `api-go/v6/status/v1` |
+| `api/v4/plugins/v4/jobs` | `api-plugins/v6/jobs` |
+| `api/v4/plugins/v1/{kv,lock,logger,status}` | `api-plugins/v6/{kv,lock,logger,status}` |
+| `api/v4/plugins/v4/priority_queue` | `api-plugins/v6/priority_queue` |
+
+Generated imports have no `build/` segment. For example:
+
+```go
+import jobsv1 "github.com/roadrunner-server/api-go/v6/jobs/v1"
+```
+
+Update implementations, local interfaces, and call sites together:
+
+- **Logging:** use `logger.Named` from `api-plugins/v6/logger` or a local interface with `NamedLogger(string) *slog.Logger`. The old `logger.Log` interface is removed. Pool constructors, worker factories, and logger options also take `*slog.Logger`. Replace `log.Info("started", zap.String("plugin", name))` with `log.Info("started", "plugin", name)`. Slog has no `Fatal`, `Panic`, or `DPanic` methods.
+- **Jobs:** add a leading `context.Context` to `DriverFromConfig` and `DriverFromPipeline`. Calls become `constructor.DriverFromConfig(ctx, key, queue, pipeline)` and `constructor.DriverFromPipeline(ctx, pipeline, queue)`. Existing `Driver` methods already take contexts. See the [Jobs driver tutorial](jobs-driver.md).
+- **KV:** every `Storage` method now takes a leading context, including `Stop`. Update calls such as `storage.Get(ctx, key)`, `storage.Set(ctx, items...)`, and `storage.Stop(ctx)`. Construction becomes `constructor.KvFromConfig(ctx, key)`. Pass the context to backend operations. See the [KV contracts](https://github.com/roadrunner-server/api-plugins/blob/master/kv/interface.go).
+- **Queues:** lock queue signatures use `lock.Item` and `[]lock.Item`, not the old priority-queue package's named interface. Jobs defines its own `jobs.Item`. Both retain `ID`, `GroupID`, and `Priority`. Update queue type arguments and method signatures. The `priority_queue` package now declares the Go package name `priorityqueue`.
+- **Pool defaults:** direct calls to `DynamicAllocationOpts.InitDefaults()` must pass the base worker count: `InitDefaults(cfg.NumWorkers)`. `WorkerWatcher.Watch(workers)` has no return value. Remove checks for its former error result. See the [worker pool](../php/pool.md) for execution and shutdown behavior.
+- **Goridge frames:** `Header()` and `Payload()` return frame-owned slices. Copy data that must survive frame reset or reuse. `From`, `ReadFrame`, and `ReadHeader` retain the supplied buffers; later writes can change those buffers. See the [frame API](https://github.com/roadrunner-server/goridge/blob/master/pkg/frame/frame.go).
+- **Removed helpers:** replace `proxy.Cidrs` from `proxy_ip_parser` with `[]*net.IPNet`. Resetter no longer exposes `Plugin.Reset(string)`; its `resetter.Reset` RPC remains available. OTEL removes `HTTPHandler` and `TemporalHandler`; use `Plugin.Middleware` and `Plugin.WorkerInterceptor`. Temporal no longer exposes `ResetAP`; normal activity-worker replacement is handled by the pool.
+
+### DTO compatibility
+
+`api-go/v6` uses the v1 message set. The `lock/v1` package defines `Request` and `Response`. Regenerated PHP lock DTOs use `RoadRunner\Lock\DTO\V1`. The lock field numbers and types are unchanged; custom descriptor or protobuf `Any` users must account for the package-name change.
+
+Relocation alone does not change the retained HTTP or Jobs wire fields and does not require a PHP worker-loop rewrite. RPC still uses Goridge and Go `net/rpc`, not Connect. See [RPC compatibility](../php/rpc.md#v6-compatibility) for the MessagePack change.
+
+Direct Centrifugo DTO users have separate changes. Use typed fields instead of `Command.id/method/params` and `Reply.id/result`, which are removed. The `RateLimit` RPC and its types are removed. `UpdatePushStatusRequest.uid` becomes `analytics_uid` at the same string field number 1; update generated accessors and JSON names. The proxy bindings add experimental `NotifyCacheEmpty`; a custom server must implement it or embed the generated unimplemented server. The RoadRunner plugin forwards this event to PHP; update handlers and DTOs as described in [Centrifuge](../plugins/centrifuge.md).
+
 ## Interface
 
-RoadRunner plugins are implemented using the `Service` interface, which provides the `Serve` and `Stop` methods for
-starting and stopping the plugin. Additionally, plugins can implement other optional interfaces
-like `Named`, `Provider`, `Weighted`, and `Collector`. These interfaces enable plugins to provide dependencies to other
-plugins, define their weight in the plugin's topology, and collect plugins that implement specific interfaces.
+A plugin that starts a service implements `Service`, which provides `Serve` and `Stop`. Middleware and other plugins that do not start a service do not need those methods. Optional interfaces such as `Named`, `Provider`, `Weighted`, and `Collector` provide names, dependencies, initialization weights, and dependency collection.
 
 **Here is an example:**
 
@@ -144,7 +186,7 @@ interfaces, and a plugin implementing this interface should be registered in RR'
 package custom
 
 import (
-    "go.uber.org/zap"
+    "log/slog"
 )
 
 type Configurer interface { // <-- config plugin implements
@@ -155,7 +197,7 @@ type Configurer interface { // <-- config plugin implements
 }
 
 type Logger interface { // <-- logger plugin implements
-    NamedLogger(name string) *zap.Logger
+    NamedLogger(name string) *slog.Logger
 }
 
 type Service struct{}
@@ -191,7 +233,8 @@ custom:
 package custom
 
 import (
-    "go.uber.org/zap"
+    "log/slog"
+
     "github.com/roadrunner-server/errors"
 )
 
@@ -205,11 +248,12 @@ type Configurer interface { // <-- config plugin implements
 }
 
 type Logger interface { // <-- logger plugin implements
-    NamedLogger(name string) *zap.Logger
+    NamedLogger(name string) *slog.Logger
 }
 
 type Plugin struct {
     cfg *Config
+    log *slog.Logger
 }
 
 // Init plugin
@@ -219,6 +263,8 @@ func (s *Plugin) Init(cfg Configurer, log Logger) error {
     if !cfg.Has(PluginName) {
         return errors.E(op, errors.Disabled)
     }
+
+    s.log = log.NamedLogger(PluginName)
 
     // unmarshal initial configuration
     err := cfg.UnmarshalKey(PluginName, &s.cfg)
@@ -236,7 +282,7 @@ func (s *Plugin) Init(cfg Configurer, log Logger) error {
 
 {% endcode %}
 
-### Configuration
+### Configuration type
 
 {% code title="config.go" %}
 
@@ -259,8 +305,9 @@ func (cfg *Config) InitDefaults() {
 
 ## Serving
 
-Create `Serve` and `Stop` methods in your structure to let RoadRunner start and stop your service. You may also use the
-context from the `Stop` method to let RR force your plugin to stop after a specified timeout in the configuration.
+Endure calls `Serve()` synchronously. Start blocking work in a goroutine owned by the plugin, then return an error channel promptly. A blocking `Serve()` prevents the remaining plugins from starting and prevents container shutdown.
+
+`Stop(ctx)` must stop the service cooperatively and respect the context deadline. The `endure.grace_period` setting determines this deadline. Endure does not terminate plugin goroutines when the deadline expires.
 
 {% code title=".rr.yaml" %}
 
@@ -277,6 +324,8 @@ endure:
 
 ### Plugin
 
+This example starts a local HTTP server. Its `Stop` method uses `http.Server.Shutdown(ctx)` to wait for active requests until the context expires.
+
 {% code title="plugin.go" %}
 
 ```go
@@ -284,37 +333,41 @@ package custom
 
 import (
     "context"
+    "net/http"
 )
 
-type Plugin struct{}
+type Plugin struct {
+    server *http.Server
+}
+
+func (s *Plugin) Init() error {
+    s.server = &http.Server{
+        Addr:    "127.0.0.1:8088",
+        Handler: http.NotFoundHandler(),
+    }
+    return nil
+}
 
 func (s *Plugin) Serve() chan error {
-    const op = errors.Op("custom_plugin_serve")
     errCh := make(chan error, 1)
 
-    err := s.DoSomeWork()
-    if err != nil {
-        errCh <- errors.E(op, err)
-        return errCh
-    }
+    go func() {
+        if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+            errCh <- err
+        }
+    }()
 
-    return nil
+    return errCh
 }
 
 func (s *Plugin) Stop(ctx context.Context) error {
-    return s.stopServing()
-}
-
-func (s *Plugin) DoSomeWork() error {
-    return nil
+    return s.server.Shutdown(ctx)
 }
 ```
 
 {% endcode %}
 
-The `Serve` method is thread-safe. It runs in a separate goroutine managed by the `Endure` container.
-One note is that you should unblock it when calling `Stop` on the container.
-Otherwise, the service will be killed after the timeout (which can be set in Endure).
+`http.ErrServerClosed` is the normal result of HTTP shutdown, so the example does not send it to Endure. Other errors are sent through the buffered channel. Endure does not make plugin code thread-safe; the plugin must synchronize access to shared state.
 
 ## Collecting dependencies at runtime
 
@@ -323,7 +376,7 @@ This is very useful for middlewares or extending plugins with additional functio
 
 Let's create an HTTP middleware:
 
-1. Declare a required interface
+Declare the required interface:
 
 {% code title="middleware.go" %}
 
@@ -336,13 +389,14 @@ import (
 
 // Middleware interface
 type Middleware interface {
-    Middleware(f http.Handler) http.HandlerFunc
+    Middleware(f http.Handler) http.Handler
+    Name() string
 }
 ```
 
 {% endcode %}
 
-2. Implement the `Collects` Endure interface in the plugin where you want to have these dependencies at runtime.
+Implement the `Collects` interface in the plugin that accepts the middleware:
 
 {% code title="middleware.go" %}
 
@@ -372,15 +426,13 @@ Important notes:
 
 ## RPC Methods
 
-Extending your plugin with RPC methods does not change the plugin at all. The only thing you have to do is to create a
-file with RPC methods (let's call it `rpc.go`) and add all RPC methods for the plugin without modifying the plugin
-itself.
+Expose an RPC receiver through `RPC() any`. Its exported methods use the Go `net/rpc` signature: an input argument, a reply pointer, and an `error` result. Do not add a context argument to these RPC methods when updating the Jobs or KV contracts.
 
 **Example based on the `informer` plugin:**
 
 Suppose we have created a file `rpc.go`. The next step is to create a structure:
 
-1. Create a structure: (logger is optional)
+Create the receiver type:
 
 {% code title="rpc.go" %}
 
@@ -388,18 +440,20 @@ Suppose we have created a file `rpc.go`. The next step is to create a structure:
 package custom
 
 import (
-    "go.uber.org/zap"
+    "log/slog"
 )
 
 type rpc struct {
     plugin *Plugin
-    log    *zap.Logger
+    log    *slog.Logger
 }
 ```
 
 {% endcode %}
 
-2. Create a method that you want to expose:
+Add an exported method:
+
+{% code title="rpc.go" %}
 
 ```go
 package custom
@@ -414,7 +468,7 @@ func (s *rpc) Hello(input string, output *string) error {
 
 {% endcode %}
 
-3. Create a method called `RPC` that accepts nothing and returns `any`:
+Add `RPC()` to the plugin:
 
 {% code title="rpc.go" %}
 
@@ -422,7 +476,7 @@ func (s *rpc) Hello(input string, output *string) error {
 package custom
 
 func (p *Plugin) RPC() any {
-    return &rpc{srv: p, log: p.log}
+    return &rpc{plugin: p, log: p.log}
 }
 ```
 

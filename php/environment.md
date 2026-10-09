@@ -57,31 +57,54 @@ configuration file. These variables will be applied to all workers when they are
 server:
   command: "php worker.php"
   env:
-     APP_RUNTIME: prod
+    APP_RUNTIME: "${APP_RUNTIME:-prod}"
 ```
 
 {% endcode %}
 
-In this example, when RoadRunner starts a PHP worker, it will set the `APP_RUNTIME` environment variable to `prod`.
+This example uses the RoadRunner process value of `APP_RUNTIME`. If it is unset or empty, the worker receives `prod`.
+
+Use a mapping for `server.env`, as shown above. Environment defaults are expanded in map values. A sequence of one-key maps does not receive the same expansion.
+
+Values in `server.env` override inherited environment values in the worker processes. They do not change the RoadRunner process environment. Use `server.on_init.env` separately for the [initialization command](../plugins/server.md#server-initialization).
 
 {% hint style="warning" %}
-All environment variable keys will be automatically converted to uppercase.
+Keys in `server.env` are automatically converted to uppercase.
 {% endhint %}
 
 ## Dotenv
 
-RoadRunner supports reading environment variables from `.env` files, which are typically used to store sensitive or
-environment-specific variables outside your codebase.
+Use the root `envfile` setting to load a file before environment variable expansion in the main configuration and included files:
 
-To read environment variables from an `.env` file, you can use the `--dotenv` CLI option when starting RoadRunner.
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+envfile: env/.env
+
+logs:
+  level: ${RR_LOG_LEVEL:-info}
+```
+
+{% endcode %}
+
+With config plugin v6, `envfile` no longer requires experimental mode. Its path is relative to the main configuration file's directory, not the process working directory. In this example, a main configuration at `/var/www/.rr.yaml` loads `/var/www/env/.env`.
+
+The file supplies variables that are not already present in the RoadRunner process environment. It does not replace existing values. For example, an exported `RR_LOG_LEVEL=error` takes precedence over `RR_LOG_LEVEL=info` in the file. A missing or unreadable file stops startup.
+
+The `reset`, `workers`, and `jobs` CLI commands use their own configuration reader. It does not load the root `envfile` setting. Use `--dotenv` for those commands when their RPC address depends on variables from that file:
 
 {% code %}
 
 ```bash
 ./rr serve --dotenv /var/www/config/.env
+./rr workers --dotenv /var/www/config/.env
 ```
 
 {% endcode %}
+
+The `DOTENV_PATH` environment variable also selects a dotenv file and takes precedence over `--dotenv`. Relative CLI dotenv paths use the effective working directory.
 
 ## Default environment variables in PHP workers
 
@@ -96,7 +119,7 @@ various aspects of the worker's operation.
 | **RR_MODE**    | Identifies the mode the worker should run in (`http`, `temporal`, `grpc`, `jobs`, `tcp`, `centrifuge`, etc.) |
 | **RR_RPC**     | Contains RPC connection address when enabled.                                                                |
 | **RR_RELAY**   | `pipes` or `tcp://...`, depends on server relay configuration.                                               |
-| **RR_VERSION** | RoadRunner version that started the PHP worker (minimum `2023.1.0`)                                          |
+| **RR_VERSION** | RoadRunner version that started the PHP worker. Available since RoadRunner `v2023.1.0`.                      |
 
 These default environment values can be used within your PHP worker to configure various settings and adapt the worker's
 behavior according to the specific requirements of your application.

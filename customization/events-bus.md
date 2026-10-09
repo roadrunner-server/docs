@@ -31,34 +31,33 @@ import (
 func foo() {
     // Get the (global) instance of the event bus. Make sure to
     // unsubscribe the event handler when you don't need it anymore: eh.Unsubscribe(id).
-    eh, id := events.Bus()
+    eh, id := events.NewEventBus()
     defer eh.Unsubscribe(id)
 
     // Create an events channel.
     ch := make(chan events.Event, 100)
-    // Subscribe to the events that fit your pattern (e.g., `http.EventJobOK`).
-    err := eh.SubscribeP(id, "http.EventJobOK", ch)
+    // Subscribe to worker errors from the HTTP plugin.
+    err := eh.SubscribeP(id, "http.EventWorkerError", ch)
     if err != nil {
         panic(err)
     }
 
     // Send an event to the channel.
-    eh.Send(events.NewEvent(events.EventJobOK, "http", "foo"))
+    eh.Send(events.NewEvent(events.EventWorkerError, "http", "worker failed"))
     
     // Receive an event from the channel.
     evt := <-ch
 
-    // evt.Message() -> "foo"
+    // evt.Message() -> "worker failed"
     // evt.Plugin() -> "http"
-    // evt.Type().String() -> "EventJobOK"
+    // evt.Type().String() -> "EventWorkerError"
 }
 ```
 
 {% endcode %}
 
 {% hint style="info" %}
-If you use only `eh.Send` events bus function, you don't need to unsubscribe, so, you may simplify the declaration to
-the `eh, _ := events.Bus()`.
+If you only send events, use `eh, _ := events.NewEventBus()`. You do not need to unsubscribe when you have no subscriptions.
 {% endhint %}
 
 ### Event Payload
@@ -70,9 +69,9 @@ Let's take a closer look at each of these properties:
 
 | Property    | Description                                                                                                                                                                                                                                                                                                           |
 |-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Message** | The message is a custom, user-defined string that can be used to convey additional information about the event. This can be useful for logging purposes or providing extra context to the subscriber when an event is received. In the examples provided earlier, the message is set to "foo" when sending the event. |
+| **Message** | The message is a custom, user-defined string that can be used to convey information about the event. This can be useful for logging purposes or providing extra context to the subscriber when an event is received. In the examples provided earlier, the message is set to "worker failed" when sending the event.  |
 | **Plugin**  | The plugin property indicates the source plugin that raised the event. This information can be helpful in identifying the origin of the event and can be used for filtering or processing events based on their source. In the examples, the plugin is set to "http" when creating the event.                         |
-| **Type**    | The event type is a custom or RoadRunner (RR) defined identifier that categorizes the event. This identifier is used when subscribing to events and can help subscribers determine how to process the event or decide if they are interested in it. In the examples, the event type is set to `events.EventJobOK`.    |
+| **Type**    | The event type is a custom or RoadRunner defined identifier that categorizes the event. This identifier is used when subscribing to events and can help subscribers determine how to process the event or decide if they are interested in it. In the examples, the event type is set to `events.EventWorkerError`.   |
 
 When receiving an event, you can access these properties using the following methods:
 
@@ -99,7 +98,7 @@ import (
 )
 
 func foo() {
-    eh, id := events.Bus()
+    eh, id := events.NewEventBus()
     defer eh.Unsubscribe(id)
 
     ch := make(chan events.Event, 100)
@@ -110,18 +109,17 @@ func foo() {
         panic(err)
     }
 
-    eh.Send(events.NewEvent(events.EventJobOK, "http", "foo"))
+    eh.Send(events.NewEvent(events.EventWorkerError, "http", "worker failed"))
     evt := <-ch
-    // evt.Message() -> "foo"
+    // evt.Message() -> "worker failed"
     // evt.Plugin() -> "http"
-    // evt.Type().String() -> "EventJobOK"
+    // evt.Type().String() -> "EventWorkerError"
 }
 ```
 
 {% endcode %}
 
-In this example, we've changed the subscription pattern from `http.EventJobOK` to `http.*`, allowing the subscription to
-match any event from the HTTP plugin.
+The `http.*` subscription matches any event from the HTTP plugin, including `http.EventWorkerError`.
 
 ## How to implement a custom event
 
@@ -212,7 +210,7 @@ import (
 )
 
 func foo() {
-    eh, id := events.Bus()
+    eh, id := events.NewEventBus()
     defer eh.Unsubscribe(id)
 
     ch := make(chan events.Event, 100)

@@ -23,27 +23,9 @@ information.
 
 ## Building RoadRunner with Cache
 
-As it's based on the [Souin](https://github.com/darkweak/souin) HTTP cache library, we can directly use the RoadRunner
-middleware implementation. We have to set the `folder` property because this middleware is located in a subdirectory.
+RoadRunner v3 requires a Souin revision that implements the [v6 plugin interfaces](../customization/plugin.md#v6-migration), including `NamedLogger(string) *slog.Logger` for logging.
 
-{% code title="configuration.toml" %}
-
-```ini
-[github]
-[github.token]
-token = "YOUR_GH_TOKEN"
-
-[github.plugins]
-# Use the Souin third-party middleware.
-cache = { ref = "master", owner = "darkweak", repository = "souin", folder = "/plugins/roadrunner" }
-# others ...
-
-[log]
-level = "debug"
-mode = "development"
-```
-
-{% endcode %}
+Follow the [Velox build guide](../customization/build.md). Add `[plugins.cache]` with `module_name = "github.com/darkweak/souin/plugins/roadrunner"` and set `tag` to a compatible revision. The module path includes the plugin subdirectory.
 
 **Available storages**:
 In-memory/Filesystem

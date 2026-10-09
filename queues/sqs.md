@@ -131,7 +131,7 @@ jobs:
 
       config:
         # Optional section.
-        # Default: 10
+        # Default: 1
         prefetch: 10
 
         # Get queue URL only
@@ -184,6 +184,12 @@ the queue. This would break the FIFO order.
 process the jobs in correct order.
 3. You should make sure to either use an explicit non-zero `visibility_timeout` **or** make sure that the default
 visibility configuration attribute on your queue (`VisibilityTimeout`) is non-zero.
+
+### Retries
+
+A republished FIFO retry uses a new SQS deduplication ID. The application job ID stays the same. Initial sends use the job ID for deduplication within SQS's five-minute deduplication window.
+
+`retain_failed_jobs: true` applies to native Nack handling. An explicit requeue still republishes the job, even with this option enabled, and can change FIFO processing order. The new deduplication behavior does not add exactly-once job processing. Job handlers must remain safe to retry.
 
 ## Configuration Options
 

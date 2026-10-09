@@ -26,27 +26,13 @@ Or:
 
 {% endcode %}
 
-## List of experimental features
+## Configuration Files
 
-### Support for loading [`envfiles`](https://github.com/roadrunner-server/roadrunner/issues/1077) in the `.rr.yaml`: `[>= v2023.3.5]`
+The `envfile` and `include` settings work without the experimental flag. See [Configuration](../plugins/config.md) for these settings.
 
-In `v2023.3.5`, we added experimental support for loading `envfiles` in the `.rr.yaml` configuration file.
-`.env` file should be in the same directory as the `.rr.yaml` file.
+## HTTP/3 Server
 
-Sample `.rr.yaml` file:
-
-{% code title=".rr.yaml" %}
-
-```yaml .rr.yaml
-version: "3"
-envfile: .env
-```
-
-{% endcode %}
-
-### Support for the HTTP/3 server: `[>=2023.3.8]`
-
-In `v2023.3.8`, we added experimental support for an HTTP/3 server. It can work with the ACME provider to generate certificates for the HTTP/3 server automatically.
+Set `http.http3.cert` and `http.http3.key` to existing certificate and private key files. The HTTP/3 listener requires these files at startup. Start RoadRunner with `-e` to enable this listener.
 
 Sample `.rr.yaml` file:
 
@@ -67,39 +53,6 @@ http:
     address: 127.0.0.1:34555
     key: "localhost+2-key.pem"
     cert: "localhost+2.pem"
-```
-
-{% endcode %}
-
-Or if you use an ACME provider:
-
-{% code title=".rr.yaml" %}
-
-```yaml
-version: "3"
-
-server:
-  command: "php worker.php"
-  relay: pipes
-
-http:
-  address: 127.0.0.1:15389
-  pool:
-    num_workers: 2
-  http3:
-    address: 127.0.0.1:34555
-    key: "localhost+2-key.pem"
-    cert: "localhost+2.pem"
-  ssl:
-    acme:
-      certs_dir: rr_le_certs
-      email: you-email-here@email
-      alt_http_port: 80
-      alt_tlsalpn_port: 443
-      challenge_type: http-01
-      use_production_endpoint: false
-      domains:
-        - your-cool-domains.here
 ```
 
 {% endcode %}

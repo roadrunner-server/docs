@@ -1,5 +1,9 @@
 # TCP
 
+{% hint style="warning" %}
+RoadRunner v3 does not support the TCP plugin. This page describes the plugin for RoadRunner v2025. Applications that use the `tcp:` plugin stay on RoadRunner v2025. This does not affect `tcp://` transport for RPC or worker relays.
+{% endhint %}
+
 The RoadRunner TCP plugin helps you handle TCP requests. You can use this plugin to make your own servers like an SMTP
 server, and send TCP requests directly to PHP workers for handling.
 
@@ -78,7 +82,7 @@ registered plugins, such as `grpc`, `http`, `jobs`, etc.
 
 {% tab title="Worker command" %}
 
-You can also define command to start server in the `grpc.pool.command` section to separate server and grpc workers.
+Set `tcp.pool.command` to use a separate command for TCP workers.
 
 {% code title=".rr.yaml" %}
 
@@ -214,4 +218,4 @@ while ($request = $tcpWorker->waitRequest()) {
 
 ## What's Next?
 
-1. [Plugins — KV](../kv/overview-kv.md) - Learn how to use the Key Value plugin to store data between requests.
+1. [Plugins - KV](../kv/overview-kv.md) - Learn how to use the Key Value plugin to store data between requests.

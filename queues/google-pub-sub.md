@@ -1,24 +1,14 @@
-# Google Pub/Sub driver [Beta]
+# Google Pub/Sub Driver
 
-{% hint style="warning" %}
-Driver is still in beta. Please report any issues you encounter. Configuration might be updated due to the received feedback.
-{% endhint %}
-
-Pub/Sub is an asynchronous and scalable messaging service that decouples services producing messages from services processing those messages.
-
-Pub/Sub allows services to communicate asynchronously, with latencies on the order of 100 milliseconds.
-
-Pub/Sub is used for streaming analytics and data integration pipelines to load and distribute data. It's equally effective as a messaging-oriented middleware for service integration or as a queue to parallelize tasks.
-
-Pub/Sub lets you create systems of event producers and consumers, called publishers and subscribers. Publishers communicate with subscribers asynchronously by broadcasting events, rather than by synchronous remote procedure calls (RPCs).
-
-Publishers send events to the Pub/Sub service, without regard to how or when these events are to be processed. Pub/Sub then delivers events to all the services that react to them. In systems communicating through RPCs, publishers must wait for subscribers to receive the data. However, the asynchronous integration in Pub/Sub increases the flexibility and robustness of the overall system.
+RoadRunner publishes jobs to Google Pub/Sub topics and receives them through subscriptions.
 
 {% hint style="info" %}
 Read more about Google Pub/Sub [here](https://cloud.google.com/pubsub/docs/overview).
 {% endhint %}
 
 ## Configuration
+
+The global `google_pub_sub` section is required. This example connects to a local Pub/Sub emulator:
 
 {% code title=".rr.yaml" %}
 
@@ -30,6 +20,7 @@ google_pub_sub:
   endpoint: 127.0.0.1:8085
 
 jobs:
+  consume: ["test-1"]
   pool:
     num_workers: 10
 
@@ -41,10 +32,26 @@ jobs:
         project_id: test
         topic: rrTopic1
         dead_letter_topic: "dead-letter-topic"
-        max_delivery_attempts: 3
+        max_delivery_attempts: 10
 ```
 
 {% endcode %}
+
+### Google Cloud Connection
+
+For Google Cloud, set `insecure: false` and an explicit service endpoint. The client uses TLS and [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/provide-credentials-adc).
+
+{% code title=".rr.yaml" %}
+
+```yaml
+google_pub_sub:
+  insecure: false
+  endpoint: pubsub.googleapis.com:443
+```
+
+{% endcode %}
+
+Set each pipeline's `project_id` to your Google Cloud project ID. Without an explicit `endpoint`, RR uses `127.0.0.1:8085`. Use `insecure: true` for an emulator. This setting disables TLS, authentication, and Google client telemetry.
 
 ## Configuration options
 
@@ -66,14 +73,22 @@ from `pipe1` have been processed.
 
 ### Dead letter topic
 
-`dead_letter_topic` - optional, string. Should be used with `max_delivery_attempts`. If the Pub/Sub service attempts to deliver a message but the subscriber can't acknowledge it, Pub/Sub can forward the undeliverable message to a dead-letter topic. For more information, see: [link](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic)
+`dead_letter_topic`: Optional topic ID. Use it with `max_delivery_attempts` to configure forwarding of messages that cannot be acknowledged. See [Pub/Sub dead-letter topics](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic).
 
 ### Max delivery attempts
 
-`max_delivery_attempts` - optional, int. Should be used with `dead_letter_topic`. The maximum number of delivery attempts for a message. For more information, see: [link](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic)
+`max_delivery_attempts`: Optional delivery-attempt setting for dead-letter forwarding. RoadRunner defaults to `10` when `dead_letter_topic` is set. See [Pub/Sub dead-letter configuration](https://cloud.google.com/pubsub/docs/handling-failures#dead_letter_topic).
 
-## Limitations
+## Subscriptions
 
-1. TLS is not supported at the moment.
-2. Metrics are not supported at the moment.
-3. Telemetry and Authentication are not supported at the moment. Use `insecure: true` to test this driver.
+RR reuses existing topics and subscriptions. The pipeline name is the subscription ID. Keep the project, topic, and pipeline names unchanged during an upgrade to use the same subscription.
+
+RR applies `dead_letter_topic` and `max_delivery_attempts` when it creates subscriptions for both YAML pipelines and dynamically declared pipelines. These settings do not update an existing subscription. Use Pub/Sub administration to change an existing subscription's dead-letter policy. Do not delete a subscription with pending messages just to apply new settings.
+
+## Pause and Resume
+
+Pausing a pipeline cancels its receive operation and stops new message pulls. Publishing remains available while paused. Jobs already received by RoadRunner can still complete. Resume starts receiving from the same subscription again.
+
+## Statistics
+
+Use Google Pub/Sub monitoring for queue counts. RR statistics return pipeline identity only. Zero counts and `ready: false` do not report the broker's actual state.

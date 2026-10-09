@@ -43,6 +43,8 @@ The general metrics provided by the metrics plugin include:
 be `rr_jobs_total_workers`.
 {% endhint %}
 
+Per-worker memory metrics have a `pid` label. Worker-state metrics have `pid` and `state` labels. Pool totals have no plugin-defined labels.
+
 ### HTTP Metrics
 
 {% hint style="info" %}
@@ -66,17 +68,23 @@ The HTTP metrics provided by the metrics plugin include:
 
 - `rr_http_request_total` - Total number of handled HTTP requests after server restart.
 - `rr_http_request_duration_seconds` - HTTP request duration.
-- `rr_http_requests_queue` - Total number of queued requests waiting for a worker.
+- `rr_http_requests_queue` - Requests currently inside the metrics middleware, including requests waiting for a worker and requests being processed.
 - `rr_http_uptime_seconds` - Plugin uptime in seconds.
 - `rr_http_no_free_workers_total` - Total number of NoFreeWorkers errors.
+
+The request counter and duration histogram have a `status` label. A response body written without an explicit status records `status="200"`. The duration histogram has finite buckets from `0.005` through `60` seconds, including `20`, `30`, and `60` for slow requests.
+
+The duration histogram includes downstream request execution. The `http_metrics` and `http_metrics:post` spans described in [OpenTelemetry](otel.md) measure work before and after the downstream handler. Their duration does not change histogram duration.
 
 ### gRPC Metrics
 
 The gRPC metrics provided by the metrics plugin include:
 
-- `rr_grpc_requests_queue` - Total number of queued requests waiting for a worker.
-- `rr_gprc_request_total` - Total number of handled gRPC requests after server restart.
+- `rr_grpc_requests_queue` - Requests currently inside the gRPC interceptor, including requests waiting for a worker and requests being processed.
+- `rr_grpc_request_total` - Total number of handled gRPC requests after server restart.
 - `rr_grpc_request_duration_seconds` - gRPC request duration.
+
+The request counter has `grpc_method` and `status_code` labels. The duration histogram has a `grpc_method` label. The status value is the gRPC code name, such as `OK` or `Internal`.
 
 ### Redis Metrics
 
@@ -95,13 +103,27 @@ The JOBS metrics provided by the metrics plugin include:
 
 - `rr_jobs_jobs_err` - Number of jobs that failed while processing in the worker.
 - `rr_jobs_jobs_ok` - Number of successfully processed jobs.
+- `rr_jobs_jobs_requeue` - Number of jobs requeued by worker responses.
+- `rr_jobs_push_ok` - Number of successful job pushes.
 - `rr_jobs_push_err` - Number of jobs that failed to push.
-- `rr_jobs_push_latency` - Histogram that represents the latency for pushed operation. Available filters: driver, job (
-  pipeline), source.
-- `rr_jobs_push_latency_sum` - Histogram that represents the latency for pushed operation. Available filters: driver,
-  job (pipeline), source.
-- `rr_jobs_push_latency_count` - Histogram that represents the latency for pushed operation and the number of processed
-  jobs for the metric. Available filters: driver, job (pipeline), source.
+- `rr_jobs_requests_total` - Job push attempts for an existing pipeline.
+- `rr_jobs_push_latency_bucket` - Histogram buckets for successful job push duration, in seconds.
+- `rr_jobs_push_latency_sum` - Total duration of successful job pushes, in seconds.
+- `rr_jobs_push_latency_count` - Number of successful job pushes observed by the histogram.
+
+The push request counter and latency histogram have `driver`, `job`, and `source` labels. `job` is the pipeline name. `source` is `single` or `batch`. Each job in a batch is counted separately. The outcome counters have no plugin-defined labels.
+
+The v6 Jobs plugin exports `rr_jobs_jobs_ok`, `rr_jobs_jobs_err`, `rr_jobs_push_ok`, and `rr_jobs_push_err` as counters instead of gauges. Their names do not change. Use `rate()` or `increase()` for dashboards that measure changes over time.
+
+Failed and requeued worker responses no longer increment `rr_jobs_jobs_ok`. They increment `rr_jobs_jobs_err` or the new `rr_jobs_jobs_requeue` counter instead. Update success-rate queries to keep these outcomes separate. The job outcome counters measure processing attempts, not unique jobs.
+
+For example, compare processing rates with these PromQL queries:
+
+```promql
+rate(rr_jobs_jobs_ok[5m])
+rate(rr_jobs_jobs_err[5m])
+rate(rr_jobs_jobs_requeue[5m])
+```
 
 ### Temporal Metrics
 
@@ -150,6 +172,9 @@ Prometheus. To do this, you need to register collectors in your configuration fi
 ```yaml
 version: "3"
 
+rpc:
+  listen: tcp://127.0.0.1:6001
+
 metrics:
   address: 127.0.0.1:2112
   collect:
@@ -173,18 +198,21 @@ You can also use tagged (labels) metrics to group values:
 ```yaml
 version: "3"
 
+rpc:
+  listen: tcp://127.0.0.1:6001
+
 metrics:
   address: 127.0.0.1:2112
   collect:
     registered_users:
-      type: histogram
+      type: counter
       help: "Total registered users."
       labels: [ "type", "is_admin" ]
 ```
 
 {% endcode %}
 
-In the example below we will show you how to send metrics into `registered_users` collector.
+Choose either the basic configuration or this labeled configuration for `registered_users`. Every update to the labeled collector must include two label values, in the order `type`, `is_admin`.
 
 ### PHP client
 
@@ -208,7 +236,7 @@ composer require spiral/roadrunner-metrics
 After the installation, you can create an instance of the `Spiral\RoadRunner\Metrics\Metrics` class, which will allow
 you to use the available class methods.
 
-**Here is an example:**
+Use the [basic configuration](#application-metrics) for this example. Its collector has no labels:
 
 {% code title="metrics.php" %}
 
@@ -237,7 +265,7 @@ grouping, and aggregating the data.
 - **Simplified querying:** You can use labels to filter and aggregate your metric data, making it easier to extract
   meaningful insights from the data.
 
-You can also specify labels for your metrics by passing an array of labels to the `add` method:
+Use the [tagged configuration](#tagged-metrics) for this call. Pass one value for `type` and one for `is_admin`, in that order:
 
 {% code title="metrics.php" %}
 
@@ -273,7 +301,7 @@ $metrics->add('earned_money', 100_000_000);
 
 {% endcode %}
 
-You can also declare labeled metrics:
+You can also declare the labeled collector in PHP instead of YAML. For this example, remove `registered_users` from `metrics.collect` before starting RoadRunner. A declaration does not change the labels of an existing collector. Use the two-label `add()` call above after this declaration:
 
 {% code title="metrics.php" %}
 
@@ -297,7 +325,7 @@ the `Spiral\RoadRunner\Metrics\Metrics` class in PHP.
 
 #### Add
 
-Method is used to add a new metric to the declared collector.
+Add a value to a declared gauge or counter. A negative counter increment returns an RPC error. Use a gauge for values that must decrease.
 
 {% code %}
 

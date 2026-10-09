@@ -1,11 +1,10 @@
-# HTTP — Gzip middleware
+# HTTP - Gzip middleware
 
-The gzip middleware supports the `Accept-Encoding: gzip` header and compresses or decompresses the contents of
-outgoing and incoming requests.
+The gzip middleware can compress HTTP responses for clients that send `Accept-Encoding: gzip`. It does not decompress incoming request bodies.
 
 ## Documentation
 
-- MDN [link](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Encoding)
+- MDN: [Accept-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Encoding)
 
 ## Configuration
 
@@ -24,5 +23,9 @@ http:
 ```
 
 {% endcode %}
+
+Put `gzip` before `static` or `sendfile` to apply compression to their responses. See [middleware order](./http.md#middleware-order).
+
+This middleware provides gzip compression only. Use the separate [Zstd middleware](zstd.md) for clients that accept `zstd`.
 
 The gzip middleware supports OpenTelemetry header propagation.

@@ -48,7 +48,7 @@ kv:
       dial_timeout: 0
 
       # Optional section.
-      # Default: 0 (equivalent to the default value of 3 retries)
+      # Default: 0 (3 command retries after the initial attempt).
       max_retries: 0
 
       # Optional section.
@@ -95,7 +95,7 @@ kv:
       # Default: false
       read_only: false
 
-      # Optional section.
+      # Optional. Remove this section for a non-TLS connection.
       tls:
         # Optional section.
         # Default: ""
@@ -175,14 +175,15 @@ disables idle timeout check.
 
 ### Retries
 
-`max_retries`: Maximum number of retries before giving up. Specifying `0` is equivalent to the default (`3` attempts).
-If you need to specify an infinite number of connection attempts, specify the value `-1`.
+`max_retries`: Maximum number of command retries after the initial attempt. A value of `0` selects the default of three retries. A value of `-1` disables command retries. It does not enable unlimited connection attempts.
 
 `min_retry_backoff`: Minimum backoff between each retry. Must be in the format of a "numeric value" + "time format
 suffix". A value of `0` is equivalent to a timeout of 8 milliseconds (`8ms`). A value of `-1` disables backoff.
 
 `max_retry_backoff`: Maximum backoff between each retry. Must be in the format of a "numeric value" + "time format
 suffix". A value of `0` is equivalent to a timeout of 512 milliseconds (`512ms`). A value of `-1` disables backoff.
+
+`min_retry_backoff` controls the minimum retry delay independently of `max_retry_backoff`.
 
 ### Pool Size
 
@@ -192,18 +193,15 @@ cores in your system, then setting the option to 2 you will get 16 connections.
 
 ### TLS Configuration
 
-The `tls` section allows you to configure Transport Layer Security (TLS) for secure communication with the Redis server. 
-If no options are defined in this section, the connection will default to non-TLS. 
+The `tls` section enables TLS for the Redis connection. Omit the section for a non-TLS connection. A TLS configuration without `root_ca` uses the system trust store.
 
-`cert`: Path to a file containing the client certificate. This certificate is used to authenticate the client 
-when communicating with the server.
+`cert`: Path to the client certificate file. Set this with `key` when the server requires client authentication.
 
-`key`: Path to a file containing the client private key. This key is used in conjunction with the client 
-certificate for mutual authentication.
+`key`: Path to the client private key file.
 
-`root_ca`: Path to a file containing the Certificate Authority (CA) certificates used to verify the server's certificate.  
-**Note**: This option can be used independently of the `cert` and `key` options. In cases where the server does not 
-require client certificate verification, you only need to provide the `root_ca` option.
+`root_ca`: Optional path to PEM-encoded CA certificates. The driver adds these certificates to the system trust store to verify the server certificate. This option does not require `cert` or `key`.
+
+An unreadable CA file or a CA file without valid PEM certificates prevents startup.
 
 ### Other
 
@@ -273,7 +271,7 @@ Where new options means:
 Redis Sentinel provides high availability for Redis. You can find more information
 about [Sentinel on the documentation page](https://redis.io/topics/sentinel).
 
-There are two additional options available for the Sentinel configuration: `master_name` and `sentinel_password`.
+Sentinel configuration adds three options: `master_name`, `sentinel_username`, and `sentinel_password`. Set `addrs` to the Sentinel endpoints.
 
 {% code title=".rr.yaml" %}
 
@@ -285,19 +283,33 @@ kv:
     driver: redis
 
     config:
-      # Required section.
-      master_name: ""
+      addrs:
+        - "${REDIS_SENTINEL_ADDRESS}"
 
-      # Optional section.
-      # Default: "" (no password)
-      sentinel_password: ""
+      # Required: master name configured in Sentinel.
+      master_name: "${REDIS_SENTINEL_MASTER_NAME}"
+
+      # Optional: Redis master credentials.
+      username: "${REDIS_USERNAME}"
+      password: "${REDIS_PASSWORD}"
+
+      # Optional: Sentinel credentials, independent of the master credentials.
+      sentinel_username: "${REDIS_SENTINEL_USERNAME}"
+      sentinel_password: "${REDIS_SENTINEL_PASSWORD}"
 ```
 
 {% endcode %}
 
-Where Sentinel's options means:
+Sentinel options:
 
-- `master_name`: The name of the Sentinel's master in string format.
+- `master_name`: The name of the Redis master monitored by Sentinel.
 
-- `sentinel_password`: Sentinel password from "requirepass `password`"
-  (if enabled) in Sentinel configuration.
+- `sentinel_username`: Optional Sentinel ACL username. Defaults to an empty string.
+
+- `sentinel_password`: Optional password for the Sentinel ACL user, or the password configured with `requirepass` for the default user. Defaults to an empty string.
+
+`username` and `password` authenticate against the Redis master. `sentinel_username` and `sentinel_password` authenticate against Sentinel. For password-only Sentinel authentication, omit `sentinel_username` or set it to `""`.
+
+## Expiration Errors
+
+`kv.MExpire` returns Redis command errors through RPC. Handle these errors before assuming that an expiration was set. A batch can update some keys before a later key fails.
