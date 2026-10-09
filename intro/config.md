@@ -34,7 +34,6 @@ The configuration provider can discard an empty options object (`{}`). It then b
 | `http.fcgi.unix_socket` | `http.fcgi.address` |
 | `rpc.unix_socket` | `rpc.listen` |
 | `grpc.unix_socket` | `grpc.listen` |
-| `tcp.servers.<name>.unix_socket` | `tcp.servers.<name>.addr` |
 | `centrifuge.proxy_socket` | `centrifuge.proxy_address`, the incoming proxy listener |
 | `fileserver.unix_socket` | `fileserver.address` |
 | `server.relay_socket` | `server.relay`, the worker communication listener |

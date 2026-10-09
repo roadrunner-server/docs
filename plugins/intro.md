@@ -28,7 +28,7 @@ development process. Some of the most notable plugins include:
 - [**HealthChecks**](../lab/health.md): Health monitoring and reporting for system components.
 - [**OpenTelemetry (OTEL)**](../lab/otel.md): Distributed tracing and observability with OpenTelemetry integration.
 
-The [TCP plugin](tcp.md) is no longer in the default RoadRunner container. Its reference applies to custom builds that explicitly include it.
+RoadRunner v3 does not support the [TCP plugin](tcp.md). Its reference applies to RoadRunner v2025.
 
 ## Custom plugins
 

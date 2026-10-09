@@ -20,7 +20,7 @@ Keep `version: "3"` at the root of `.rr.yaml`. Source builds require Go 1.27 or 
 | Environment files | A root `envfile` is loaded without experimental mode. Supply the configured file or remove the setting. See [Environment](../php/environment.md). |
 | Server initialization | Values in `server.on_init.env` override inherited environment values. Use a command sequence for arguments that contain spaces. See [Server](../plugins/server.md). |
 | Metrics | Update Jobs dashboards for counter types and separate requeue totals. See [Metrics](../lab/metrics.md). |
-| TCP plugin | Add TCP to a custom build if the application uses the `tcp:` plugin. It is no longer in the default container. See [TCP](../plugins/tcp.md). |
+| TCP plugin | RoadRunner v3 does not support the TCP plugin. Applications that use the `tcp:` plugin stay on RoadRunner v2025. This does not affect `tcp://` transport for RPC or worker relays. See [TCP](../plugins/tcp.md). |
 
 ## Custom Go Plugins
 

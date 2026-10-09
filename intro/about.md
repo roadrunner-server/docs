@@ -27,7 +27,7 @@ The following plugins are designed to run workers and handle specific types of r
   to the PHP application. It supports bidirectional communication, allowing for efficient and seamless interaction
   between the server and clients.
 - [**gRPC**](../grpc/grpc.md) - Deals with gRPC requests from clients and passes them on to the PHP application.
-- [**TCP**](../plugins/tcp.md) - Handles raw TCP requests in custom builds that include the plugin. It is not part of the default RoadRunner container.
+- [**TCP**](../plugins/tcp.md) - Handles raw TCP requests in RoadRunner v2025. RoadRunner v3 does not support it.
 - [**Temporal**](../workflow/temporal.md) - Manages workflows and activities, allowing for the efficient handling of
   various tasks and processes.
 

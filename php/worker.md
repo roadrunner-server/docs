@@ -13,7 +13,7 @@ RoadRunner server.
 
 RoadRunner provides worker plugins for [HTTP](https://github.com/roadrunner-php/http), [Jobs](https://github.com/roadrunner-php/jobs), [Centrifuge](https://github.com/roadrunner-php/centrifugo), [gRPC](https://github.com/roadrunner-php/grpc), and [Temporal](../workflow/worker.md).
 
-[TCP workers](../plugins/tcp.md) require a custom build that includes the TCP plugin. The default RoadRunner container no longer includes it.
+RoadRunner v3 does not support [TCP workers](../plugins/tcp.md). They need RoadRunner v2025.
 
 You should choose the appropriate plugin based on the requirements of your application. In the examples below,
 we will explore the creation of an HTTP worker and a simple implementation of an entry point that can handle several
@@ -136,7 +136,7 @@ composer require spiral/roadrunner-http spiral/roadrunner-jobs nyholm/psr7
 
 {% endcode %}
 
-The following enum lists worker modes. The `Tcp` mode requires a custom build with the TCP plugin. This example uses only `Http` and `Jobs`.
+The following enum lists worker modes. The `Tcp` mode applies only to RoadRunner v2025, because RoadRunner v3 does not support the TCP plugin. This example uses only `Http` and `Jobs`.
 
 {% code title="RoadRunnerMode.php" %}
 
