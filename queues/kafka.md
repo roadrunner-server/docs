@@ -312,7 +312,7 @@ jobs:
 Pipelines with `group_options.group_id` set mark acknowledged records for automatic offset commits. A commit advances the consumer group's position for a partition. RR does not wait for all earlier records in that partition to complete.
 
 {% hint style="warning" %}
-Workers can complete jobs out of order. If offset `101` is acknowledged while offset `100` is unfinished in the same partition, a commit can advance the group to `102`. After a crash, the group then skips offset `100`, although that job was not acknowledged. Do not assume that every unacknowledged job will be delivered again. Set `consumer_options.pipelining_strategy: Serial` to keep one record per partition in flight and avoid this gap.
+Workers can complete jobs out of order. If offset `101` is acknowledged while offset `100` is unfinished in the same partition, a commit can advance the group to `102`. After a crash, the group then skips offset `100`, although that job was not acknowledged. Do not assume that every unacknowledged job will be delivered again. Set `consumer_options.pipelining_strategy: Serial` to keep one record per partition in the jobs pipeline and avoid this gap.
 {% endhint %}
 
 Direct partition consumption without `group_options` does not use these consumer-group commits.
@@ -321,13 +321,13 @@ Direct partition consumption without `group_options` does not use these consumer
 
 Kafka keeps the order of records inside a partition. The default `FanOut` pipelining inserts every fetched record into the jobs priority queue at once, and the workers process them in parallel. Records of one partition can then complete out of order.
 
-Set `consumer_options.pipelining_strategy: Serial` for topics that need the partition order, for example change data capture or command streams. The driver then keeps one record per partition in the jobs pipeline. The next record of a partition enters the pipeline after the worker reply to the previous one. Partitions are still consumed in parallel, and other pipelines are not affected.
+Set `consumer_options.pipelining_strategy: Serial` for topics that need the partition order, for example change data capture or command streams. The driver then keeps one record per partition in the jobs pipeline. The next record of a partition enters the pipeline after the worker reply to the previous one. The driver still consumes partitions in parallel, and other pipelines keep their behavior.
 
-A reply opens the partition when it settles the record: the job completes, the job fails without requeue, or the job is nacked without requeue. A requeue holds the partition until the retry completes or is nacked, so the retry is always the next record of its partition. A requeue with a delay holds the partition for that delay.
+The next record of a partition enters the pipeline after one of these worker replies to the previous record: the job completes, the job fails without requeue, or the job is nacked without requeue. A requeue blocks the partition until one of these replies arrives for the retry, so the retry is always the next record of its partition. A requeue with a delay blocks the partition for that delay.
 
-The driver polls the next batch after every partition of the current batch is drained. The throughput of a `Serial` pipeline is bounded by its slowest partition. Use one pipeline for the ordered topics and another pipeline with the default `FanOut` strategy for the topics that do not need the order.
+The driver polls the next batch after the workers reply to every record of the current batch. The slowest partition limits the throughput of a `Serial` pipeline. Use one pipeline for the ordered topics and another pipeline with the default `FanOut` strategy for the topics that do not need the order.
 
-With a consumer group, set `group_options.block_rebalance_on_poll: true` for a `Serial` pipeline, so a rebalance does not move a partition while one of its records is in flight.
+With a consumer group, set `group_options.block_rebalance_on_poll: true` for a `Serial` pipeline, so a rebalance does not move a partition while one of its records is in the pipeline.
 
 {% code title=".rr.yaml" %}
 
