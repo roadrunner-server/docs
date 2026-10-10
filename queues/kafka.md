@@ -323,11 +323,13 @@ Kafka keeps the order of records inside a partition. The default `FanOut` pipeli
 
 Set `consumer_options.pipelining_strategy: Serial` for topics that need the partition order, for example change data capture or command streams. The driver then keeps one record per partition in the jobs pipeline. The next record of a partition enters the pipeline after the worker reply to the previous one. The driver still consumes partitions in parallel, and other pipelines keep their behavior.
 
-The next record of a partition enters the pipeline after one of these worker replies to the previous record: the job completes, the job fails without requeue, or the job is nacked without requeue. A requeue blocks the partition until one of these replies arrives for the retry, so the retry is always the next record of its partition. A requeue with a delay blocks the partition for that delay.
+The next record of a partition enters the pipeline after one of these worker replies to the previous record: the job completes, the job fails without requeue, or the job is nacked without requeue. A requeue blocks the partition until one of these replies arrives for the retry, so the retry is always the next record of its partition. A requeue with a delay blocks the partition for that delay. A record that the worker always requeues blocks its partition. After the current batch, it also blocks the other partitions of the pipeline. Nack the record without requeue to skip it.
 
 The driver polls the next batch after the workers reply to every record of the current batch. The slowest partition limits the throughput of a `Serial` pipeline. Use one pipeline for the ordered topics and another pipeline with the default `FanOut` strategy for the topics that do not need the order.
 
 With a consumer group, set `group_options.block_rebalance_on_poll: true` for a `Serial` pipeline, so a rebalance does not move a partition while one of its records is in the pipeline.
+
+The driver blocks the rebalance until the workers reply to every record of the current batch, including the delay of a requeue. The group coordinator removes the member from the group when this takes longer than the rebalance timeout of 60 seconds. Keep the processing time of one batch, and the requeue delays, below this limit.
 
 {% code title=".rr.yaml" %}
 
