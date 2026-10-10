@@ -329,7 +329,7 @@ The driver polls the next batch after the workers reply to every record of the c
 
 With a consumer group, set `group_options.block_rebalance_on_poll: true` for a `Serial` pipeline, so a rebalance does not move a partition while one of its records is in the pipeline.
 
-The driver blocks the rebalance until the workers reply to every record of the current batch, including the delay of a requeue. The group coordinator removes the member from the group when this takes longer than the rebalance timeout of 60 seconds. Keep the processing time of one batch, and the requeue delays, below this limit.
+With `block_rebalance_on_poll: true`, the driver blocks the rebalance until the workers reply to every record of the current batch, including the delay of a requeue. The group coordinator removes the member from the group when this takes longer than the rebalance timeout of 60 seconds. Keep the processing time of one batch, and the requeue delays, below this limit.
 
 {% code title=".rr.yaml" %}
 
