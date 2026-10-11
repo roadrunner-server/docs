@@ -54,7 +54,6 @@ A connection config has the same fields as the `config` block of the [KV Redis d
 | `write_timeout`     | Timeout for socket writes. The value `0` selects the value of `read_timeout`.                                         |
 | `pool_timeout`      | Time that the client waits for a free connection. The value `0` selects `read_timeout` plus `1s`.                     |
 | `idle_timeout`      | Time after which the client closes an idle connection. The value `0` selects `5m`. The value `-1` disables the check. |
-| `idle_check_freq`   | Interval of the check for idle connections. The value `0` selects `1m`. The value `-1` disables the check.            |
 | `read_only`         | Enables the read-only mode. Redis Sentinel does not support this option.                                              |
 | `route_by_latency`  | Cluster option. Routes read-only commands to the closest node. This option sets `read_only` to `true`.                |
 | `route_randomly`    | Cluster option. Routes read-only commands to a random node. This option sets `read_only` to `true`.                   |
