@@ -66,14 +66,8 @@ brew install roadrunner
 winget install SpiralScout.RoadRunner
 ```
 
-Chocolatey is also supported:
-
-```powershell
-choco install roadrunner
-```
-
 {% hint style="info" %}
-The Homebrew and Chocolatey packages are maintained outside the release workflow and can lag behind the GitHub release. Check `rr --version` and use a pre-built binary when you need a specific version.
+The Homebrew formula is maintained outside the release workflow and can lag behind the GitHub release. Check `rr --version` and use a pre-built binary when you need a specific version.
 {% endhint %}
 
 ## Build From Source
