@@ -6,7 +6,7 @@ The plugin is independent of the [KV Redis driver](../kv/redis.md). The `redis` 
 
 ## Configuration
 
-The `redis` section is a map. Each key is a connection name. Each value is a connection config.
+The `redis` section holds one connection config.
 
 {% code title=".rr.yaml" %}
 
@@ -17,22 +17,19 @@ rpc:
   listen: tcp://127.0.0.1:6001
 
 redis:
-  default:
-    addrs: ["127.0.0.1:6379"]
-  counters:
-    addrs: ["10.0.0.5:6379"]
-    db: 1
-    tls:
-      root_ca: /path/ca.crt
+  addrs: ["127.0.0.1:6379"]
+  db: 1
+  tls:
+    root_ca: /path/ca.crt
 ```
 
 {% endcode %}
 
-The `redis` section is optional. Without the section, every `redis.*` call returns the error `no such connection`.
+The `redis` section is optional. Without the section, every `redis.*` call returns the error `redis section is not configured`.
 
-The plugin opens the connections at start. The Redis client connects when it runs the first command, so the plugin does not check the server at start. The plugin closes all connections at stop.
+The plugin opens the connection at start. The Redis client connects when it runs the first command, so the plugin does not check the server at start. The plugin closes the connection at stop.
 
-A connection config has the same fields as the `config` block of the [KV Redis driver](../kv/redis.md). The same defaults apply.
+The `redis` section has the same fields as the `config` block of the [KV Redis driver](../kv/redis.md). The same defaults apply.
 
 | Field               | Description                                                                                                           |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------|
@@ -71,9 +68,9 @@ The plugin registers the RPC service `redis`. Each method has the name `redis.<C
 
 The request and reply messages are in the proto package `redis.v1`. The file is `roadrunner/api/redis/v1/redis.proto` in the [roadrunner-server/api](https://github.com/roadrunner-server/api) repository. The Go package is `github.com/roadrunner-server/api-go/v6/redis/v1`. The PHP namespace is `RoadRunner\Redis\DTO\V1`.
 
-Each request message has the name `<Command>Request`. The first field of every request is `connection`. It is the name of a connection from the `redis` section.
+Each request message has the name `<Command>Request`.
 
-Keys, hash field names and connection names are strings. Values, list elements and set and sorted set members are bytes. Scores are doubles. Counts, indexes and durations are 64-bit integers.
+Keys and hash field names are strings. Values, list elements and set and sorted set members are bytes. Scores are doubles. Counts, indexes and durations are 64-bit integers.
 
 The plugin uses these reply messages:
 
@@ -106,8 +103,7 @@ A nil reply from Redis is data. It is never an error.
 
 The plugin returns these errors before it calls Redis:
 
-- `no such connection: <name>`: the `connection` name is not in the `redis` section.
-- `no connection provided`: the `connection` field is empty.
+- `redis section is not configured`: the config has no `redis` section.
 - `key can't be empty string`: a key, field, member, source or destination is empty or has only whitespace.
 - `should provide at least 1 key`: a list of keys, fields, elements or members is empty.
 
@@ -239,20 +235,20 @@ Rules for `redis.ZRange`:
 
 ## Metrics
 
-The plugin registers one Prometheus collector for each connection. The metric names contain the connection name. Enable the [metrics](../lab/metrics.md) plugin to read them.
+The plugin registers one Prometheus collector for the connection. The KV Redis driver uses the `rr_redis_` prefix, so these metrics use the `rr_redis_rpc_` prefix. Enable the [metrics](../lab/metrics.md) plugin to read them.
 
-| Metric                                          | Description                                        |
-|-------------------------------------------------|----------------------------------------------------|
-| `rr_redis_<connection>_pool_hit_total`          | Number of times a free connection was found.       |
-| `rr_redis_<connection>_pool_miss_total`         | Number of times no free connection was found.      |
-| `rr_redis_<connection>_pool_timeout_total`      | Number of times a wait for a connection timed out. |
-| `rr_redis_<connection>_pool_conn_total_current` | Current number of connections in the pool.         |
-| `rr_redis_<connection>_pool_conn_idle_current`  | Current number of idle connections.                |
-| `rr_redis_<connection>_pool_conn_stale_total`   | Number of stale connections that the pool removed. |
+| Metric                                   | Description                                        |
+|------------------------------------------|----------------------------------------------------|
+| `rr_redis_rpc_pool_hit_total`            | Number of times a free connection was found.       |
+| `rr_redis_rpc_pool_miss_total`           | Number of times no free connection was found.      |
+| `rr_redis_rpc_pool_timeout_total`        | Number of times a wait for a connection timed out. |
+| `rr_redis_rpc_pool_conn_total_current`   | Current number of connections in the pool.         |
+| `rr_redis_rpc_pool_conn_idle_current`    | Current number of idle connections.                |
+| `rr_redis_rpc_pool_conn_stale_total`     | Number of stale connections that the pool removed. |
 
 ## Example
 
-This Go client calls `redis.IncrBy` on the connection `default`. The RPC address is from the `rpc` section of the config.
+This Go client calls `redis.IncrBy`. The RPC address is from the `rpc` section of the config.
 
 ```go
 package main
@@ -276,9 +272,8 @@ func main() {
 
     reply := &redisV1.IntReply{}
     err = client.Call("redis.IncrBy", &redisV1.IncrByRequest{
-        Connection: "default",
-        Key:        "visits",
-        Increment:  1,
+        Key:       "visits",
+        Increment: 1,
     }, reply)
     if err != nil {
         panic(err)
