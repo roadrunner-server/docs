@@ -346,6 +346,17 @@ http:
     #
     # Default: 128
     max_concurrent_streams: 128
+
+  # HTTP/3 settings. Enable QUIC + HTTP/3 on a separate address.
+  http3:
+    # Host and port to listen on for HTTP/3.
+    #
+    # Default: disabled (section absent)
+    address: 127.0.0.1:8443
+    # Path to the certificate. Required together with the key when the section is present.
+    cert: "/ssl/cert.crt"
+    # Path to the private key.
+    key: "/ssl/key.pem"
 ```
 
 {% endcode %}
@@ -638,7 +649,50 @@ The parser can reject fragmented v1 headers. It limits the v2 address and metada
 
 ## HTTP/3
 
-HTTP/3 support is experimental and might change in the future. Docs are available in the [experimental](../experimental/experimental.md) section.
+Add the `http3` section to the `http` config to start an HTTP/3 listener. QUIC uses UDP, so the listener has its own address. Set `cert` and `key` to existing certificate and private key files. The listener loads these files at startup.
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+server:
+  command: "php worker.php"
+  relay: pipes
+
+http:
+  address: 127.0.0.1:15389
+  pool:
+    num_workers: 2
+  http3:
+    address: 127.0.0.1:34555
+    key: "localhost+2-key.pem"
+    cert: "localhost+2.pem"
+```
+
+{% endcode %}
+
+To generate test certificates, use [mkcert](https://github.com/FiloSottile/mkcert) or [certbot](https://certbot.eff.org/):
+
+{% code %}
+
+```bash
+mkcert -install && mkcert localhost 127.0.0.1 ::1
+```
+
+{% endcode %}
+
+This command installs a local CA and writes `localhost+2.pem` and `localhost+2-key.pem` for the `localhost` domain. Use them in the configuration above.
+
+To test the server, use a client with HTTP/3 support, such as [curl](https://curl.se/docs/http3.html):
+
+{% code %}
+
+```bash
+curl --http3 -k https://127.0.0.1:34555/
+```
+
+{% endcode %}
 
 ## Overriding HTTP default error code
 
