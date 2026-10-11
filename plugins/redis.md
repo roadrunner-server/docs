@@ -2,11 +2,11 @@
 
 The Redis plugin exposes Redis commands through RPC. Use it to run atomic, server-side operations such as `INCRBY`, `HSET` or `ZADD` from PHP or from any other goridge client.
 
-The plugin is independent of the [KV Redis driver](../kv/redis.md). The `redis` section and the `kv` section use separate connections. They share only the Redis server.
+The plugin uses the connections of the [KV Redis driver](../kv/redis.md). Each `kv` storage with `driver: redis` is a connection for the `redis.*` RPC methods. The plugin has no config section of its own.
 
 ## Configuration
 
-The `redis` section holds one connection config.
+Define a `kv` storage with `driver: redis`. The storage name is the `connection` value in every `redis.*` request.
 
 {% code title=".rr.yaml" %}
 
@@ -16,51 +16,23 @@ version: "3"
 rpc:
   listen: tcp://127.0.0.1:6001
 
-redis:
-  addrs: ["127.0.0.1:6379"]
-  db: 1
-  tls:
-    root_ca: /path/ca.crt
+kv:
+  redis-rr:
+    driver: redis
+    config:
+      addrs: ["127.0.0.1:6379"]
+  counters:
+    driver: redis
+    config:
+      addrs: ["10.0.0.5:6379"]
+      db: 1
 ```
 
 {% endcode %}
 
-The `redis` section is optional. Without the section, every `redis.*` call returns the error `redis section is not configured`.
+The `config` block and its defaults are described on the [KV Redis driver](../kv/redis.md) page. A storage with another driver, for example `memory`, is not a connection for this plugin.
 
-The plugin opens the connection at start. The Redis client connects when it runs the first command, so the plugin does not check the server at start. The plugin closes the connection at stop.
-
-The `redis` section has the same fields as the `config` block of the [KV Redis driver](../kv/redis.md). The same defaults apply.
-
-| Field               | Description                                                                                                           |
-|---------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `addrs`             | List of Redis addresses in the `host:port` format. The default is `127.0.0.1:6379`.                                   |
-| `username`          | User name of the Redis connection. The default is an empty string.                                                    |
-| `password`          | Password of the Redis connection. The default is an empty string.                                                     |
-| `db`                | Number of the Redis database. The default is `0`.                                                                     |
-| `master_name`       | Name of the master that Redis Sentinel monitors. Set this field to use Redis Sentinel.                                |
-| `sentinel_username` | Optional Sentinel ACL user name.                                                                                      |
-| `sentinel_password` | Optional Sentinel password.                                                                                           |
-| `dial_timeout`      | Timeout to connect to the server. The value `0` selects `5s`.                                                         |
-| `max_retries`       | Maximum number of command retries after the first attempt. The value `0` selects 3. The value `-1` disables retries.  |
-| `min_retry_backoff` | Minimum pause between retries. The value `0` selects `8ms`. The value `-1` disables the pause.                        |
-| `max_retry_backoff` | Maximum pause between retries. The value `0` selects `512ms`. The value `-1` disables the pause.                      |
-| `pool_size`         | Maximum number of socket connections per CPU. The value `0` selects 10.                                               |
-| `min_idle_conns`    | Minimum number of idle connections. The value `0` means no idle connections.                                          |
-| `max_conn_age`      | Age at which the client closes a connection. The value `0` disables this option.                                      |
-| `read_timeout`      | Timeout for socket reads. The value `0` selects `3s`. The value `-1` disables the timeout.                            |
-| `write_timeout`     | Timeout for socket writes. The value `0` selects the value of `read_timeout`.                                         |
-| `pool_timeout`      | Time that the client waits for a free connection. The value `0` selects `read_timeout` plus `1s`.                     |
-| `idle_timeout`      | Time after which the client closes an idle connection. The value `0` selects `5m`. The value `-1` disables the check. |
-| `read_only`         | Enables the read-only mode. Redis Sentinel does not support this option.                                              |
-| `route_by_latency`  | Cluster option. Routes read-only commands to the closest node. This option sets `read_only` to `true`.                |
-| `route_randomly`    | Cluster option. Routes read-only commands to a random node. This option sets `read_only` to `true`.                   |
-| `tls.cert`          | Path to the client certificate file. Set this field together with `tls.key`.                                          |
-| `tls.key`           | Path to the client private key file.                                                                                  |
-| `tls.root_ca`       | Path to the PEM file with CA certificates. The client adds them to the system trust store.                            |
-
-All time values accept a suffix: `h`, `m`, `s` or `ms`. A value without a suffix is in nanoseconds. Omit the `tls` section for a connection without TLS.
-
-For the full description of each field, see the [KV Redis driver](../kv/redis.md) page.
+The KV plugin opens the storages at start. The Redis client connects when it runs the first command, so the plugin does not check the server at start. The KV plugin closes the storages at stop.
 
 ## RPC
 
@@ -68,9 +40,9 @@ The plugin registers the RPC service `redis`. Each method has the name `redis.<C
 
 The request and reply messages are in the proto package `redis.v1`. The file is `roadrunner/api/redis/v1/redis.proto` in the [roadrunner-server/api](https://github.com/roadrunner-server/api) repository. The Go package is `github.com/roadrunner-server/api-go/v6/redis/v1`. The PHP namespace is `RoadRunner\Redis\DTO\V1`.
 
-Each request message has the name `<Command>Request`.
+Each request message has the name `<Command>Request`. The first field of every request is `connection`. It is the name of a `kv` storage with `driver: redis`.
 
-Keys and hash field names are strings. Values, list elements and set and sorted set members are bytes. Scores are doubles. Counts, indexes and durations are 64-bit integers.
+Keys, hash field names and connection names are strings. Values, list elements and set and sorted set members are bytes. Scores are doubles. Counts, indexes and durations are 64-bit integers.
 
 The plugin uses these reply messages:
 
@@ -103,7 +75,8 @@ A nil reply from Redis is data. It is never an error.
 
 The plugin returns these errors before it calls Redis:
 
-- `redis section is not configured`: the config has no `redis` section.
+- `no such connection: <name>`: the `connection` name is not a `kv` storage with `driver: redis`.
+- `no connection provided`: the `connection` field is empty.
 - `key can't be empty string`: a key, field, member, source or destination is empty or has only whitespace.
 - `should provide at least 1 key`: a list of keys, fields, elements or members is empty.
 
@@ -111,7 +84,7 @@ Empty values are allowed.
 
 Redis errors pass through with the text of the server. Examples are `WRONGTYPE`, `ERR value is not an integer or out of range`, `ERR no such key`, `NOPERM` and connection errors.
 
-The RPC layer does not retry a command. The `max_retries` option of the connection applies.
+The RPC layer does not retry a command. The `max_retries` option of the storage applies.
 
 ### Tracing
 
@@ -235,20 +208,11 @@ Rules for `redis.ZRange`:
 
 ## Metrics
 
-The plugin registers one Prometheus collector for the connection. The KV Redis driver uses the `rr_redis_` prefix, so these metrics use the `rr_redis_rpc_` prefix. Enable the [metrics](../lab/metrics.md) plugin to read them.
-
-| Metric                                   | Description                                        |
-|------------------------------------------|----------------------------------------------------|
-| `rr_redis_rpc_pool_hit_total`            | Number of times a free connection was found.       |
-| `rr_redis_rpc_pool_miss_total`           | Number of times no free connection was found.      |
-| `rr_redis_rpc_pool_timeout_total`        | Number of times a wait for a connection timed out. |
-| `rr_redis_rpc_pool_conn_total_current`   | Current number of connections in the pool.         |
-| `rr_redis_rpc_pool_conn_idle_current`    | Current number of idle connections.                |
-| `rr_redis_rpc_pool_conn_stale_total`     | Number of stale connections that the pool removed. |
+The RPC methods use the clients of the KV storages, so the KV Redis driver metrics apply. The metric names start with `rr_redis_pool_`. See the [KV Redis driver](../kv/redis.md) page and the [metrics](../lab/metrics.md) plugin.
 
 ## Example
 
-This Go client calls `redis.IncrBy`. The RPC address is from the `rpc` section of the config.
+This Go client calls `redis.IncrBy` on the storage `redis-rr`. The RPC address is from the `rpc` section of the config.
 
 ```go
 package main
@@ -272,8 +236,9 @@ func main() {
 
     reply := &redisV1.IntReply{}
     err = client.Call("redis.IncrBy", &redisV1.IncrByRequest{
-        Key:       "visits",
-        Increment: 1,
+        Connection: "redis-rr",
+        Key:        "visits",
+        Increment:  1,
     }, reply)
     if err != nil {
         panic(err)
