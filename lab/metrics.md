@@ -45,6 +45,14 @@ be `rr_jobs_total_workers`.
 
 Per-worker memory metrics have a `pid` label. Worker-state metrics have `pid` and `state` labels. Pool totals have no plugin-defined labels.
 
+The `http`, `grpc`, `jobs`, `temporal`, and `centrifuge` plugins export the general metrics. The `centrifuge` plugin uses the `rr_centrifugo` prefix, for example `rr_centrifugo_total_workers`.
+
+The general metrics count all workers in the pool. With [automatic scaling](../php/auto-scaling.md), `{{plugin}}_total_workers` includes the dynamically allocated workers. No metric reports the dynamic worker count separately. Compare `{{plugin}}_total_workers` with the configured `num_workers` to see the scaled-up part of the pool.
+
+### Runtime Metrics
+
+The metrics plugin registers the Go runtime and process collectors from the Prometheus client library. They export `go_*` and `process_*` metrics on the same endpoint. The [Grafana dashboards](dashboards/dashboards.md) use `process_start_time_seconds`, `go_memstats_heap_inuse_bytes`, and `go_goroutines`.
+
 ### HTTP Metrics
 
 {% hint style="info" %}
@@ -75,6 +83,8 @@ The HTTP metrics provided by the metrics plugin include:
 The request counter and duration histogram have a `status` label. A response body written without an explicit status records `status="200"`. The duration histogram has finite buckets from `0.005` through `60` seconds, including `20`, `30`, and `60` for slow requests.
 
 The duration histogram includes downstream request execution. The `http_metrics` and `http_metrics:post` spans described in [OpenTelemetry](otel.md) measure work before and after the downstream handler. Their duration does not change histogram duration.
+
+With the [dynamic allocator](../php/auto-scaling.md), a request that gets a worker after a scale-up does not increment `rr_http_no_free_workers_total`. The counter increments when a scale-up attempt adds no worker, or when the retry after a scale-up also times out.
 
 ### gRPC Metrics
 
@@ -127,10 +137,20 @@ rate(rr_jobs_jobs_requeue[5m])
 
 ### Temporal Metrics
 
-In temporal each SDK, has its own metrics - RoadRunner retransmits Go SDK metrics to the metrics storage.
-For example, we can observe a workflow failing or a nondeterminism state.
+The Temporal plugin exports two groups of metrics on two endpoints.
 
-Full list of metrics we can look at here [Sdk Metrics](https://docs.temporal.io/references/sdk-metrics)
+The RoadRunner worker metrics describe the activity worker pool. They are the [general metrics](#general-metrics) with the `rr_temporal` prefix, for example `rr_temporal_total_workers`. The metrics plugin serves them on `metrics.address`.
+
+The Temporal Go SDK metrics describe workflows, activities, pollers, and requests to the Temporal server. Examples are `temporal_request`, `temporal_workflow_completed`, and `temporal_workflow_task_execution_latency`. The plugin passes them through [Tally](https://github.com/uber-go/tally) to a separate Prometheus endpoint on `temporal.metrics.prometheus.address`, or to StatsD. The full list is in the [SDK metrics reference](https://docs.temporal.io/references/sdk-metrics).
+
+The plugin adds two gauges to the SDK metrics:
+
+- `rr_activities_pool_queue_size` - Active `Exec` calls in the activity worker pool, including calls waiting for a worker and calls executing a request. The plugin samples the value when an activity starts and when it ends.
+- `rr_workflows_pool_queue_size` - Active `Exec` calls in the workflow worker pool. The plugin samples the value when it sends a batch of workflow commands to a worker and when the worker replies.
+
+`temporal.metrics.prometheus.prefix` applies to the SDK metrics and to these two gauges. With `prefix: "foobar"`, the gauge name is `foobar_rr_activities_pool_queue_size`.
+
+The SDK metric names do not have the `_total` and `_seconds` suffixes. `temporal.metrics.prometheus.type` selects the Prometheus type for SDK timers. The default `summary` exports `_sum`, `_count`, and `quantile` series. Set `histogram` to export `_bucket` series for `histogram_quantile()` queries. See [Temporal dashboard](dashboards/dashboards.md#temporal-dashboard) for the effect on the official Temporal SDK dashboard.
 
 ```yaml
 version: "3"
@@ -153,7 +173,8 @@ temporal:
       # Server metrics address
       # Required for the production. Default: 127.0.0.1:9091, for the metrics 127.0.0.1:9091/metrics
       address: 127.0.0.1:9091
-      # Metrics type
+      # Prometheus type for SDK timers
+      # Optional, default: summary. Available values: summary, histogram
       type: "summary"
       # Temporal metrics prefix
       # Default: (empty)
