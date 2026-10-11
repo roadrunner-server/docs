@@ -32,6 +32,50 @@ tar -xzf roadrunner-3.0.0-linux-amd64.tar.gz --strip-components=1 \
 ./rr --version
 ```
 
+## Package Managers
+
+RoadRunner is also available through system package managers. A package puts the `rr` command on the system `PATH`. Run `rr --version` after the installation to check it.
+
+### Debian and Ubuntu
+
+```bash
+curl --fail --location --output roadrunner-3.0.0-linux-amd64.deb \
+  https://github.com/roadrunner-server/roadrunner/releases/download/v3.0.0/roadrunner-3.0.0-linux-amd64.deb
+sudo dpkg -i roadrunner-3.0.0-linux-amd64.deb
+```
+
+### Fedora, RHEL, and openSUSE
+
+```bash
+curl --fail --location --output roadrunner-3.0.0-linux-amd64.rpm \
+  https://github.com/roadrunner-server/roadrunner/releases/download/v3.0.0/roadrunner-3.0.0-linux-amd64.rpm
+sudo rpm -i roadrunner-3.0.0-linux-amd64.rpm
+```
+
+The `.deb` and `.rpm` packages are available for `amd64` and `arm64`. Replace `amd64` in the file name for the ARM64 package.
+
+### macOS
+
+```bash
+brew install roadrunner
+```
+
+### Windows
+
+```powershell
+winget install SpiralScout.RoadRunner
+```
+
+Chocolatey is also supported:
+
+```powershell
+choco install roadrunner
+```
+
+{% hint style="info" %}
+The Homebrew and Chocolatey packages are maintained outside the release workflow and can lag behind the GitHub release. Check `rr --version` and use a pre-built binary when you need a specific version.
+{% endhint %}
+
 ## Build From Source
 
 Run these commands from your application directory. The build uses the plugin versions in the downloaded `go.mod` and produces `./rr` for the host operating system and architecture. Set `RR_REF` to a full commit SHA when you need a repeatable build.
