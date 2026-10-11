@@ -259,6 +259,13 @@ jobs:
           # Optional, default: 1.
           min_fetch_message_size: 1
 
+          # pipelining_strategy sets how many records of one partition the driver keeps in the jobs pipeline at a time.
+          # FanOut inserts every fetched record at once. Serial inserts the next record of a partition after the worker
+          # reply to the previous one, which keeps the partition order. See "Partition Ordering" below.
+          #
+          # Optional, default: FanOut. Possible values: FanOut, Serial
+          pipelining_strategy: FanOut
+
           # consumer_offset sets the offset to start consuming from, or, if OffsetOutOfRange is seen while fetching,
           # to restart consuming from.
           #
@@ -305,10 +312,58 @@ jobs:
 Pipelines with `group_options.group_id` set mark acknowledged records for automatic offset commits. A commit advances the consumer group's position for a partition. RR does not wait for all earlier records in that partition to complete.
 
 {% hint style="warning" %}
-Workers can complete jobs out of order. If offset `101` is acknowledged while offset `100` is unfinished in the same partition, a commit can advance the group to `102`. After a crash, the group then skips offset `100`, although that job was not acknowledged. Do not assume that every unacknowledged job will be delivered again.
+Workers can complete jobs out of order. If offset `101` is acknowledged while offset `100` is unfinished in the same partition, a commit can advance the group to `102`. After a crash, the group then skips offset `100`, although that job was not acknowledged. Do not assume that every unacknowledged job will be delivered again. Set `consumer_options.pipelining_strategy: Serial` to keep one record per partition in the jobs pipeline and avoid this gap.
 {% endhint %}
 
 Direct partition consumption without `group_options` does not use these consumer-group commits.
+
+## Partition Ordering
+
+Kafka keeps the order of records inside a partition. The default `FanOut` pipelining inserts every fetched record into the jobs priority queue at once, and the workers process them in parallel. Records of one partition can then complete out of order.
+
+Set `consumer_options.pipelining_strategy: Serial` for topics that need the partition order, for example change data capture or command streams. The driver then keeps one record per partition in the jobs pipeline. The next record of a partition enters the pipeline after the worker reply to the previous one. The driver still consumes partitions in parallel, and other pipelines keep their behavior.
+
+The next record of a partition enters the pipeline after one of these worker replies to the previous record: the job completes, the job fails without requeue, or the job is nacked without requeue. A requeue blocks the partition until one of these replies arrives for the retry, so the retry is always the next record of its partition. A requeue with a delay blocks the partition for that delay. A record that the worker always requeues blocks its partition. After the current batch, it also blocks the other partitions of the pipeline. Nack the record without requeue to skip it.
+
+The driver polls the next batch after the workers reply to every record of the current batch. The slowest partition limits the throughput of a `Serial` pipeline. Use one pipeline for the ordered topics and another pipeline with the default `FanOut` strategy for the topics that do not need the order.
+
+With a consumer group, set `group_options.block_rebalance_on_poll: true` for a `Serial` pipeline, so a rebalance does not move a partition while one of its records is in the pipeline.
+
+With `block_rebalance_on_poll: true`, the driver blocks the rebalance until the workers reply to every record of the current batch, including the delay of a requeue. The group coordinator removes the member from the group when this takes longer than the rebalance timeout of 60 seconds. Keep the processing time of one batch, and the requeue delays, below this limit.
+
+{% code title=".rr.yaml" %}
+
+```yaml
+jobs:
+  pool:
+    num_workers: 10
+
+  pipelines:
+    facts:
+      driver: kafka
+      config:
+        group_options:
+          group_id: my-service
+          block_rebalance_on_poll: true
+        consumer_options:
+          consume_regexp: true
+          topics: [ "^my-org\\.fct\\..*" ]
+
+    commands:
+      driver: kafka
+      config:
+        group_options:
+          group_id: my-service
+          block_rebalance_on_poll: true
+        consumer_options:
+          consume_regexp: true
+          topics: [ "^my-org\\.cdc\\..*", "^my-org\\.cmd\\..*" ]
+          pipelining_strategy: Serial
+
+  consume: [ "facts", "commands" ]
+```
+
+{% endcode %}
 
 ## Direct Partitions
 
