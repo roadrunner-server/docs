@@ -133,16 +133,3 @@
 ## 📚 Releases
 
 - [v3.0.0](releases/v3-0-0.md)
-- [v2025.1.14](releases/v2025-1-14.md)
-- [v2025.1.13](releases/v2025-1-13.md)
-- [v2025.1.12](releases/v2025-1-12.md)
-- [v2025.1.11](releases/v2025-1-11.md)
-- [v2025.1.9](releases/v2025-1-9.md)
-- [v2025.1.8](releases/v2025-1-8.md)
-- [v2025.1.7](releases/v2025-1-7.md)
-- [v2025.1.5](releases/v2025-1-5.md)
-- [v2025.1.4](releases/v2025-1-4.md)
-- [v2025.1.3](releases/v2025-1-3.md)
-- [v2025.1.2](releases/v2025-1-2.md)
-- [v2025.1.1](releases/v2025-1-1.md)
-- [v2025.1.0](releases/v2025-1-0.md)
