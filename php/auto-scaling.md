@@ -72,3 +72,11 @@ logs:
 | `max_workers` | Maximum additional worker count, not the total pool size. | Default: 10. Reduced if necessary so `num_workers + max_workers` does not exceed 2048. |
 | `spawn_rate` | Maximum number of workers added per allocation batch or removed per idle tick. | Default: 5. Maximum: 100. |
 | `idle_timeout` | Interval for idle checks and minimum time without allocation triggers before removal. | Default: `1m`. Values below `1s` use the default. |
+
+### Observability
+
+No metric reports the dynamic worker count separately. Use these signals from the [metrics plugin](../lab/metrics.md):
+
+- `{{plugin}}_total_workers`, for example `rr_http_total_workers`, counts all workers, including dynamically allocated workers. A value above `num_workers` is the scaled-up part of the pool. The [Grafana dashboards](../lab/dashboards/dashboards.md) plot this value over time next to `{{plugin}}_workers_working`.
+- `rr_http_no_free_workers_total` increments when a scale-up attempt adds no worker, or when the retry after a scale-up also times out. A request that gets a worker after a scale-up does not increment it.
+- At log level `debug`, the allocator logs each added and removed worker with the current dynamic worker count.

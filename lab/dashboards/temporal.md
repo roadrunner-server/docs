@@ -140,7 +140,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": false,
-          "expr": "rr_http_uptime_seconds",
+          "expr": "time() - process_start_time_seconds",
           "instant": true,
           "interval": "",
           "legendFormat": "Uptime",
@@ -569,7 +569,7 @@
               }
             ]
           },
-          "unit": "decmbytes"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -614,7 +614,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "exemplar": true,
-          "expr": "(rr_temporal_workers_memory_bytes/1024000)",
+          "expr": "rr_temporal_workers_memory_bytes",
           "instant": false,
           "interval": "",
           "legendFormat": "Workers total memory used",
@@ -686,6 +686,207 @@
       ],
       "title": "Memory by worker [Temporal]",
       "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Workers",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": 3600000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": true,
+          "expr": "rr_temporal_total_workers",
+          "interval": "",
+          "legendFormat": "TOTAL",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": true,
+          "expr": "rr_temporal_workers_ready",
+          "interval": "",
+          "legendFormat": "READY",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": true,
+          "expr": "rr_temporal_workers_working",
+          "interval": "",
+          "legendFormat": "WORKING",
+          "refId": "C"
+        }
+      ],
+      "title": "Workers over time [Temporal]",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Queue size (requests)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 6,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": 3600000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 24,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": true,
+          "expr": "rr_activities_pool_queue_size",
+          "interval": "",
+          "legendFormat": "Activities",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": true,
+          "expr": "rr_workflows_pool_queue_size",
+          "interval": "",
+          "legendFormat": "Workflows",
+          "refId": "B"
+        }
+      ],
+      "title": "Pool queue size [Temporal]",
+      "type": "timeseries"
     }
   ],
   "refresh": "5s",
