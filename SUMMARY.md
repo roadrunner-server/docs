@@ -40,6 +40,7 @@
 - [Configuration](plugins/config.md)
 - [Server](plugins/server.md)
 - [Locks](plugins/locks.md)
+- [Redis](plugins/redis.md)
 - [TCP](plugins/tcp.md)
 
 ## 🌐 Community Plugins

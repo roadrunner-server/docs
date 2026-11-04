@@ -6,6 +6,8 @@ Before configuring the Redis driver, please make sure that the Redis Server is i
 You can read more about this [in the documentation](https://redis.io/).
 {% endhint %}
 
+For Redis-native commands such as INCR, HSET or ZADD, use the [Redis plugin](../plugins/redis.md). Its RPC methods run on the connections of the `kv` storages with `driver: redis`.
+
 ## Configuration
 
 In the simplest case, when a full-fledged cluster or a fault-tolerant system is not required, we have one connection to
