@@ -53,6 +53,34 @@ The general metrics count all workers in the pool. With [automatic scaling](../p
 
 The metrics plugin registers the Go runtime and process collectors from the Prometheus client library. They export `go_*` and `process_*` metrics on the same endpoint. The [Grafana dashboards](dashboards/dashboards.md) use `process_start_time_seconds`, `go_memstats_heap_inuse_bytes`, and `go_goroutines`.
 
+### Prefix and Labels
+
+When several services run RoadRunner, add a prefix or constant labels to the metrics that the RoadRunner plugins provide, such as `rr_jobs_total_workers` or `rr_http_request_total`.
+
+{% code title=".rr.yaml" %}
+
+```yaml
+version: "3"
+
+metrics:
+  address: 127.0.0.1:2112
+  # Prepended as-is to the metric names. Add the trailing underscore yourself.
+  prefix: "myapp_"
+  # Added as constant labels to each metric.
+  labels:
+    service: my-microservice
+```
+
+{% endcode %}
+
+With this configuration, the metrics plugin exposes `rr_jobs_total_workers` as `myapp_rr_jobs_total_workers{service="my-microservice"}`.
+
+Both options apply to the metrics that the RoadRunner plugins provide on `metrics.address`: the [general metrics](#general-metrics) and the HTTP, gRPC, Redis, and JOBS metrics below. The [runtime metrics](#runtime-metrics) and the [application metrics](#application-metrics) keep their names and labels. The Temporal SDK metrics use a separate endpoint and their own `prefix`, see [Temporal Metrics](#temporal-metrics).
+
+{% hint style="warning" %}
+A label name that a plugin metric already uses, such as `pid`, `state`, `status`, `grpc_method`, `driver`, `job`, or `source`, causes a registration error. RoadRunner reports the error on start and stops.
+{% endhint %}
+
 ### HTTP Metrics
 
 {% hint style="info" %}
