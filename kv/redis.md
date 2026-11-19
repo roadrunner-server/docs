@@ -1,5 +1,7 @@
 # Redis Driver
 
+For Redis queues, see the [Redis Jobs driver](../queues/redis.md).
+
 Before configuring the Redis driver, please make sure that the Redis Server is installed and running.
 
 {% hint style="info" %}

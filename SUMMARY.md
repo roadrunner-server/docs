@@ -74,6 +74,7 @@
 - [Beanstalk](queues/beanstalk.md)
 - [In-Memory](queues/memory.md)
 - [RabbitMQ](queues/amqp.md)
+- [Redis](queues/redis.md)
 - [BoltDB](queues/boltdb.md)
 - [Kafka](queues/kafka.md)
 - [NATS](queues/nats.md)
