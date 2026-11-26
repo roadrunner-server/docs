@@ -35,6 +35,12 @@ Positive intervals below `1s` are clamped to `1s`. Intervals above `60s` are cla
 
 The plugin supplies host CPU and memory usage and the PHP SDK identity for these heartbeats. This option does not control activity heartbeats or the activity heartbeat timeout.
 
+## Activity Heartbeats
+
+In RoadRunner v3.2, `temporal.RecordActivityHeartbeat` returns `"reset": true` when the Temporal server resets a running activity. A cancellation sets `canceled`, and a pause sets `paused`.
+
+With [Temporal PHP SDK 2.19](https://github.com/temporalio/sdk-php/releases/tag/v2.19) or later, `Activity::heartbeat($progress)` throws `Temporal\Exception\Client\ActivityResetException` for a reset. A cancellation throws `ActivityCanceledException`, and a pause throws `ActivityPausedException`.
+
 ## Custom Payload Converters
 
 The plugin collects Go implementations of Temporal's `converter.PayloadConverter` interface from a [custom RoadRunner build](../customization/build.md). Use `data_converters` to select converters by their `Encoding()` value and set their order:

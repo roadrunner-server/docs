@@ -12,6 +12,7 @@ as <https://onlineyamltools.com/convert-yaml-to-json>.
 
 Use the configuration reference for the RoadRunner revision you build:
 
+- [**.rr.yaml for v3.2.0**](https://github.com/roadrunner-server/roadrunner/blob/v3.2.0/.rr.yaml)
 - [**.rr.yaml for v3.0.0**](https://github.com/roadrunner-server/roadrunner/blob/v3.0.0/.rr.yaml)
 
 {% hint style="warning" %}

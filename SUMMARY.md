@@ -132,5 +132,6 @@
 
 ## 📚 Releases
 
+- [v3.2.0](releases/v3-2-0.md)
 - [v3.0.1](releases/v3-0-1.md)
 - [v3.0.0](releases/v3-0-0.md)
