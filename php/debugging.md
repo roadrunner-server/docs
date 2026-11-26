@@ -125,7 +125,7 @@ Next, create a `Dockerfile` in your project root or copy the following content:
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM ghcr.io/roadrunner-server/roadrunner:3.0.0 AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:3.2.0 AS roadrunner
 
 FROM php:8.5-cli-alpine
 

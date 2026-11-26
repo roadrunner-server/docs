@@ -4,7 +4,7 @@ These guides describe RoadRunner v3 with v6 plugins.
 
 ## Requirements
 
-- Go `1.27.1` for the source build.
+- Go `1.27.3` or later for the v3.2.0 source build.
 - PHP `8.5` with the `sockets` extension for the examples.
 - Composer 2 for PHP dependencies.
 - `curl` and `tar` to download and extract archives.
@@ -20,50 +20,44 @@ composer --version
 
 ## Pre-built Binaries
 
-Download RoadRunner `v3.0.0` from the [GitHub release page](https://github.com/roadrunner-server/roadrunner/releases/tag/v3.0.0). Select the archive for your operating system and architecture. Extract `rr` into your application directory.
+Download RoadRunner `v3.2.0` from the [GitHub release page](https://github.com/roadrunner-server/roadrunner/releases/tag/v3.2.0). Select the archive for your operating system and architecture. Extract `rr` into your application directory. On Windows, extract `rr.exe` from the `.zip` archive.
 
 For Linux AMD64, run:
 
 ```bash
-curl --fail --location --output roadrunner-3.0.0-linux-amd64.tar.gz \
-  https://github.com/roadrunner-server/roadrunner/releases/download/v3.0.0/roadrunner-3.0.0-linux-amd64.tar.gz
-tar -xzf roadrunner-3.0.0-linux-amd64.tar.gz --strip-components=1 \
-  roadrunner-3.0.0-linux-amd64/rr
+curl --fail --location --output roadrunner-3.2.0-linux-amd64.tar.gz \
+  https://github.com/roadrunner-server/roadrunner/releases/download/v3.2.0/roadrunner-3.2.0-linux-amd64.tar.gz
+tar -xzf roadrunner-3.2.0-linux-amd64.tar.gz --strip-components=1 \
+  roadrunner-3.2.0-linux-amd64/rr
 ./rr --version
 ```
 
 ## Package Managers
 
-RoadRunner is also available through system package managers. A package puts the `rr` command on the system `PATH`. Run `rr --version` after the installation to check it.
+RoadRunner provides `.deb` and `.rpm` packages for Linux on `amd64` and `arm64`. The examples use `amd64`. For ARM64, replace `amd64` with `arm64` in the file name and URL. Run `rr --version` to check the installation.
 
 ### Debian and Ubuntu
 
+Starting with v3.2.0, the Debian package name is `roadrunner`. If you installed an older package with a version in its name, remove that package before you install `roadrunner`. Both packages install `/usr/bin/rr`.
+
 ```bash
-curl --fail --location --output roadrunner-3.0.0-linux-amd64.deb \
-  https://github.com/roadrunner-server/roadrunner/releases/download/v3.0.0/roadrunner-3.0.0-linux-amd64.deb
-sudo dpkg -i roadrunner-3.0.0-linux-amd64.deb
+curl --fail --location --output roadrunner-3.2.0-linux-amd64.deb \
+  https://github.com/roadrunner-server/roadrunner/releases/download/v3.2.0/roadrunner-3.2.0-linux-amd64.deb
+sudo dpkg -i roadrunner-3.2.0-linux-amd64.deb
 ```
 
 ### Fedora, RHEL, and openSUSE
 
 ```bash
-curl --fail --location --output roadrunner-3.0.0-linux-amd64.rpm \
-  https://github.com/roadrunner-server/roadrunner/releases/download/v3.0.0/roadrunner-3.0.0-linux-amd64.rpm
-sudo rpm -i roadrunner-3.0.0-linux-amd64.rpm
+curl --fail --location --output roadrunner-3.2.0-linux-amd64.rpm \
+  https://github.com/roadrunner-server/roadrunner/releases/download/v3.2.0/roadrunner-3.2.0-linux-amd64.rpm
+sudo rpm -U roadrunner-3.2.0-linux-amd64.rpm
 ```
-
-The `.deb` and `.rpm` packages are available for `amd64` and `arm64`. Replace `amd64` in the file name for the ARM64 package.
 
 ### macOS
 
 ```bash
 brew install roadrunner
-```
-
-### Windows
-
-```powershell
-winget install SpiralScout.RoadRunner
 ```
 
 {% hint style="info" %}
@@ -75,7 +69,7 @@ The Homebrew formula is maintained outside the release workflow and can lag behi
 Run these commands from your application directory. The build uses the plugin versions in the downloaded `go.mod` and produces `./rr` for the host operating system and architecture. Set `RR_REF` to a full commit SHA when you need a repeatable build.
 
 ```bash
-RR_REF=v3.0.0
+RR_REF=v3.2.0
 curl --fail --location --output rr-source.tar.gz \
   "https://github.com/roadrunner-server/roadrunner/archive/${RR_REF}.tar.gz"
 mkdir rr-source
@@ -90,11 +84,13 @@ Inspect the compiled module versions with `go version -m ./rr`. Keep the source 
 
 ## Docker
 
-Use the official image `ghcr.io/roadrunner-server/roadrunner:3.0.0`. The [Docker guide](../app-server/docker.md#build-the-application-image) shows how to copy its binary into a PHP application image. The v3 image tags are `3`, `3.0`, and `3.0.0`.
+Use the official image `ghcr.io/roadrunner-server/roadrunner:3.2.0`. The [Docker guide](../app-server/docker.md#build-the-application-image) shows how to copy its binary into a PHP application image. Use `3.2` for the latest patch release in the 3.2 series or `3` for the latest v3 release.
 
 For a custom source build, set `CGO_ENABLED=0` and build for Linux and the container architecture. For example, add `GOOS=linux GOARCH=amd64` before `go` for a Linux AMD64 image. Run the version check on the target platform when you cross-compile. See [Build the RoadRunner Image](../app-server/docker.md#build-the-roadrunner-image) to package a custom binary.
 
 ## Composer
+
+The v3 metapackage is [`roadrunner/roadrunner`](https://packagist.org/packages/roadrunner/roadrunner). If your `composer.json` requires `spiral/roadrunner` for the server, change the package name to `roadrunner/roadrunner`. The metapackage does not install the server binary.
 
 Install the PHP packages needed by your worker. For an HTTP worker, run:
 
