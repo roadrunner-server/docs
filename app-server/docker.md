@@ -1,8 +1,8 @@
 # Docker Images
 
-Use the [official RoadRunner image](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner) at `ghcr.io/roadrunner-server/roadrunner:3.0.0`. The application, Nginx, and debugging examples use this release tag.
+Use the [official RoadRunner image](https://github.com/roadrunner-server/roadrunner/pkgs/container/roadrunner) at `ghcr.io/roadrunner-server/roadrunner:3.2.0`. The application, Nginx, and debugging examples use this release tag.
 
-The `3` and `3.0` tags follow releases in their respective version lines. Use `3.0.0` to select a specific release. Copy the RoadRunner binary into an application image with PHP.
+The `3` and `3.2` tags follow releases in their respective version lines. Use `3.2.0` to select a specific release. Copy the RoadRunner binary into an application image with PHP.
 
 ## Build the RoadRunner Image
 
@@ -38,7 +38,7 @@ Note that this example utilizes a folder named `app` for your application. If yo
 {% code title="Dockerfile" %}
 
 ```dockerfile
-FROM ghcr.io/roadrunner-server/roadrunner:3.0.0 AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:3.2.0 AS roadrunner
 
 FROM php:8.5-cli-alpine
 
