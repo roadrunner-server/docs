@@ -2,7 +2,7 @@
 
 The Redis plugin exposes Redis commands through RPC. Use it to run atomic, server-side operations such as `INCRBY`, `HSET` or `ZADD` from PHP or from any other goridge client.
 
-The plugin uses the connections of the [KV Redis driver](../kv/redis.md). Each `kv` storage with `driver: redis` is a connection for the `redis.*` RPC methods. The plugin has no config section of its own.
+The RPC methods use connections from the [KV Redis driver](../kv/redis.md). Each `kv` storage with `driver: redis` provides a named connection. A Redis Jobs pipeline does not create an RPC connection.
 
 ## Configuration
 
@@ -124,7 +124,7 @@ When the [otel](../lab/otel.md) plugin is enabled, each RPC call creates a span 
 | `redis.Rename`   | `key`, `new_key`                                              | `BoolReply`   | The reply is always `true`. A missing key is a Redis error.                  |
 | `redis.Scan`     | `uint64 cursor`, `string match`, `int64 count`, `string type` | `ScanReply`   |                                                                              |
 
-In cluster mode, `redis.Scan` reads one node per call and does not iterate the whole cluster.
+`redis.Scan` returns the error `scan is not supported on a cluster connection` for Redis Cluster. This also applies to Sentinel connections that enable `route_by_latency` or `route_randomly`. Use a standalone connection or a Sentinel connection with both options disabled to scan keys.
 
 ### Hashes
 
