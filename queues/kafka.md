@@ -331,7 +331,9 @@ With a consumer group, set `group_options.block_rebalance_on_poll: true` for a `
 
 With `block_rebalance_on_poll: true`, the driver blocks the rebalance until the workers reply to every record of the current batch, including the delay of a requeue. The group coordinator removes the member from the group when this takes longer than the rebalance timeout of 60 seconds. Keep the processing time of one batch, and the requeue delays, below this limit.
 
-{% code title=".rr.yaml" %}
+Use this `jobs` section with `version: "3"`, a PHP worker command in `server.command`, and [Kafka broker addresses](#configuration) in `kafka.brokers`.
+
+{% code title=".rr.yaml fragment" %}
 
 ```yaml
 jobs:
