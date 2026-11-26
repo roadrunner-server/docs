@@ -104,8 +104,7 @@ debug mode, which starts the pprof server and listens for incoming requests on p
 
 ## Experimental features
 
-RoadRunner can run with experimental features enabled. There are no experimental features at the moment, so the option has no effect. See [Experimental Features](../experimental/experimental.md).
-To enable experimental features, use the `--enable-experimental` or `-e` option:
+Use `--enable-experimental` or `-e` for plugins that require experimental mode. In v3.2, this option affects how Jobs handles a worker response error. [HTTP/3](../http/http.md#http3) starts without it. See [Experimental Features](../experimental/experimental.md).
 
 {% code %}
 
@@ -132,7 +131,7 @@ To enable experimental features, use the `--enable-experimental` or `-e` option:
 - `-s` - suppresses command status messages. Configure plugin logs through the `logs` section.
 - `-o` - overrides a configuration key, such as `-o http.address=127.0.0.1:8080`. Included files can override these values.
 - `-p` - creates a `.pid` file for `rr stop`.
-- `-e` or `--enable-experimental` - enables experimental features. There are no experimental features at the moment.
+- `-e` or `--enable-experimental` - enables experimental features.
 
 ## Stopping the Server
 

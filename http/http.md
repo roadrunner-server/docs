@@ -649,7 +649,7 @@ The parser can reject fragmented v1 headers. It limits the v2 address and metada
 
 ## HTTP/3
 
-Add the `http3` section to the `http` config to start an HTTP/3 listener. QUIC uses UDP, so the listener has its own address. Set `cert` and `key` to existing certificate and private key files. The listener loads these files at startup.
+In RoadRunner v3.2, configure `http.http3` to start an HTTP/3 listener without the `-e` flag. QUIC uses UDP, so the listener has its own address. Set `cert` and `key` to existing certificate and private key files. The listener loads these files at startup.
 
 {% code title=".rr.yaml" %}
 
