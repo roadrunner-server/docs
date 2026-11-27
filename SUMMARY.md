@@ -40,6 +40,7 @@
 - [Configuration](plugins/config.md)
 - [Server](plugins/server.md)
 - [Locks](plugins/locks.md)
+- [Redis](plugins/redis.md)
 - [TCP](plugins/tcp.md)
 
 ## 🌐 Community Plugins
@@ -74,6 +75,7 @@
 - [Beanstalk](queues/beanstalk.md)
 - [In-Memory](queues/memory.md)
 - [RabbitMQ](queues/amqp.md)
+- [Redis](queues/redis.md)
 - [BoltDB](queues/boltdb.md)
 - [Kafka](queues/kafka.md)
 - [NATS](queues/nats.md)
@@ -132,5 +134,6 @@
 
 ## 📚 Releases
 
+- [v3.2.0](releases/v3-2-0.md)
 - [v3.0.1](releases/v3-0-1.md)
 - [v3.0.0](releases/v3-0-0.md)

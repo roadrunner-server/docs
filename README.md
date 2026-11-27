@@ -6,14 +6,14 @@
 </figure>
 
 <p align="center">
- <a href="https://packagist.org/packages/spiral/roadrunner"><img src="https://poser.pugx.org/spiral/roadrunner/version"></a>
+ <a href="https://packagist.org/packages/roadrunner/roadrunner"><img src="https://poser.pugx.org/roadrunner/roadrunner/version"></a>
   <a href="https://pkg.go.dev/github.com/roadrunner-server/roadrunner/v3?tab=doc"><img src="https://pkg.go.dev/badge/github.com/roadrunner-server/roadrunner/v3.svg"></a>
     <a href="https://twitter.com/spiralphp"><img src="https://img.shields.io/twitter/follow/spiralphp?style=social"></a>
     <a href="https://codecov.io/gh/roadrunner-server/roadrunner/"><img src="https://codecov.io/gh/roadrunner-server/roadrunner/branch/master/graph/badge.svg"></a>
  <a href="https://github.com/roadrunner-server/roadrunner/actions"><img src="https://github.com/roadrunner-server/roadrunner/workflows/rr_cli_tests/badge.svg" alt=""></a>
   <a href="https://goreportcard.com/report/github.com/roadrunner-server/roadrunner/v3"><img src="https://goreportcard.com/badge/github.com/roadrunner-server/roadrunner/v3"></a>
  <a href="https://discord.gg/TFeEmCs"><img src="https://img.shields.io/badge/discord-chat-magenta.svg"></a>
- <a href="https://packagist.org/packages/spiral/roadrunner"><img src="https://img.shields.io/packagist/dd/spiral/roadrunner?style=flat-square"></a>
+ <a href="https://packagist.org/packages/roadrunner/roadrunner"><img src="https://img.shields.io/packagist/dd/roadrunner/roadrunner?style=flat-square"></a>
     <img alt="All releases" src="https://img.shields.io/github/downloads/roadrunner-server/roadrunner/total">
 </p>
 
@@ -25,7 +25,7 @@ of your web applications.
 
 RoadRunner includes [PSR-7](https://www.php-fig.org/psr/psr-7), [PSR-17](https://www.php-fig.org/psr/psr-17) compatible HTTP and `HTTP(S)/2/3/fCGI` servers and can be used to replace classic Nginx+FPM setups with much greater performance and flexibility. `HTTP(S)/2/3/fCGI` servers as just one of its many available plugins, but its capabilities extend far beyond:
 
-- Queue drivers: RabbitMQ, Kafka, SQS, Beanstalk, NATS, Google Pub/Sub, BoltDB, In-Memory, and [NSQ](queues/nsq.md).
+- Queue drivers: RabbitMQ, [Redis](queues/redis.md), Kafka, SQS, Beanstalk, NATS, Google Pub/Sub, BoltDB, In-Memory, and [NSQ](queues/nsq.md).
 - KV drivers: Redis, Memcached, BoltDB, In-Memory.
 - OTLP trace export over gRPC or HTTP.
 - Workflows engine via [Temporal](https://temporal.io)

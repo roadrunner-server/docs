@@ -1,10 +1,14 @@
 # Redis Driver
 
+For Redis queues, see the [Redis Jobs driver](../queues/redis.md).
+
 Before configuring the Redis driver, please make sure that the Redis Server is installed and running.
 
 {% hint style="info" %}
 You can read more about this [in the documentation](https://redis.io/).
 {% endhint %}
+
+For Redis-native commands such as `INCR`, `HSET`, or `ZADD`, use the [Redis plugin](../plugins/redis.md). Its RPC methods run on the connections of the `kv` storages with `driver: redis`.
 
 ## Configuration
 

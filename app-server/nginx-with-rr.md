@@ -185,7 +185,7 @@ This Dockerfile uses the [official RoadRunner v3 image](docker.md).
 {% code title="docker/app/Dockerfile" %}
 
 ```dockerfile
-FROM ghcr.io/roadrunner-server/roadrunner:3.0.0 AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:3.2.0 AS roadrunner
 FROM php:8.5-cli-alpine
 
 COPY --from=roadrunner /usr/bin/rr /usr/local/bin/rr
