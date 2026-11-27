@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Starting with RR `v2023.3.4`, RoadRunner can run with experimental features enabled. These are features that are not yet ready for production use.
+RoadRunner supports experimental features starting from `v2023.3.4`. Experimental features are not ready for production use.
 
 No bundled plugin uses the `-e` flag in RoadRunner v3.2. Custom plugins can still read the experimental flag from the configuration plugin.
 

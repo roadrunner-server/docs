@@ -64,7 +64,7 @@ version: "3"
 
 metrics:
   address: 127.0.0.1:2112
-  # Prepended as-is to the metric names. Add the trailing underscore yourself.
+  # Prefix added to metric names without a separator. Include a trailing underscore if needed.
   prefix: "myapp_"
   # Added as constant labels to each metric.
   labels:
@@ -75,10 +75,10 @@ metrics:
 
 With this configuration, the metrics plugin exposes `rr_jobs_total_workers` as `myapp_rr_jobs_total_workers{service="my-microservice"}`.
 
-Both options apply to the metrics that the RoadRunner plugins provide on `metrics.address`: the [general metrics](#general-metrics) and the HTTP, gRPC, Redis, and JOBS metrics below. The [runtime metrics](#runtime-metrics) and the [application metrics](#application-metrics) keep their names and labels. The Temporal SDK metrics use a separate endpoint and their own `prefix`, see [Temporal Metrics](#temporal-metrics).
+Both options apply to RoadRunner plugin metrics on `metrics.address`: [general](#general-metrics), HTTP, gRPC, Redis, and JOBS metrics. The [runtime metrics](#runtime-metrics) and the [application metrics](#application-metrics) keep their names and labels. The Temporal SDK metrics use a separate endpoint and their own `prefix`. See [Temporal Metrics](#temporal-metrics).
 
 {% hint style="warning" %}
-A label name that a plugin metric already uses, such as `pid`, `state`, `status`, `grpc_method`, `driver`, `job`, or `source`, causes a registration error. RoadRunner reports the error on start and stops.
+A label name that a plugin metric already uses, such as `pid`, `state`, `status`, `grpc_method`, `driver`, `job`, or `source`, causes a registration error. RoadRunner reports the error at startup and stops.
 {% endhint %}
 
 ### HTTP Metrics

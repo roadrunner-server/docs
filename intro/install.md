@@ -61,7 +61,7 @@ brew install roadrunner
 ```
 
 {% hint style="info" %}
-The Homebrew formula is maintained outside the release workflow and can lag behind the GitHub release. Check `rr --version` and use a pre-built binary when you need a specific version.
+Community maintainers update the Homebrew formula outside the release workflow, so it can lag behind the GitHub release. Check `rr --version` after installation. Use a pre-built binary when you need a specific version.
 {% endhint %}
 
 ## Build From Source
@@ -90,7 +90,7 @@ For a custom source build, set `CGO_ENABLED=0` and build for Linux and the conta
 
 ## Composer
 
-The v3 metapackage is [`roadrunner/roadrunner`](https://packagist.org/packages/roadrunner/roadrunner). If your `composer.json` requires `spiral/roadrunner` for the server, change the package name to `roadrunner/roadrunner`. When migrating from a calendar-version constraint such as `^2025.1`, also update the version constraint (for example, `"roadrunner/roadrunner": "^3.2"`), because `roadrunner/roadrunner` publishes only v3 releases. An existing constraint can stay if it already allows v3.2. The metapackage does not install the server binary.
+The v3 metapackage is [`roadrunner/roadrunner`](https://packagist.org/packages/roadrunner/roadrunner). If your `composer.json` requires `spiral/roadrunner` for the server, change the package name to `roadrunner/roadrunner`. The `roadrunner/roadrunner` package publishes only v3 releases. When migrating from a calendar-version constraint such as `^2025.1`, update the constraint to `"^3.2"`. An existing constraint can stay if it already allows v3.2. The metapackage does not install the server binary.
 
 Install the PHP packages needed by your worker. For an HTTP worker, run:
 

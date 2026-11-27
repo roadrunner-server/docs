@@ -1,6 +1,6 @@
 # Redis plugin
 
-The Redis plugin exposes Redis commands through RPC. Use it to run atomic, server-side operations such as `INCRBY`, `HSET` or `ZADD` from PHP or from any other goridge client.
+The Redis plugin exposes Redis commands through RPC. Use it to run atomic, server-side operations such as `INCRBY`, `HSET`, or `ZADD` from PHP or from any other Goridge client.
 
 The RPC methods use connections from the [KV Redis driver](../kv/redis.md). Each `kv` storage with `driver: redis` provides a named connection. A Redis Jobs pipeline does not create an RPC connection.
 
@@ -30,19 +30,19 @@ kv:
 
 {% endcode %}
 
-The `config` block and its defaults are described on the [KV Redis driver](../kv/redis.md) page. A storage with another driver, for example `memory`, is not a connection for this plugin.
+See the [KV Redis driver](../kv/redis.md) page for the `config` block and its defaults. A storage with another driver, for example `memory`, is not a connection for this plugin.
 
-The KV plugin opens the storages at start. The Redis client connects when it runs the first command, so the plugin does not check the server at start. The KV plugin closes the storages at stop.
+The KV plugin opens the storages at startup. The Redis client connects when it runs the first command, so the plugin does not check the server at startup. The KV plugin closes the storages at shutdown.
 
 ## RPC
 
-The plugin registers the RPC service `redis`. Each method has the name `redis.<Command>` with the command name in CamelCase. For example: `redis.IncrBy`, `redis.HGetAll` and `redis.ZRange`.
+The plugin registers the RPC service `redis`. Each method has the name `redis.<Command>` with the command name in CamelCase. For example: `redis.IncrBy`, `redis.HGetAll`, and `redis.ZRange`.
 
 The request and reply messages are in the proto package `redis.v1`. The file is `roadrunner/api/redis/v1/redis.proto` in the [roadrunner-server/api](https://github.com/roadrunner-server/api) repository. The Go package is `github.com/roadrunner-server/api-go/v6/redis/v1`. The PHP namespace is `RoadRunner\Redis\DTO\V1`.
 
 Each request message has the name `<Command>Request`. The first field of every request is `connection`. It is the name of a `kv` storage with `driver: redis`.
 
-Keys, hash field names and connection names are strings. Values, list elements and set and sorted set members are bytes. Scores are doubles. Counts, indexes and durations are 64-bit integers.
+Keys, hash field names, and connection names are strings. Values, list elements, and set or sorted set members are bytes. Scores are doubles. Counts, indexes, and durations are 64-bit integers.
 
 The plugin uses these reply messages:
 
@@ -67,7 +67,7 @@ The plugin uses these reply messages:
 
 A nil reply from Redis is data. It is never an error.
 
-- `BytesReply.value`, `OptionalIntReply.value` and `OptionalFloatReply.value` are absent when Redis returns nil.
+- `BytesReply.value`, `OptionalIntReply.value`, and `OptionalFloatReply.value` are absent when Redis returns nil.
 - For `MGet` and `HMGet`, `found[i]` is `false` and `values[i]` is empty when the key or the field does not exist. The positions of the other items do not change.
 - A precondition result is data. For example, `Set` with `nx` on an existing key returns `BoolReply` with `false`.
 
@@ -77,18 +77,18 @@ The plugin returns these errors before it calls Redis:
 
 - `no such connection: <name>`: the `connection` name is not a `kv` storage with `driver: redis`.
 - `no connection provided`: the `connection` field is empty.
-- `key can't be empty string`: a key, field, member, source or destination is empty or has only whitespace.
-- `should provide at least 1 key`: a list of keys, fields, elements or members is empty.
+- `key can't be empty string`: a key, field, member, source, or destination is empty or has only whitespace.
+- `should provide at least 1 key`: a list of keys, fields, elements, or members is empty.
 
-Empty values are allowed.
+The plugin accepts empty values.
 
-Redis errors pass through with the text of the server. Examples are `WRONGTYPE`, `ERR value is not an integer or out of range`, `ERR no such key`, `NOPERM` and connection errors.
+Redis errors pass through with the text of the server. Examples are `WRONGTYPE`, `ERR value is not an integer or out of range`, `ERR no such key`, `NOPERM`, and connection errors.
 
 The RPC layer does not retry a command. The `max_retries` option of the storage applies.
 
 ### Tracing
 
-When the [otel](../lab/otel.md) plugin is enabled, each RPC call creates a span with the name `redis:<command>`. The Redis client adds its own spans. This is the same behavior as in the [KV plugin](../kv/overview-kv.md).
+When you enable the [otel](../lab/otel.md) plugin, each RPC call creates a `redis:<command>` span. The Redis client adds its own spans. This is the same behavior as in the [KV plugin](../kv/overview-kv.md).
 
 ### Strings and counters
 
@@ -172,7 +172,7 @@ When the [otel](../lab/otel.md) plugin is enabled, each RPC call creates a span 
 | `redis.SPop`         | `key`                           | `BytesReply`     | Removes and returns one member.            |
 | `redis.SPopN`        | `key`, `int64 count`            | `BytesListReply` | Removes and returns up to `count` members. |
 | `redis.SRandMember`  | `key`                           | `BytesReply`     | Returns one member.                        |
-| `redis.SRandMemberN` | `key`, `int64 count`            | `BytesListReply` | A positive `count` returns up to `count` distinct members (the reply can be shorter than `count` if the set has fewer members). A negative `count` returns `abs(count)` members and can repeat members. |
+| `redis.SRandMemberN` | `key`, `int64 count`            | `BytesListReply` | Positive `count` returns up to `count` distinct members (fewer if the set is smaller). Negative `count` returns `abs(count)` members and can repeat values. |
 | `redis.SDiff`        | `repeated string keys`          | `BytesListReply` |                                            |
 | `redis.SInter`       | `repeated string keys`          | `BytesListReply` |                                            |
 | `redis.SUnion`       | `repeated string keys`          | `BytesListReply` |                                            |
@@ -200,19 +200,19 @@ Redis has a one-member form and a `count` form of `SPOP` and `SRANDMEMBER`. The 
 Rules for `redis.ZRange`:
 
 - By default, `start` and `stop` are index strings.
-- With `by_score`, `start` and `stop` are score strings. Examples are `-inf`, `(1.5` and `10`.
-- With `by_lex`, `start` and `stop` are lex strings. Examples are `-`, `+`, `[a` and `(b`.
+- With `by_score`, `start` and `stop` are score strings. Examples are `-inf`, `(1.5`, and `10`.
+- With `by_lex`, `start` and `stop` are lex strings. Examples are `-`, `+`, `[a`, and `(b`.
 - `by_score` and `by_lex` together return the error `by_score and by_lex are mutually exclusive`.
 - The plugin sends `LIMIT offset count` when `offset` or `count` is not `0`. Redis accepts `LIMIT` only with `by_score` or `by_lex`.
 - `score` is `0` in the reply when `with_scores` is `false`.
 
 ## Metrics
 
-The RPC methods use the clients of the KV storages, so the KV Redis driver metrics apply. The metric names start with `rr_redis_pool_`. When you configure more than one Redis KV storage, the Prometheus collector exports metrics only for the last Redis KV pool that the plugin creates; it does not aggregate pools or label them by storage name. See the [KV Redis driver](../kv/redis.md) page and the [metrics](../lab/metrics.md) plugin.
+The RPC methods use the clients of the KV storages, so the KV Redis driver metrics apply. The metric names start with `rr_redis_pool_`. When you configure more than one Redis KV storage, the Prometheus collector exports metrics only for the last created pool. It does not combine pools or add a storage label. See the [KV Redis driver](../kv/redis.md) page and the [metrics](../lab/metrics.md) plugin.
 
 ## Example
 
-This Go client calls `redis.IncrBy` on the storage `redis-rr`. The RPC address is from the `rpc` section of the config.
+This Go client calls `redis.IncrBy` on the storage `redis-rr`. The RPC address comes from the `rpc` section of the configuration.
 
 ```go
 package main
@@ -248,4 +248,4 @@ func main() {
 }
 ```
 
-The PHP DTO classes are in the namespace `RoadRunner\Redis\DTO\V1` and require `roadrunner/api-dto` `^2.2` (`composer require 'roadrunner/api-dto:^2.2'`). Call them through `Spiral\Goridge\RPC\RPC` with the `ProtobufCodec`, in the same way as the KV DTOs.
+Install the PHP DTO classes with `composer require 'roadrunner/api-dto:^2.2'`. The classes use the `RoadRunner\Redis\DTO\V1` namespace. Call them through `Spiral\Goridge\RPC\RPC` with `ProtobufCodec`, in the same way as the KV DTOs.

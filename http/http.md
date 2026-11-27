@@ -649,7 +649,7 @@ The parser can reject fragmented v1 headers. It limits the v2 address and metada
 
 ## HTTP/3
 
-In RoadRunner v3.2, configure `http.http3` to start an HTTP/3 listener without the `-e` flag. QUIC uses UDP, so the listener has its own address. You must also configure at least one other HTTP plugin listener (`http.address`, `http.ssl.address`, or `http.fcgi.address`), because RoadRunner rejects an `http` section with only `http.http3` at startup. Set `cert` and `key` to existing certificate and private key files. The listener loads these files at startup.
+In RoadRunner v3.2, configure `http.http3` to start an HTTP/3 listener without the `-e` flag. QUIC uses UDP, so the listener has its own address. Configure at least one other HTTP listener (`http.address`, `http.ssl.address`, or `http.fcgi.address`). RoadRunner rejects an `http` section that contains only `http.http3`. Set `cert` and `key` to existing certificate and private key files. The listener loads these files at startup.
 
 {% code title=".rr.yaml" %}
 
@@ -682,7 +682,7 @@ mkcert -install && mkcert localhost 127.0.0.1 ::1
 
 {% endcode %}
 
-This command installs a local CA and writes `localhost+2.pem` and `localhost+2-key.pem` for the `localhost` domain. Use them in the configuration above.
+This command installs a local CA and writes `localhost+2.pem` and `localhost+2-key.pem` for the `localhost` domain. Use these files in `.rr.yaml`.
 
 To test the server, use a client with HTTP/3 support, such as [curl](https://curl.se/docs/http3.html):
 

@@ -33,7 +33,7 @@ The top-level `redis` section supplies the [Redis connection settings](../kv/red
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `queue` | Pipeline name | Name of the Redis queue. Braces are reserved for Redis Cluster key routing. |
+| `queue` | Pipeline name | Name of the Redis queue. Redis Cluster reserves braces for key routing. |
 | `priority` | `10` | Priority for a job with priority zero. RoadRunner dispatches lower numbers first among jobs in its local priority queue. Redis reads new stream entries in insertion order. |
 | `prefetch` | `10` | Maximum number of jobs this pipeline can hold while they wait for or run in a worker. |
 | `visibility_timeout` | `5m` | Minimum idle time before a consumer can reclaim a pending job. Allow time for both the local queue and the worker. |
@@ -41,10 +41,10 @@ The top-level `redis` section supplies the [Redis connection settings](../kv/red
 Omit a pipeline from `jobs.consume` to publish before consumption starts. Call `jobs.Resume` to start reading. `jobs.Pause` stops new reads. Jobs already in the local queue can finish. During shutdown, active workers can acknowledge or requeue deliveries until the shutdown deadline. You can also declare a pipeline with `jobs.Declare`.
 
 {% hint style="warning" %}
-If a KV storage uses `kv.Clear`, give it a separate Redis database in its local `config` block. A KV storage named `redis` without a local `config` uses the top-level `redis` settings, so `kv.Clear` runs [`FLUSHDB`](https://redis.io/docs/latest/commands/flushdb/) on the Jobs database and deletes ready and delayed jobs. [Redis Cluster supports only database 0](https://redis.io/docs/latest/commands/select/). Use separate deployments if a KV storage on Cluster needs `Clear`.
+If a KV storage uses `kv.Clear`, give it a separate Redis database in its local `config` block. A KV storage named `redis` without a local `config` uses the top-level `redis` settings. In that setup, `kv.Clear` runs [`FLUSHDB`](https://redis.io/docs/latest/commands/flushdb/) on the Jobs database and deletes ready and delayed jobs. [Redis Cluster supports only database 0](https://redis.io/docs/latest/commands/select/). Use separate deployments if a KV storage on Cluster needs `Clear`.
 {% endhint %}
 
-To share one standalone Redis server between Jobs and a KV storage that calls `kv.Clear`, set a local `config` with a different `db` on the KV storage:
+Set a different `db` in the KV storage `config` to share one standalone Redis server when KV calls `kv.Clear`:
 
 {% code title=".rr.yaml fragment" %}
 
@@ -68,6 +68,6 @@ With manual acknowledgment, Redis keeps a delivery pending until PHP acknowledge
 
 If PHP finishes an operation but RoadRunner stops before the acknowledgment reaches Redis, PHP can receive the job again. Use the job ID to make operations safe to repeat. Survival of a Redis restart or failover depends on the [Redis persistence and replication settings](https://redis.io/docs/latest/develop/data-types/streams/#persistence-replication-and-message-safety). If Redis loses the consumer group, RoadRunner recreates it and reads from the start of the retained stream.
 
-A worker transport error leaves a manual delivery pending for recovery. A terminal `nack` discards it. An explicit requeue can update headers and set a delay. Redis stores delayed pushes and retries in a sorted set. A consumer moves due jobs to the stream. If Redis has too little memory for this step, the consumer continues to read ready jobs.
+A worker transport error leaves a manual delivery pending for recovery. A terminal `nack` discards the delivery. An explicit requeue can update headers and set a delay. Redis stores delayed pushes and retries in a sorted set. A consumer moves due jobs to the stream. If Redis has too little memory for this step, the consumer continues to read ready jobs.
 
-With `auto_ack` enabled, RoadRunner acknowledges the job when it prepares the payload for PHP. A job waiting in the local queue remains pending in Redis. If PHP calls `requeue()` after auto-ack, the worker sends the response to Jobs, Jobs logs the Redis driver error, and Redis receives no replacement job. PHP cannot catch that driver error. Use manual acknowledgment when the worker needs retries.
+With `auto_ack` enabled, RoadRunner acknowledges the job when it prepares the payload for PHP. A job waiting in the local queue remains pending in Redis. If PHP calls `requeue()` with `auto_ack` enabled, the worker sends the response to Jobs. Jobs logs the Redis driver error, and Redis receives no replacement job. PHP cannot catch that driver error. Use manual acknowledgment when the worker needs retries.
