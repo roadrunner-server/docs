@@ -104,7 +104,7 @@ debug mode, which starts the pprof server and listens for incoming requests on p
 
 ## Experimental features
 
-Use `--enable-experimental` or `-e` for plugins that require experimental mode. In v3.2, this option affects how Jobs handles a worker response error. [HTTP/3](../http/http.md#http3) starts without it. See [Experimental Features](../experimental/experimental.md).
+Use `--enable-experimental` or `-e` for plugins that require experimental mode. No bundled plugin uses experimental mode in v3.2. [HTTP/3](../http/http.md#http3) starts without it. See [Experimental Features](../experimental/experimental.md).
 
 {% code %}
 

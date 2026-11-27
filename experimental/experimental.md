@@ -4,7 +4,7 @@
 
 Starting with RR `v2023.3.4`, RoadRunner can run with experimental features enabled. These are features that are not yet ready for production use.
 
-In RoadRunner v3.2, the `-e` flag affects the Jobs plugin. If Jobs cannot process a worker response, it normally tries to acknowledge the job. With `-e`, Jobs skips this fallback acknowledgment.
+No bundled plugin uses the `-e` flag in RoadRunner v3.2. Custom plugins can still read the experimental flag from the configuration plugin.
 
 These features were experimental in earlier releases and are stable now:
 

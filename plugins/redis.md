@@ -172,7 +172,7 @@ When the [otel](../lab/otel.md) plugin is enabled, each RPC call creates a span 
 | `redis.SPop`         | `key`                           | `BytesReply`     | Removes and returns one member.            |
 | `redis.SPopN`        | `key`, `int64 count`            | `BytesListReply` | Removes and returns up to `count` members. |
 | `redis.SRandMember`  | `key`                           | `BytesReply`     | Returns one member.                        |
-| `redis.SRandMemberN` | `key`, `int64 count`            | `BytesListReply` | Returns `count` members.                   |
+| `redis.SRandMemberN` | `key`, `int64 count`            | `BytesListReply` | A positive `count` returns up to `count` distinct members (the reply can be shorter than `count` if the set has fewer members). A negative `count` returns `abs(count)` members and can repeat members. |
 | `redis.SDiff`        | `repeated string keys`          | `BytesListReply` |                                            |
 | `redis.SInter`       | `repeated string keys`          | `BytesListReply` |                                            |
 | `redis.SUnion`       | `repeated string keys`          | `BytesListReply` |                                            |
@@ -208,7 +208,7 @@ Rules for `redis.ZRange`:
 
 ## Metrics
 
-The RPC methods use the clients of the KV storages, so the KV Redis driver metrics apply. The metric names start with `rr_redis_pool_`. See the [KV Redis driver](../kv/redis.md) page and the [metrics](../lab/metrics.md) plugin.
+The RPC methods use the clients of the KV storages, so the KV Redis driver metrics apply. The metric names start with `rr_redis_pool_`. When you configure more than one Redis KV storage, the Prometheus collector exports metrics only for the last Redis KV pool that the plugin creates; it does not aggregate pools or label them by storage name. See the [KV Redis driver](../kv/redis.md) page and the [metrics](../lab/metrics.md) plugin.
 
 ## Example
 
@@ -248,4 +248,4 @@ func main() {
 }
 ```
 
-The PHP DTO classes are in the namespace `RoadRunner\Redis\DTO\V1`. Call them through `Spiral\Goridge\RPC\RPC` with the `ProtobufCodec`, in the same way as the KV DTOs.
+The PHP DTO classes are in the namespace `RoadRunner\Redis\DTO\V1` and require `roadrunner/api-dto` `^2.2` (`composer require 'roadrunner/api-dto:^2.2'`). Call them through `Spiral\Goridge\RPC\RPC` with the `ProtobufCodec`, in the same way as the KV DTOs.
